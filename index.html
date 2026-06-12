@@ -561,19 +561,30 @@ async function loadRecipes() {
   const grid = document.getElementById('recipe-grid');
   grid.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Loading recipes…</p></div>';
   try {
-    // Single collection, all recipes tagged with cookbooks array
+    const isAdmin = currentUser && currentUser.role === 'admin';
+
+    // Load GFG recipes from main collection
     const snap = await getDocs(query(collection(db, 'recipes'), orderBy('name')));
-    allRecipes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const gfgRecipes = snap.docs.map(d => ({ id: d.id, cookbookId: 'gfg', ...d.data() }));
 
-    // Build cookbook list from unique tags
-    const cbSet = new Set(['gfg']);
-    allRecipes.forEach(r => (r.cookbooks || ['gfg']).forEach(c => cbSet.add(c)));
-    allCookbooks = [...cbSet].map(id => ({
-      id,
-      title: id === 'gfg' ? 'GFG Cookbook' : id.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-      isGFG: id === 'gfg'
-    }));
+    // Load other cookbooks from subcollections (admin only)
+    let otherRecipes = [];
+    allCookbooks = [];
+    if (isAdmin) {
+      const cbSnap = await getDocs(collection(db, 'cookbooks'));
+      allCookbooks = cbSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+      for (const cb of allCookbooks) {
+        const cbRecipeSnap = await getDocs(query(
+          collection(db, 'cookbooks', cb.id, 'recipes'), orderBy('name')
+        ));
+        const cbRecipes = cbRecipeSnap.docs.map(d => ({
+          id: d.id, cookbookId: cb.id, cookbookTitle: cb.title, ...d.data()
+        }));
+        otherRecipes = otherRecipes.concat(cbRecipes);
+      }
+    }
 
+    allRecipes = [...gfgRecipes, ...otherRecipes];
     renderCookbookTabs();
     renderSidebar();
     applyFilters();
