@@ -1167,10 +1167,6 @@ function calculateNutrition(ingredients, servings) {
 
 // ── Render Nutrition Panel ─────────────────────────────────────────
 function renderNutritionPanel(recipe) {
-  // Remove existing panel
-  const existing = document.getElementById('nutrition-panel');
-  if (existing) existing.remove();
-
   const ingredients = (recipe.ingredients || []).filter(i => i.type === 'ingredient');
   if (!ingredients.length) return;
 
@@ -1178,40 +1174,66 @@ function renderNutritionPanel(recipe) {
   panel.id = 'nutrition-panel';
   panel.style.cssText = 'grid-column:1/-1; border-top:1px solid var(--divider);';
 
-  const toggle = document.createElement('button');
-  toggle.style.cssText = 'width:100%; padding:12px 24px; background:none; border:none; text-align:left; cursor:pointer; font-family:var(--ff-body); font-size:13px; font-weight:600; color:var(--warm-mid); letter-spacing:.06em; text-transform:uppercase; display:flex; align-items:center; justify-content:space-between; transition:color .15s;';
-  toggle.innerHTML = `<span>Nutrition Facts</span><span id="nutr-arrow" style="font-size:16px;transition:transform .2s">▸</span>`;
-  toggle.addEventListener('mouseover', () => toggle.style.color = 'var(--olive)');
-  toggle.addEventListener('mouseout',  () => toggle.style.color = 'var(--warm-mid)');
+  const header = document.createElement('div');
+  header.style.cssText = 'display:flex; align-items:center; padding:10px 24px; gap:12px;';
+
+  const toggleBtn = document.createElement('button');
+  toggleBtn.style.cssText = 'background:none; border:none; cursor:pointer; font-family:var(--ff-body); font-size:13px; font-weight:600; color:var(--warm-mid); letter-spacing:.06em; text-transform:uppercase; display:flex; align-items:center; gap:8px; padding:2px 0; transition:color .15s; flex:1;';
+  toggleBtn.innerHTML = `<span id="nutr-arrow" style="font-size:14px;transition:transform .2s;display:inline-block">▸</span> Nutrition Facts`;
+
+  const servingsWrap = document.createElement('div');
+  servingsWrap.style.cssText = 'display:flex; align-items:center; gap:6px; font-size:13px; color:var(--warm-mid);';
+  const servingsInput = document.createElement('input');
+  servingsInput.type = 'number';
+  servingsInput.min = '1';
+  servingsInput.value = recipe.servings || '1';
+  servingsInput.placeholder = '# servings';
+  servingsInput.style.cssText = 'width:56px; padding:4px 6px; border:1.5px solid var(--divider); border-radius:3px; font-family:var(--ff-body); font-size:13px; color:var(--ink); text-align:center; outline:none;';
+  servingsInput.title = 'Override serving count for calculation';
+  servingsWrap.innerHTML = '<span>Servings:</span>';
+  servingsWrap.appendChild(servingsInput);
+
+  header.appendChild(toggleBtn);
+  header.appendChild(servingsWrap);
 
   const content = document.createElement('div');
-  content.id = 'nutrition-content';
   content.style.cssText = 'display:none; padding:0 24px 20px;';
 
-  let open = false;
-  toggle.addEventListener('click', () => {
-    open = !open;
-    content.style.display = open ? 'block' : 'none';
-    document.getElementById('nutr-arrow').style.transform = open ? 'rotate(90deg)' : '';
-    if (open && !content.dataset.loaded) {
-      loadNutritionContent(recipe, content);
-      content.dataset.loaded = '1';
-    }
+  let isOpen = false;
+
+  function refresh() {
+    const srv = Math.max(1, parseInt(servingsInput.value) || 1);
+    loadNutritionContent(recipe, content, srv);
+  }
+
+  toggleBtn.addEventListener('mouseover', () => toggleBtn.style.color = 'var(--olive)');
+  toggleBtn.addEventListener('mouseout',  () => toggleBtn.style.color = 'var(--warm-mid)');
+
+  toggleBtn.addEventListener('click', () => {
+    isOpen = !isOpen;
+    content.style.display = isOpen ? 'block' : 'none';
+    document.getElementById('nutr-arrow').style.transform = isOpen ? 'rotate(90deg)' : 'rotate(0deg)';
+    if (isOpen) refresh();
   });
 
-  panel.appendChild(toggle);
+  servingsInput.addEventListener('change', () => {
+    if (isOpen) refresh();
+  });
+
+  servingsInput.addEventListener('click', e => e.stopPropagation());
+
+  panel.appendChild(header);
   panel.appendChild(content);
 
-  // Insert before notes section
   const notesSection = document.querySelector('.notes-section');
   notesSection?.before(panel);
 }
 
-function loadNutritionContent(recipe, container) {
-  const result = calculateNutrition(recipe.ingredients || [], recipe.servings);
+function loadNutritionContent(recipe, container, servingsOverride) {
+  const result = calculateNutrition(recipe.ingredients || [], servingsOverride);
   const [cal, fat, carbs, protein, sodium, fiber, sugar] = result.perServing;
 
-  const coverage = result.matched + result.unmatched.length > 0
+  const coverage = (result.matched + result.unmatched.length) > 0
     ? Math.round(result.matched / (result.matched + result.unmatched.length) * 100)
     : 0;
 
@@ -1254,7 +1276,7 @@ function loadNutritionContent(recipe, container) {
 
 function nutriRow(label, val, unit, pct, indent = false) {
   return `<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--divider); padding:2px 0; font-size:12px; ${indent ? 'padding-left:16px;' : ''}">
-    <span><strong>${indent ? '' : '<strong>'}</strong>${label}${indent ? '' : '</strong>'} ${val}${unit}</span>
+    <span>${indent ? '' : '<strong>'}${label}${indent ? '' : '</strong>'} ${val}${unit}</span>
     <span>${pct !== null && pct !== undefined ? `<strong>${pct}%</strong>` : ''}</span>
   </div>`;
 }
