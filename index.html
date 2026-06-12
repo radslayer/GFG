@@ -1162,9 +1162,9 @@ function printRecipe() {
   if (!ingHtml) ingHtml = '<div class="ing-name" style="grid-column:1/-1"><em>No ingredients on file.</em></div>';
 
   const cats = (recipe.categories || ['Uncategorized']).join(', ');
-  const meta = [cats, recipe.servings ? 'Serves ' + recipe.servings : '', recipe.author ? 'By ' + recipe.author : ''].filter(Boolean).join(' · ');
+  const meta = [cats, recipe.servings ? 'Serves ' + recipe.servings : '', recipe.author ? 'By ' + recipe.author : ''].filter(Boolean).join(' — ');
 
-  const html = '<!DOCTYPE html><html><head><title>' + recipe.name + '</title>'
+  const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + recipe.name + '</title>'
     + '<link rel="preconnect" href="https://fonts.googleapis.com">'
     + '<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">'
     + '<style>'
