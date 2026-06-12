@@ -50,8 +50,8 @@
     .btn-topbar:hover { border-color:var(--cream); color:var(--cream); }
 
     /* ── Layout ── */
-    .main-layout { display:grid; grid-template-columns:260px 1fr; min-height:calc(100vh - 56px); }
-    .sidebar { background:var(--parchment); border-right:1px solid var(--divider); padding:20px 0; position:sticky; top:56px; height:calc(100vh - 56px); overflow-y:auto; }
+    .main-layout { display:grid; grid-template-columns:260px 1fr; min-height:calc(100vh - 96px); }
+    .sidebar { background:var(--parchment); border-right:1px solid var(--divider); padding:20px 0; position:sticky; top:96px; height:calc(100vh - 96px); overflow-y:auto; }
     .search-wrap { padding:0 16px 16px; }
     .search-input { width:100%; padding:9px 12px 9px 34px; border:1.5px solid var(--divider); border-radius:3px; font-family:var(--ff-body); font-size:14px; background:var(--white); color:var(--ink); outline:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B5B45' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:10px center; transition:border-color .2s; }
     .search-input:focus { border-color:var(--olive); }
@@ -152,7 +152,14 @@
     .btn-save { padding:10px 24px; background:var(--olive); color:var(--white); border:none; border-radius:3px; font-family:var(--ff-body); font-size:14px; font-weight:600; cursor:pointer; transition:background .2s; }
     .btn-save:hover { background:var(--ink); }
 
-    /* ── Admin Panel ── */
+    /* ── Cookbook Tabs ── */
+    .cookbook-tabs { background:var(--ink); border-top:1px solid rgba(255,255,255,.08); display:flex; gap:0; overflow-x:auto; padding:0 24px; }
+    .cookbook-tab { padding:10px 18px; font-size:13px; font-weight:500; color:rgba(247,243,238,.5); cursor:pointer; border-bottom:3px solid transparent; white-space:nowrap; transition:all .15s; background:none; border-top:none; border-left:none; border-right:none; font-family:var(--ff-body); border-radius:0; }
+    .cookbook-tab:hover { color:rgba(247,243,238,.85); }
+    .cookbook-tab.active { color:var(--cream); border-bottom-color:var(--rust); }
+    .cookbook-tab.admin-only { color:rgba(184,92,56,.6); }
+    .cookbook-tab.admin-only:hover { color:var(--rust); }
+    .cookbook-tab.admin-only.active { color:var(--rust); border-bottom-color:var(--rust); }
     .admin-panel { background:var(--white); border-radius:4px; width:100%; max-width:860px; margin:auto; position:relative; }
     .admin-tabs { display:flex; border-bottom:1px solid var(--divider); padding:0 32px; }
     .admin-tab { padding:14px 20px; font-size:14px; font-weight:500; cursor:pointer; border-bottom:3px solid transparent; color:var(--warm-mid); transition:all .15s; background:none; border-top:none; border-left:none; border-right:none; font-family:var(--ff-body); }
@@ -180,7 +187,9 @@
     .archived-item { display:flex; align-items:center; justify-content:space-between; padding:12px; border-bottom:1px solid var(--divider); }
     .archived-item-name { font-size:14px; font-weight:500; }
     .archived-item-meta { font-size:12px; color:var(--warm-mid); margin-top:2px; }
-    .pending-note-item { background:var(--cream); border:1px solid var(--divider); border-radius:3px; padding:16px; margin-bottom:12px; }
+    .btn-graduate { background:var(--rust); color:white; border:none; border-radius:3px; padding:7px 14px; font-family:var(--ff-body); font-size:13px; font-weight:600; cursor:pointer; transition:background .2s; }
+    .btn-graduate:hover { background:#9a4a2d; }
+    .source-tag { font-size:11px; padding:2px 8px; border-radius:2px; background:rgba(107,91,69,.1); color:var(--warm-mid); font-weight:500; } background:var(--cream); border:1px solid var(--divider); border-radius:3px; padding:16px; margin-bottom:12px; }
     .pending-note-recipe { font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--rust); margin-bottom:4px; }
     .pending-note-meta { font-size:12px; color:var(--warm-mid); margin-bottom:8px; }
     .pending-note-text { font-size:14px; line-height:1.6; color:var(--ink); margin-bottom:12px; padding:10px 12px; background:white; border-radius:3px; border:1px solid var(--divider); }
@@ -259,6 +268,7 @@
       <button class="btn-topbar" id="btn-signout">Sign Out</button>
     </div>
   </header>
+  <div class="cookbook-tabs" id="cookbook-tabs"></div>
   <div class="main-layout">
     <nav class="sidebar" id="sidebar">
       <div class="search-wrap">
@@ -490,6 +500,8 @@ let editingId       = null;
 let currentRecipe   = null;
 let currentUser     = null;  // Firestore user profile
 let showArchived    = false;
+let activeCookbook  = 'gfg';
+let allCookbooks    = [];
 
 // ── Auth ───────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async user => {
@@ -540,8 +552,37 @@ async function loadRecipes() {
   const grid = document.getElementById('recipe-grid');
   grid.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Loading recipes…</p></div>';
   try {
+    const isAdmin = currentUser?.role === 'admin';
+
+    // Load cookbooks
+    const cbSnap = await getDocs(collection(db, 'cookbooks'));
+    allCookbooks = cbSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Always ensure GFG cookbook exists in list
+    if (!allCookbooks.find(c => c.isGFG)) {
+      allCookbooks.unshift({ id: 'gfg', title: 'GFG Cookbook', isGFG: true, adminOnly: false });
+    }
+
+    // Load main GFG recipes
     const snap = await getDocs(query(collection(db, 'recipes'), orderBy('name')));
-    allRecipes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const gfgRecipes = snap.docs.map(d => ({ id: d.id, cookbookId: 'gfg', ...d.data() }));
+
+    // Load other cookbook recipes (admin only)
+    let otherRecipes = [];
+    if (isAdmin) {
+      for (const cb of allCookbooks.filter(c => !c.isGFG)) {
+        const cbRecipeSnap = await getDocs(query(
+          collection(db, 'cookbooks', cb.id, 'recipes'), orderBy('name')
+        ));
+        const cbRecipes = cbRecipeSnap.docs.map(d => ({
+          id: d.id, cookbookId: cb.id, cookbookTitle: cb.title, ...d.data()
+        }));
+        otherRecipes = otherRecipes.concat(cbRecipes);
+      }
+    }
+
+    allRecipes = [...gfgRecipes, ...otherRecipes];
+    renderCookbookTabs();
     renderSidebar();
     applyFilters();
   } catch (e) {
@@ -549,19 +590,60 @@ async function loadRecipes() {
   }
 }
 
-// ── Sidebar ────────────────────────────────────────────────────────
+// ── Cookbook Tabs ──────────────────────────────────────────────────
+function renderCookbookTabs() {
+  const isAdmin = currentUser?.role === 'admin';
+  const tabsEl = document.getElementById('cookbook-tabs');
+  tabsEl.innerHTML = '';
+
+  // GFG tab always first
+  const gfgTab = document.createElement('button');
+  gfgTab.className = 'cookbook-tab' + (activeCookbook === 'gfg' ? ' active' : '');
+  gfgTab.textContent = 'GFG Cookbook';
+  gfgTab.addEventListener('click', () => switchCookbook('gfg'));
+  tabsEl.appendChild(gfgTab);
+
+  // Other cookbooks — admin only
+  if (isAdmin) {
+    allCookbooks.filter(c => !c.isGFG).forEach(cb => {
+      const tab = document.createElement('button');
+      tab.className = 'cookbook-tab admin-only' + (activeCookbook === cb.id ? ' active' : '');
+      tab.textContent = cb.title;
+      tab.addEventListener('click', () => switchCookbook(cb.id));
+      tabsEl.appendChild(tab);
+    });
+  }
+}
+
+function switchCookbook(cookbookId) {
+  activeCookbook = cookbookId;
+  activeCategory = 'All';
+  searchQuery = '';
+  document.getElementById('search-input').value = '';
+  // Show/hide New Recipe button — only on GFG
+  const isAdmin = currentUser?.role === 'admin';
+  document.getElementById('btn-add-recipe').style.display =
+    isAdmin && cookbookId === 'gfg' ? 'inline-block' : 'none';
+  renderCookbookTabs();
+  renderSidebar();
+  applyFilters();
+}
+
+
 function renderSidebar() {
   const isAdmin = currentUser?.role === 'admin';
-  const visible = allRecipes.filter(r => !r.archived);
+  const cookbookRecipes = allRecipes.filter(r => r.cookbookId === activeCookbook);
+  const visible = cookbookRecipes.filter(r => !r.archived);
   const catCounts = {};
   visible.forEach(r => {
     (r.categories || ['Uncategorized']).forEach(c => {
       catCounts[c] = (catCounts[c] || 0) + 1;
     });
   });
-  const archivedCount = allRecipes.filter(r => r.archived).length;
-  const needsIngCount = allRecipes.filter(r => !r.archived && !(r.ingredients || []).some(i => i.type === 'ingredient')).length;
-  const cats = ['All', 'Needs Ingredients', ...Object.keys(catCounts).sort(), ...(isAdmin && archivedCount ? ['Archived'] : [])];
+  const archivedCount = cookbookRecipes.filter(r => r.archived).length;
+  const needsIngCount = cookbookRecipes.filter(r => !r.archived && !(r.ingredients || []).some(i => i.type === 'ingredient')).length;
+  const isGFG = activeCookbook === 'gfg';
+  const cats = ['All', 'Needs Ingredients', ...Object.keys(catCounts).sort(), ...(isAdmin && archivedCount && isGFG ? ['Archived'] : [])];
   const list = document.getElementById('category-list');
   list.innerHTML = '';
   const label = document.createElement('div');
@@ -588,6 +670,8 @@ function renderSidebar() {
 function applyFilters() {
   const q = searchQuery.toLowerCase();
   filteredRecipes = allRecipes.filter(r => {
+    // Scope to active cookbook
+    if (r.cookbookId !== activeCookbook) return false;
     const hasIng = (r.ingredients || []).some(i => i.type === 'ingredient');
     if (activeCategory === 'Archived') {
       if (!r.archived) return false;
@@ -684,10 +768,28 @@ async function openDetail(recipe) {
   const printBtn = btn('🖨 Print', () => printRecipe());
   actionsEl.appendChild(printBtn);
   if (isAdmin) {
-    actionsEl.appendChild(btn('✏ Edit', () => { closeDetail(); openForm(recipe); }));
-    const archBtn = btn('Archive', () => archiveRecipe(recipe));
-    archBtn.classList.add('archive-btn');
-    actionsEl.appendChild(archBtn);
+    // Graduate button — only on non-GFG cookbooks
+    if (recipe.cookbookId && recipe.cookbookId !== 'gfg') {
+      const gradBtn = document.createElement('button');
+      gradBtn.className = 'btn-graduate';
+      gradBtn.textContent = '→ Graduate to GFG';
+      gradBtn.addEventListener('click', () => graduateRecipe(recipe));
+      actionsEl.appendChild(gradBtn);
+    } else {
+      actionsEl.appendChild(btn('✏ Edit', () => { closeDetail(); openForm(recipe); }));
+      const archBtn = btn('Archive', () => archiveRecipe(recipe));
+      archBtn.classList.add('archive-btn');
+      actionsEl.appendChild(archBtn);
+    }
+  }
+
+  // Source tag in subtitle
+  const metaEl = document.getElementById('detail-meta');
+  if (recipe.dataSource || recipe.source) {
+    const src = document.createElement('span');
+    src.className = 'source-tag';
+    src.textContent = `Source: ${recipe.dataSource || recipe.source}`;
+    metaEl.appendChild(src);
   }
 
   // Load notes
@@ -875,6 +977,23 @@ async function archiveRecipe(recipe) {
   await updateDoc(doc(db, 'recipes', recipe.id), { archived: true, archivedAt: new Date().toISOString() });
   closeDetail();
   await loadRecipes();
+}
+
+// ── Graduate Recipe to GFG ─────────────────────────────────────────
+async function graduateRecipe(recipe) {
+  if (!confirm(`Copy "${recipe.name}" to the GFG Cookbook?`)) return;
+  const { id, cookbookId, cookbookTitle, ...data } = recipe;
+  const newId = 'recipe_' + Date.now();
+  await setDoc(doc(db, 'recipes', newId), {
+    ...data,
+    dataSource: `Graduated from ${recipe.cookbookTitle || cookbookId}`,
+    graduatedFrom: cookbookId,
+    createdAt: new Date().toISOString()
+  });
+  closeDetail();
+  await loadRecipes();
+  switchCookbook('gfg');
+  alert(`"${recipe.name}" has been added to the GFG Cookbook.`);
 }
 
 // ── Recipe Form ────────────────────────────────────────────────────
