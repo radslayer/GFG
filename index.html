@@ -1183,7 +1183,20 @@ function printRecipe() {
     + (recipe.note ? '<div class="note">' + recipe.note + '</div>' : '')
     + '</div></div></body></html>';
 
-  const blob = new Blob([html], { type: 'text/html' });
+  // Include nutrition if panel is expanded
+  let nutrHtml = '';
+  const nutrContent = document.getElementById('nutrition-panel');
+  if (nutrContent) {
+    const contentDiv = nutrContent.querySelector('div[style*="display: block"], div[style*="display:block"]');
+    if (contentDiv) {
+      nutrHtml = '<div style="margin-top:24px;border-top:1px solid #D4C9BB;padding-top:16px;">'
+        + '<div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#6B5B45;margin-bottom:12px;">Nutrition Facts</div>'
+        + contentDiv.innerHTML
+        + '</div>';
+    }
+  }
+
+  const blob = new Blob([html.replace('</body>', nutrHtml + '</body>')], { type: 'text/html' });
   const url = URL.createObjectURL(blob);
   window.open(url, '_blank');
   setTimeout(() => URL.revokeObjectURL(url), 10000);
