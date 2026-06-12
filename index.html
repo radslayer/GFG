@@ -1545,18 +1545,27 @@ document.getElementById('mp-add-item-btn').addEventListener('click', async () =>
   const desc  = document.getElementById('mp-item-desc').value.trim();
   const notes = document.getElementById('mp-item-notes').value.trim();
   if (!name) { alert('Menu item name is required.'); return; }
-  const newItem = { name, category: cat, price, description: desc, notes, recipes: mpLinkedRecipes.slice() };
-  const items = [...(currentPlan.items || []), newItem];
-  await updateDoc(doc(db, 'menuPlans', currentPlan.id), { items });
-  currentPlan.items = items;
-  // Reset form
-  document.getElementById('mp-item-name').value = '';
-  document.getElementById('mp-item-price').value = '';
-  document.getElementById('mp-item-desc').value = '';
-  document.getElementById('mp-item-notes').value = '';
-  mpLinkedRecipes = [];
-  renderLinkedRecipes();
-  renderPlanItems();
+  const btn = document.getElementById('mp-add-item-btn');
+  btn.textContent = 'Saving...'; btn.disabled = true;
+  console.log('Adding item to plan:', currentPlan?.id, 'name:', name);
+  try {
+    const newItem = { name, category: cat, price, description: desc, notes, recipes: mpLinkedRecipes.slice() };
+    const items = [...(currentPlan.items || []), newItem];
+    await updateDoc(doc(db, 'menuPlans', currentPlan.id), { items });
+    currentPlan.items = items;
+    document.getElementById('mp-item-name').value = '';
+    document.getElementById('mp-item-price').value = '';
+    document.getElementById('mp-item-desc').value = '';
+    document.getElementById('mp-item-notes').value = '';
+    mpLinkedRecipes = [];
+    renderLinkedRecipes();
+    renderPlanItems();
+  } catch(e) {
+    alert('Error saving item: ' + e.message);
+    console.error('mp-add-item error:', e);
+  } finally {
+    btn.textContent = 'Add to Menu'; btn.disabled = false;
+  }
 });
 
 function renderPlanItems() {
