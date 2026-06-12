@@ -84,6 +84,8 @@
 
     /* ── Modal Base ── */
     .modal-backdrop { display:none; position:fixed; inset:0; background:rgba(28,28,26,.6); z-index:200; overflow-y:auto; padding:24px 16px; }
+    #form-modal { z-index:300; }
+    #admin-modal { z-index:300; }
     .modal-backdrop.open { display:flex; align-items:flex-start; justify-content:center; }
 
     /* ── Detail Modal ── */
@@ -841,7 +843,7 @@ async function openDetail(recipe) {
       gradBtn.addEventListener('click', () => graduateRecipe(recipe));
       actionsEl.appendChild(gradBtn);
     } else {
-      actionsEl.appendChild(btn('✏ Edit', (e) => { e.stopPropagation(); closeDetail(); setTimeout(() => openForm(recipe), 50); }));
+      actionsEl.appendChild(btn('✏ Edit', (e) => { e.stopPropagation(); openForm(recipe); }));
       const archBtn = btn('Archive', () => archiveRecipe(recipe));
       archBtn.classList.add('archive-btn');
       actionsEl.appendChild(archBtn);
@@ -1581,6 +1583,7 @@ document.getElementById('btn-add-ing').addEventListener('click', () => addIngRow
 
 function closeForm() {
   document.getElementById('form-modal').classList.remove('open');
+  closeDetail();
   editingId = null;
 }
 
