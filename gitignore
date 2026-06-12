@@ -1,0 +1,19 @@
+# Security - never commit this
+serviceAccountKey.json
+
+# Node
+node_modules/
+package-lock.json
+package.json
+
+# Mac
+.DS_Store
+
+# Utility scripts - not needed in repo
+check-cookbooks.js
+check-user.js
+rename-cookbook.js
+update-recipes.js
+migrate-cookbooks.js
+gfg_recipes_merged.json
+gfg_recipes.json
