@@ -186,11 +186,20 @@
 
     /* ── Print ── */
     @media print {
-      .top-bar,.sidebar,.modal-actions,.close-btn,.notes-section,.admin-panel { display:none !important; }
-      .modal-backdrop { display:block !important; position:static; padding:0; background:none; }
-      .modal { box-shadow:none; max-width:none; }
-      .modal-body { grid-template-columns:220px 1fr; }
-      body { background:white; }
+      body * { visibility: hidden; }
+      #print-area, #print-area * { visibility: visible; }
+      #print-area {
+        position: fixed;
+        inset: 0;
+        background: white;
+        padding: 32px;
+        z-index: 9999;
+      }
+      #print-area .modal-actions,
+      #print-area .close-btn,
+      #print-area .notes-section { display: none !important; }
+      #print-area .modal-body { display: grid; grid-template-columns: 220px 1fr; }
+      #print-area .modal { box-shadow: none; }
     }
 
     /* ── Mobile ── */
@@ -644,7 +653,7 @@ async function openDetail(recipe) {
   // Action buttons
   const actionsEl = document.getElementById('detail-actions');
   actionsEl.innerHTML = '';
-  const printBtn = btn('🖨 Print', () => window.print());
+  const printBtn = btn('🖨 Print', () => printRecipe());
   actionsEl.appendChild(printBtn);
   if (isAdmin) {
     actionsEl.appendChild(btn('✏ Edit', () => { closeDetail(); openForm(recipe); }));
@@ -984,6 +993,17 @@ document.getElementById('btn-backup').addEventListener('click', async () => {
     btn.disabled = false;
   }
 });
+
+// ── Print ──────────────────────────────────────────────────────────
+function printRecipe() {
+  const inner = document.getElementById('detail-modal-inner');
+  const printArea = document.createElement('div');
+  printArea.id = 'print-area';
+  printArea.innerHTML = inner.innerHTML;
+  document.body.appendChild(printArea);
+  window.print();
+  document.body.removeChild(printArea);
+}
 
 // ── Utility ────────────────────────────────────────────────────────
 function esc(str) {
