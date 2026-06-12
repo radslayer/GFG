@@ -1,1475 +1,995 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.gstatic.com https://*.firebaseapp.com https://*.googleapis.com https://maps.googleapis.com https://maps.gstatic.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.cloudfunctions.net wss://*.firebaseio.com; img-src 'self' data: blob: https://firebasestorage.googleapis.com https://maps.googleapis.com https://maps.gstatic.com https://*.ggpht.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://maps.googleapis.com; font-src 'self' https://fonts.gstatic.com;">
-<title>MOTIF — Times &amp; Receipts</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDiIA5AF5jVmEidKMRm1o1mpSWUn80kAdw&libraries=places"></script>
-<style>
-:root{--ink:#1a1714;--gold:#b89a6a;--cream:#f7f3ee;--surface:#fff;--border:#e8e0d6;--muted:#8a7f74;--green:#4a7c59;--red:#8b3a3a;--amber:#b87a2a}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
-h2{font-family:'DM Serif Display',serif;font-weight:400;font-size:22px;margin-bottom:16px}
-.hidden{display:none!important}
-.topbar{background:var(--ink);color:#fff;padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.topbar-brand{font-family:'DM Serif Display',serif;font-size:18px;color:var(--gold);letter-spacing:3px}
-.topbar-right{display:flex;align-items:center;gap:10px}
-.role-badge{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;background:var(--gold);color:#fff;padding:2px 8px;border-radius:4px}
-.username{font-size:13px;color:#aaa}
-.nav{background:var(--surface);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;padding:0 20px}
-.nav-tab{padding:12px 18px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
-.nav-tab.active{color:var(--ink);border-bottom-color:var(--gold)}
-.main{padding:24px 20px;max-width:960px;margin:0 auto}
-.field{margin-bottom:16px}
-.field label{display:block;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
-.field input,.field select,.field textarea{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--ink);background:var(--cream);outline:none;-webkit-appearance:none;appearance:none;pointer-events:auto;touch-action:manipulation;-webkit-user-select:text;user-select:text}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold);background:#fff}
-.field textarea{resize:vertical}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-@media(max-width:600px){.row2,.row3{grid-template-columns:1fr}}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 20px;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .15s}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-.btn-gold{background:var(--gold);color:#fff;width:100%;padding:13px;font-size:15px}
-.btn-green{background:var(--green);color:#fff}
-.btn-red{background:var(--red);color:#fff}
-.btn-outline{background:transparent;color:var(--ink);border:1.5px solid var(--border)}
-.btn-sm{padding:6px 12px;font-size:12px;border-radius:6px}
-.btn-logout{background:transparent;color:#888;border:1px solid #444;font-size:12px;padding:5px 10px;border-radius:5px;cursor:pointer;font-family:'DM Sans',sans-serif}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
-.divider{height:1px;background:var(--border);margin:16px 0}
-.err{color:var(--red);font-size:13px;margin-top:8px}
-.empty{text-align:center;padding:40px;color:var(--muted);font-size:14px}
-.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1714,#2c2520);padding:20px}
-.auth-card{background:var(--surface);border-radius:16px;padding:40px;width:100%;max-width:360px}.auth-card input{font-size:16px!important;-webkit-user-select:text!important;user-select:text!important;pointer-events:auto!important}
-.auth-logo{font-family:'DM Serif Display',serif;font-size:26px;color:var(--gold);letter-spacing:4px}
-.auth-sub{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:32px;margin-top:4px}
-.status-bar{display:flex;align-items:center;gap:10px;padding:16px;border-radius:10px;margin-bottom:16px;border:1.5px solid var(--border);background:var(--cream)}
-.status-bar.active{background:#f0f7f2;border-color:var(--green)}
-.dot{width:9px;height:9px;border-radius:50%;background:var(--muted);flex-shrink:0}
-.dot.pulse{background:var(--green);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.geo-tag{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;padding:2px 8px;border-radius:20px}
-.geo-tag.onsite{background:#d4edd9;color:var(--green)}
-.geo-tag.offsite{background:#f5dada;color:var(--red)}
-.geo-tag.unknown{background:#e8e0d6;color:var(--muted)}
-.tbl{width:100%;border-collapse:collapse;font-size:13px}
-.tbl th{text-align:left;padding:8px 10px;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)}
-.tbl td{padding:10px;border-bottom:1px solid var(--border);vertical-align:top}
-.tbl tr:last-child td{border-bottom:none}
-.tag{display:inline-block;background:var(--cream);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:11px;color:var(--muted);margin-right:3px;margin-bottom:2px}
-.badge{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;padding:2px 8px;border-radius:20px}
-.badge.submitted{background:#fef3d4;color:var(--amber)}
-.badge.approved{background:#d4edd9;color:var(--green)}
-.badge.rejected{background:#f5dada;color:var(--red)}
-.badge.active-session{background:#d4edd9;color:var(--green)}
-.badge.bill{background:#e8e0f5;color:#5a3a8a}
-.receipt-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);align-items:flex-start}
-.receipt-item:last-child{border-bottom:none}
-.receipt-thumb{width:56px;height:56px;border-radius:6px;object-fit:cover;background:var(--cream);border:1px solid var(--border);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px}
-.receipt-amt{font-family:'DM Serif Display',serif;font-size:20px}
-.receipt-meta{font-size:12px;color:var(--muted);margin-top:3px}
-.upload-zone{border:2px dashed var(--border);border-radius:10px;padding:28px;text-align:center;cursor:pointer;color:var(--muted);font-size:14px;transition:all .2s}
-.upload-zone:hover{border-color:var(--gold);background:#faf6f0}
-.upload-preview{max-width:100%;max-height:180px;border-radius:8px;margin-top:12px;object-fit:contain}
-.modal-bg{position:fixed;inset:0;background:rgba(26,23,20,.65);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
-.modal{background:var(--surface);border-radius:14px;padding:28px;width:100%;max-width:520px;max-height:92vh;overflow-y:auto}
-.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
-.list-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);gap:10px}
-.list-row:last-child{border-bottom:none}
-.avatar{width:34px;height:34px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;flex-shrink:0}
-.chip-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.chip{background:var(--gold);color:#fff;border:none;border-radius:20px;padding:4px 10px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif}
-.chip-code{background:var(--ink);color:#fff;border:none;border-radius:20px;padding:3px 10px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:5px}
-.seg{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content;margin-bottom:20px}
-.seg-btn{padding:9px 18px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;background:transparent;border:none;font-family:'DM Sans',sans-serif}
-.seg-btn.on{background:var(--gold);color:#fff}
-.filter-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px;padding:16px;background:var(--cream);border-radius:10px;border:1px solid var(--border)}
-.filter-row .field{margin-bottom:0;min-width:140px;flex:1}
-select.role-sel{font-size:12px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;background:var(--cream)}
-.notice{background:#fef9ed;border:1px solid #f0d070;border-radius:8px;padding:12px 14px;font-size:13px;color:#7a5a10;margin-bottom:16px}
-.bill-num{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.5px}
-.entry-date{font-size:11px;color:var(--green);font-weight:600}
-.entry-pending{font-size:11px;color:var(--amber);cursor:pointer;text-decoration:underline}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GFG Cookbook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cream:    #F7F3EE;
+      --parchment:#EDE6DB;
+      --ink:      #1C1C1A;
+      --olive:    #4A5240;
+      --sage:     #8A9B7A;
+      --rust:     #B85C38;
+      --warm-mid: #6B5B45;
+      --divider:  #D4C9BB;
+      --white:    #FFFFFF;
+      --shadow:   rgba(28,28,26,0.08);
+      --ff-display: 'Playfair Display', Georgia, serif;
+      --ff-body:    'Inter', system-ui, sans-serif;
+      --danger:   #c0392b;
+      --archive:  #7f8c8d;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--ff-body); background: var(--cream); color: var(--ink); min-height: 100vh; }
+
+    /* ── Auth ── */
+    #auth-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--ink); padding:24px; }
+    .auth-card { background:var(--cream); border-radius:4px; padding:48px 40px; width:100%; max-width:380px; text-align:center; }
+    .auth-logo { font-family:var(--ff-display); font-size:13px; letter-spacing:.25em; text-transform:uppercase; color:var(--rust); margin-bottom:8px; }
+    .auth-title { font-family:var(--ff-display); font-size:28px; font-weight:700; color:var(--ink); margin-bottom:32px; line-height:1.2; }
+    .auth-card input { width:100%; padding:12px 16px; border:1.5px solid var(--divider); border-radius:3px; font-family:var(--ff-body); font-size:15px; background:var(--white); color:var(--ink); margin-bottom:12px; outline:none; transition:border-color .2s; }
+    .auth-card input:focus { border-color:var(--olive); }
+    .btn-primary { width:100%; padding:13px; background:var(--olive); color:var(--white); border:none; border-radius:3px; font-family:var(--ff-body); font-size:15px; font-weight:600; cursor:pointer; transition:background .2s; margin-top:4px; }
+    .btn-primary:hover { background:var(--ink); }
+    .auth-error { color:var(--rust); font-size:13px; margin-top:12px; min-height:20px; }
+
+    /* ── App Shell ── */
+    #app { display:none; }
+    .top-bar { background:var(--ink); padding:0 24px; display:flex; align-items:center; justify-content:space-between; height:56px; position:sticky; top:0; z-index:100; }
+    .top-bar-brand { font-family:var(--ff-display); color:var(--cream); font-size:18px; font-weight:700; }
+    .top-bar-brand span { color:var(--rust); }
+    .top-bar-actions { display:flex; align-items:center; gap:12px; }
+    .top-bar-user { font-size:13px; color:rgba(247,243,238,.6); }
+    .btn-new { background:var(--rust); color:var(--white); border:none; border-radius:3px; padding:7px 16px; font-family:var(--ff-body); font-size:13px; font-weight:600; cursor:pointer; transition:background .2s; }
+    .btn-new:hover { background:#9a4a2d; }
+    .btn-topbar { background:none; border:1px solid rgba(247,243,238,.3); color:rgba(247,243,238,.7); border-radius:3px; padding:6px 12px; font-size:12px; cursor:pointer; font-family:var(--ff-body); transition:all .2s; }
+    .btn-topbar:hover { border-color:var(--cream); color:var(--cream); }
+
+    /* ── Layout ── */
+    .main-layout { display:grid; grid-template-columns:260px 1fr; min-height:calc(100vh - 56px); }
+    .sidebar { background:var(--parchment); border-right:1px solid var(--divider); padding:20px 0; position:sticky; top:56px; height:calc(100vh - 56px); overflow-y:auto; }
+    .search-wrap { padding:0 16px 16px; }
+    .search-input { width:100%; padding:9px 12px 9px 34px; border:1.5px solid var(--divider); border-radius:3px; font-family:var(--ff-body); font-size:14px; background:var(--white); color:var(--ink); outline:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B5B45' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:10px center; transition:border-color .2s; }
+    .search-input:focus { border-color:var(--olive); }
+    .category-label { padding:6px 16px 4px; font-size:10px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--warm-mid); }
+    .cat-btn { display:block; width:100%; text-align:left; padding:8px 16px; background:none; border:none; font-family:var(--ff-body); font-size:14px; color:var(--warm-mid); cursor:pointer; transition:all .15s; border-left:3px solid transparent; }
+    .cat-btn:hover { background:rgba(74,82,64,.08); color:var(--ink); }
+    .cat-btn.active { background:rgba(74,82,64,.12); color:var(--olive); border-left-color:var(--olive); font-weight:500; }
+    .cat-count { float:right; font-size:11px; background:var(--divider); color:var(--warm-mid); padding:1px 6px; border-radius:10px; }
+    .content { padding:28px 32px; }
+    .content-header { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px; }
+    .content-title { font-family:var(--ff-display); font-size:26px; font-weight:700; color:var(--ink); }
+    .result-count { font-size:13px; color:var(--warm-mid); }
+
+    /* ── Recipe Grid ── */
+    .recipe-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px; }
+    .recipe-card { background:var(--white); border:1px solid var(--divider); border-radius:4px; padding:18px 18px 14px; cursor:pointer; transition:all .18s; }
+    .recipe-card:hover { border-color:var(--olive); box-shadow:0 4px 16px var(--shadow); transform:translateY(-1px); }
+    .recipe-card.archived { opacity:.5; border-style:dashed; }
+    .recipe-card-name { font-family:var(--ff-display); font-size:15px; font-weight:600; color:var(--ink); line-height:1.3; margin-bottom:8px; }
+    .recipe-card-meta { display:flex; gap:6px; flex-wrap:wrap; }
+    .tag { font-size:11px; padding:2px 8px; border-radius:2px; font-weight:500; }
+    .tag-cat { background:rgba(74,82,64,.1); color:var(--olive); }
+    .tag-servings { background:rgba(184,92,56,.1); color:var(--rust); }
+    .tag-review { background:rgba(184,92,56,.08); color:var(--rust); border:1px solid rgba(184,92,56,.2); }
+    .tag-archived { background:rgba(127,140,141,.1); color:var(--archive); border:1px solid rgba(127,140,141,.3); }
+    .loading-state,.empty-state { text-align:center; padding:64px 24px; color:var(--warm-mid); }
+    .spinner { width:32px; height:32px; border:3px solid var(--divider); border-top-color:var(--olive); border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 12px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* ── Modal Base ── */
+    .modal-backdrop { display:none; position:fixed; inset:0; background:rgba(28,28,26,.6); z-index:200; overflow-y:auto; padding:24px 16px; }
+    .modal-backdrop.open { display:flex; align-items:flex-start; justify-content:center; }
+
+    /* ── Detail Modal ── */
+    .modal { background:var(--white); border-radius:4px; width:100%; max-width:820px; position:relative; margin:auto; }
+    .modal-header { padding:28px 32px 20px; border-bottom:1px solid var(--divider); display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
+    .modal-title { font-family:var(--ff-display); font-size:24px; font-weight:700; color:var(--ink); line-height:1.2; }
+    .modal-subtitle { font-size:13px; color:var(--warm-mid); margin-top:6px; display:flex; gap:12px; flex-wrap:wrap; }
+    .modal-actions { display:flex; gap:8px; flex-shrink:0; flex-wrap:wrap; }
+    .btn-icon { background:none; border:1.5px solid var(--divider); border-radius:3px; padding:7px 12px; font-size:13px; cursor:pointer; font-family:var(--ff-body); color:var(--warm-mid); transition:all .15s; white-space:nowrap; }
+    .btn-icon:hover { border-color:var(--olive); color:var(--olive); }
+    .btn-icon.danger:hover { border-color:var(--rust); color:var(--rust); }
+    .btn-icon.archive-btn:hover { border-color:var(--archive); color:var(--archive); }
+    .modal-body { display:grid; grid-template-columns:260px 1fr; }
+    .ingredients-panel { padding:24px; border-right:1px solid var(--divider); background:var(--cream); }
+    .panel-label { font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--warm-mid); margin-bottom:14px; }
+    .ingredient-section-name { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--rust); margin:14px 0 6px; }
+    .ingredient-row { display:flex; gap:8px; padding:5px 0; border-bottom:1px solid var(--divider); font-size:14px; line-height:1.4; }
+    .ing-qty { font-weight:600; color:var(--olive); white-space:nowrap; min-width:52px; font-size:13px; }
+    .ing-prep { color:var(--warm-mid); font-style:italic; font-size:13px; }
+    .no-ingredients { font-size:13px; color:var(--warm-mid); font-style:italic; line-height:1.6; }
+    .directions-panel { padding:24px 28px 28px; }
+    .directions-text { font-size:15px; line-height:1.75; color:var(--ink); white-space:pre-wrap; }
+    .note-box { margin-top:20px; padding:14px 16px; background:rgba(74,82,64,.07); border-left:3px solid var(--sage); border-radius:0 3px 3px 0; }
+    .note-label { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--olive); margin-bottom:6px; }
+    .note-text { font-size:14px; line-height:1.6; color:var(--warm-mid); }
+    .close-btn { position:absolute; top:16px; right:16px; background:none; border:none; font-size:22px; cursor:pointer; color:var(--warm-mid); line-height:1; padding:4px; transition:color .15s; z-index:10; }
+    .close-btn:hover { color:var(--ink); }
+
+    /* ── Notes Section ── */
+    .notes-section { padding:20px 28px 28px; border-top:1px solid var(--divider); grid-column:1/-1; }
+    .notes-list { margin-bottom:16px; }
+    .note-item { padding:12px 14px; background:var(--cream); border-radius:3px; border:1px solid var(--divider); margin-bottom:8px; position:relative; }
+    .note-item-meta { font-size:12px; color:var(--warm-mid); margin-bottom:4px; }
+    .note-item-text { font-size:14px; line-height:1.6; color:var(--ink); }
+    .note-delete-btn { position:absolute; top:8px; right:8px; background:none; border:none; font-size:14px; cursor:pointer; color:var(--divider); transition:color .15s; }
+    .note-delete-btn:hover { color:var(--rust); }
+    .note-add-area { display:flex; gap:10px; align-items:flex-start; }
+    .note-input { flex:1; padding:10px 12px; border:1.5px solid var(--divider); border-radius:3px; font-family:var(--ff-body); font-size:14px; resize:vertical; min-height:70px; outline:none; transition:border-color .2s; }
+    .note-input:focus { border-color:var(--olive); }
+    .btn-add-note { padding:10px 16px; background:var(--olive); color:var(--white); border:none; border-radius:3px; font-family:var(--ff-body); font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; transition:background .2s; }
+    .btn-add-note:hover { background:var(--ink); }
+
+    /* ── Form Modal ── */
+    .form-modal { background:var(--white); border-radius:4px; width:100%; max-width:820px; margin:auto; position:relative; }
+    .form-header { padding:24px 32px 20px; border-bottom:1px solid var(--divider); display:flex; align-items:center; justify-content:space-between; }
+    .form-title { font-family:var(--ff-display); font-size:22px; font-weight:700; }
+    .form-body { padding:28px 32px; display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    .form-body .full-width { grid-column:1/-1; }
+    .form-group label { display:block; font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--warm-mid); margin-bottom:6px; }
+    .form-group input,.form-group select,.form-group textarea { width:100%; padding:10px 12px; border:1.5px solid var(--divider); border-radius:3px; font-family:var(--ff-body); font-size:14px; color:var(--ink); background:var(--cream); outline:none; transition:border-color .2s; }
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus { border-color:var(--olive); }
+    .form-group textarea { resize:vertical; min-height:120px; }
+    .ingredients-editor { grid-column:1/-1; }
+    .ing-col-labels { display:grid; grid-template-columns:80px 110px 1fr 110px 32px; gap:8px; margin-bottom:6px; }
+    .ing-col-labels span { font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--warm-mid); }
+    .ing-editor-row { display:grid; grid-template-columns:80px 110px 1fr 110px 32px; gap:8px; margin-bottom:8px; align-items:center; }
+    .ing-editor-row input { padding:8px 10px; border:1.5px solid var(--divider); border-radius:3px; font-size:13px; font-family:var(--ff-body); color:var(--ink); background:var(--cream); width:100%; outline:none; }
+    .ing-editor-row input:focus { border-color:var(--olive); }
+    .btn-remove-ing { background:none; border:1.5px solid var(--divider); border-radius:3px; color:var(--rust); cursor:pointer; font-size:16px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; transition:all .15s; }
+    .btn-remove-ing:hover { background:rgba(184,92,56,.1); border-color:var(--rust); }
+    .btn-add-ing { background:none; border:1.5px dashed var(--divider); border-radius:3px; color:var(--olive); cursor:pointer; font-size:13px; font-family:var(--ff-body); padding:8px 14px; margin-top:4px; transition:all .15s; }
+    .btn-add-ing:hover { border-color:var(--olive); background:rgba(74,82,64,.05); }
+    .form-footer { padding:16px 32px 24px; display:flex; justify-content:flex-end; gap:10px; border-top:1px solid var(--divider); }
+    .btn-cancel { padding:10px 20px; background:none; border:1.5px solid var(--divider); border-radius:3px; font-family:var(--ff-body); font-size:14px; cursor:pointer; color:var(--warm-mid); transition:all .15s; }
+    .btn-cancel:hover { border-color:var(--ink); color:var(--ink); }
+    .btn-save { padding:10px 24px; background:var(--olive); color:var(--white); border:none; border-radius:3px; font-family:var(--ff-body); font-size:14px; font-weight:600; cursor:pointer; transition:background .2s; }
+    .btn-save:hover { background:var(--ink); }
+
+    /* ── Admin Panel ── */
+    .admin-panel { background:var(--white); border-radius:4px; width:100%; max-width:860px; margin:auto; position:relative; }
+    .admin-tabs { display:flex; border-bottom:1px solid var(--divider); padding:0 32px; }
+    .admin-tab { padding:14px 20px; font-size:14px; font-weight:500; cursor:pointer; border-bottom:3px solid transparent; color:var(--warm-mid); transition:all .15s; background:none; border-top:none; border-left:none; border-right:none; font-family:var(--ff-body); }
+    .admin-tab.active { color:var(--olive); border-bottom-color:var(--olive); }
+    .admin-section { padding:28px 32px; display:none; }
+    .admin-section.active { display:block; }
+    .admin-section-title { font-family:var(--ff-display); font-size:20px; font-weight:700; margin-bottom:20px; }
+    .user-table { width:100%; border-collapse:collapse; }
+    .user-table th { text-align:left; font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--warm-mid); padding:8px 12px; border-bottom:2px solid var(--divider); }
+    .user-table td { padding:12px; border-bottom:1px solid var(--divider); font-size:14px; vertical-align:middle; }
+    .user-table tr:last-child td { border-bottom:none; }
+    .role-badge { font-size:11px; padding:3px 8px; border-radius:2px; font-weight:600; }
+    .role-admin { background:rgba(74,82,64,.12); color:var(--olive); }
+    .role-user { background:rgba(107,91,69,.1); color:var(--warm-mid); }
+    .user-actions { display:flex; gap:6px; }
+    .btn-sm { padding:5px 10px; font-size:12px; border-radius:2px; cursor:pointer; font-family:var(--ff-body); border:1.5px solid var(--divider); background:none; color:var(--warm-mid); transition:all .15s; }
+    .btn-sm:hover { border-color:var(--olive); color:var(--olive); }
+    .btn-sm.danger:hover { border-color:var(--rust); color:var(--rust); }
+    .add-user-form { background:var(--cream); border-radius:3px; padding:20px; margin-top:20px; border:1px solid var(--divider); }
+    .add-user-form h4 { font-size:13px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--warm-mid); margin-bottom:14px; }
+    .add-user-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr auto; gap:10px; align-items:end; }
+    .add-user-grid .form-group { margin:0; }
+    .add-user-grid label { font-size:11px; }
+    .archived-list { }
+    .archived-item { display:flex; align-items:center; justify-content:space-between; padding:12px; border-bottom:1px solid var(--divider); }
+    .archived-item-name { font-size:14px; font-weight:500; }
+    .archived-item-meta { font-size:12px; color:var(--warm-mid); margin-top:2px; }
+    .backup-section { text-align:center; padding:40px 20px; }
+    .backup-section p { color:var(--warm-mid); font-size:14px; line-height:1.7; margin-bottom:20px; max-width:400px; margin-left:auto; margin-right:auto; }
+    .btn-backup { padding:13px 32px; background:var(--olive); color:var(--white); border:none; border-radius:3px; font-family:var(--ff-body); font-size:15px; font-weight:600; cursor:pointer; transition:background .2s; }
+    .btn-backup:hover { background:var(--ink); }
+
+    /* ── Print ── */
+    @media print {
+      .top-bar,.sidebar,.modal-actions,.close-btn,.notes-section,.admin-panel { display:none !important; }
+      .modal-backdrop { display:block !important; position:static; padding:0; background:none; }
+      .modal { box-shadow:none; max-width:none; }
+      .modal-body { grid-template-columns:220px 1fr; }
+      body { background:white; }
+    }
+
+    /* ── Mobile ── */
+    @media (max-width:768px) {
+      .main-layout { grid-template-columns:1fr; }
+      .sidebar { position:static; height:auto; border-right:none; border-bottom:1px solid var(--divider); padding:12px 0; display:flex; overflow-x:auto; flex-wrap:nowrap; }
+      .search-wrap { padding:0 12px; flex-shrink:0; }
+      .category-label { display:none; }
+      .cat-btn { white-space:nowrap; padding:7px 12px; border-left:none; border-bottom:3px solid transparent; }
+      .cat-btn.active { border-left:none; border-bottom-color:var(--olive); }
+      .content { padding:20px 16px; }
+      .recipe-grid { grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px; }
+      .modal-body { grid-template-columns:1fr; }
+      .ingredients-panel { border-right:none; border-bottom:1px solid var(--divider); }
+      .form-body { grid-template-columns:1fr; padding:20px; }
+      .form-body .full-width { grid-column:1; }
+      .form-footer { padding:16px 20px; }
+      .modal-header { padding:20px 20px 16px; flex-direction:column; }
+      .top-bar { padding:0 16px; }
+      .ing-editor-row,.ing-col-labels { grid-template-columns:70px 90px 1fr 90px 32px; }
+      .add-user-grid { grid-template-columns:1fr 1fr; }
+    }
+  </style>
 </head>
 <body>
 
-<div id="auth-screen" class="auth-wrap">
+<!-- Auth -->
+<div id="auth-screen">
   <div class="auth-card">
-    <div class="auth-logo">MOTIF</div>
-    <div class="auth-sub">Times &amp; Receipts</div>
-    <div class="field"><label>Email</label><input type="email" id="login-email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="you@example.com"></div>
-    <div class="field"><label>Password</label><input type="password" id="login-password" autocomplete="current-password" placeholder="Password"></div>
-    <div id="login-err" class="err"></div>
-    <button class="btn btn-gold" id="login-btn" style="margin-top:8px">Sign In</button>
-    <div style="text-align:center;margin-top:14px"><a id="forgot-link" href="#" style="font-size:13px;color:var(--muted);text-decoration:none">Forgot password?</a></div>
-    <div id="forgot-success" class="hidden" style="text-align:center;margin-top:14px;font-size:13px;color:var(--green)">Reset email sent — check your inbox.</div>
+    <div class="auth-logo">Gourmet for Good</div>
+    <h1 class="auth-title">GFG Cookbook</h1>
+    <input type="email" id="auth-email" placeholder="Email address" autocomplete="username" />
+    <input type="password" id="auth-password" placeholder="Password" autocomplete="current-password" />
+    <button class="btn-primary" id="auth-btn">Sign In</button>
+    <div class="auth-error" id="auth-error"></div>
   </div>
 </div>
 
-<div id="main-screen" class="hidden">
-  <div class="topbar">
-    <div class="topbar-brand">MOTIF</div>
-    <div class="topbar-right">
-      <span class="role-badge" id="tb-role">user</span>
-      <span class="username" id="tb-name"></span>
-      <button class="btn-logout" id="logout-btn">Sign Out</button>
+<!-- App -->
+<div id="app">
+  <header class="top-bar">
+    <div class="top-bar-brand">GFG <span>Cookbook</span></div>
+    <div class="top-bar-actions">
+      <span class="top-bar-user" id="top-bar-user"></span>
+      <button class="btn-new" id="btn-add-recipe" style="display:none">+ New Recipe</button>
+      <button class="btn-topbar" id="btn-admin" style="display:none">⚙ Admin</button>
+      <button class="btn-topbar" id="btn-signout">Sign Out</button>
+    </div>
+  </header>
+  <div class="main-layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="search-wrap">
+        <input class="search-input" id="search-input" type="text" placeholder="Search recipes…" />
+      </div>
+      <div id="category-list"></div>
+    </nav>
+    <main class="content">
+      <div class="content-header">
+        <h2 class="content-title" id="content-title">All Recipes</h2>
+        <span class="result-count" id="result-count"></span>
+      </div>
+      <div id="recipe-grid" class="recipe-grid">
+        <div class="loading-state"><div class="spinner"></div><p>Loading recipes…</p></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-backdrop" id="detail-modal">
+  <div class="modal" id="detail-modal-inner">
+    <button class="close-btn" id="detail-close">×</button>
+    <div class="modal-header">
+      <div>
+        <h2 class="modal-title" id="detail-name"></h2>
+        <div class="modal-subtitle" id="detail-meta"></div>
+      </div>
+      <div class="modal-actions" id="detail-actions"></div>
+    </div>
+    <div class="modal-body">
+      <div class="ingredients-panel">
+        <div class="panel-label">Ingredients</div>
+        <div id="detail-ingredients"></div>
+      </div>
+      <div class="directions-panel">
+        <div class="panel-label">Directions</div>
+        <div class="directions-text" id="detail-directions"></div>
+        <div id="detail-note"></div>
+      </div>
+      <div class="notes-section">
+        <div class="panel-label">Notes</div>
+        <div class="notes-list" id="notes-list"></div>
+        <div class="note-add-area">
+          <textarea class="note-input" id="note-input" placeholder="Add a note…"></textarea>
+          <button class="btn-add-note" id="btn-post-note">Post Note</button>
+        </div>
+      </div>
     </div>
   </div>
-  <div class="nav" id="nav-bar">
-    <div class="nav-tab active" data-tab="clock">&#9201; Time Clock</div>
-    <div class="nav-tab" data-tab="receipts">&#129534; Receipts</div>
-    <div class="nav-tab priv-only hidden" data-tab="reports">&#128202; Reports</div>
-    <div class="nav-tab admin-only hidden" data-tab="admin">&#9881; Admin</div>
+</div>
+
+<!-- Recipe Form Modal -->
+<div class="modal-backdrop" id="form-modal">
+  <div class="form-modal">
+    <button class="close-btn" id="form-close">×</button>
+    <div class="form-header">
+      <h2 class="form-title" id="form-modal-title">New Recipe</h2>
+    </div>
+    <div class="form-body">
+      <div class="form-group full-width">
+        <label>Recipe Name</label>
+        <input type="text" id="form-name" placeholder="e.g. Garlic Mashers" />
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <select id="form-category">
+          <option value="Appetizers">Appetizers</option>
+          <option value="Breakfast">Breakfast</option>
+          <option value="Desserts">Desserts</option>
+          <option value="Empanada">Empanada</option>
+          <option value="Hot Lunches">Hot Lunches</option>
+          <option value="Miscellaneous">Miscellaneous</option>
+          <option value="PC">PC</option>
+          <option value="Salad Dressings">Salad Dressings</option>
+          <option value="Salads">Salads</option>
+          <option value="Sandwich Dressings">Sandwich Dressings</option>
+          <option value="Sandwiches">Sandwiches</option>
+          <option value="Side Dishes">Side Dishes</option>
+          <option value="Soups">Soups</option>
+          <option value="Spices">Spices</option>
+          <option value="Uncategorized">Uncategorized</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Servings</label>
+        <input type="text" id="form-servings" placeholder="e.g. 12" />
+      </div>
+      <div class="form-group">
+        <label>Author</label>
+        <input type="text" id="form-author" placeholder="e.g. Michael" />
+      </div>
+      <div class="form-group ingredients-editor full-width">
+        <label>Ingredients</label>
+        <div class="ing-col-labels">
+          <span>Qty</span><span>Unit</span><span>Ingredient</span><span>Preparation</span><span></span>
+        </div>
+        <div id="ing-rows"></div>
+        <button class="btn-add-ing" id="btn-add-ing">+ Add Ingredient</button>
+      </div>
+      <div class="form-group full-width">
+        <label>Directions</label>
+        <textarea id="form-directions" rows="8" placeholder="Step-by-step instructions…"></textarea>
+      </div>
+      <div class="form-group full-width">
+        <label>Notes</label>
+        <textarea id="form-note" rows="3" placeholder="Yield, storage tips, variations…"></textarea>
+      </div>
+    </div>
+    <div class="form-footer">
+      <button class="btn-cancel" id="form-cancel">Cancel</button>
+      <button class="btn-save" id="form-save">Save Recipe</button>
+    </div>
   </div>
-  <div class="main">
+</div>
 
-    <!-- TIME CLOCK TAB -->
-    <div id="tab-clock">
-      <div id="clock-status-bar" class="status-bar">
-        <div class="dot" id="clock-dot"></div>
-        <div style="flex:1">
-          <div id="clock-status-label" style="font-weight:600;font-size:15px">Not Clocked In</div>
-          <div id="clock-status-sub" style="font-size:12px;color:var(--muted)"></div>
-        </div>
-        <span id="clock-elapsed" style="font-weight:600;color:var(--green)"></span>
-        <span id="geo-bar-tag" class="geo-tag unknown hidden"></span>
-      </div>
-      <div class="card" id="clock-in-form">
-        <h2>Clock In</h2>
-        <div class="field"><label>Project *</label><select id="ci-project"><option value="">Select project...</option></select></div>
-        <div class="row2">
-          <div class="field"><label>Cost Category *</label><select id="ci-cat"><option value="">Select category...</option></select></div>
-          <div class="field"><label>Cost Code *</label><select id="ci-code"><option value="">Select code...</option></select></div>
-        </div>
-        <div class="field"><label>Room *</label><select id="ci-room"><option value="">Select room...</option></select></div>
-        <div class="field"><label>Notes</label><textarea id="ci-notes" rows="2" placeholder="Optional..."></textarea></div>
-        <button class="btn btn-green" id="clock-in-btn" style="width:100%;padding:14px;font-size:15px">&#9654; Clock In</button>
-      </div>
-      <div class="card hidden" id="clock-out-form">
-        <h2>Active Session</h2>
-        <div id="active-session-info"></div>
-        <div class="divider"></div>
-        <button class="btn btn-red" id="clock-out-btn" style="width:100%;padding:14px;font-size:15px">&#9632; Clock Out</button>
-      </div>
-      <div class="card">
-        <h2>My Time Log</h2>
-        <div style="overflow-x:auto">
-          <table class="tbl">
-            <thead><tr><th>Date</th><th>Project</th><th>Cost Code</th><th>Room</th><th>In</th><th>Out</th><th>Duration</th><th>Location</th><th></th></tr></thead>
-            <tbody id="my-log-body"><tr><td colspan="9" class="empty">No entries yet.</td></tr></tbody>
-          </table>
-        </div>
-      </div>
+<!-- Admin Modal -->
+<div class="modal-backdrop" id="admin-modal">
+  <div class="admin-panel">
+    <button class="close-btn" id="admin-close">×</button>
+    <div class="form-header">
+      <h2 class="form-title">Admin Panel</h2>
     </div>
-
-    <!-- RECEIPTS TAB -->
-    <div id="tab-receipts" class="hidden">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
-        <h2 style="margin:0">Receipts &amp; Bills</h2>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-outline priv-only hidden" id="new-bill-btn" style="width:auto;padding:10px 18px">+ Add Bill</button>
-          <button class="btn btn-gold" id="new-receipt-btn" style="width:auto;padding:10px 18px">+ Submit Receipt</button>
-        </div>
-      </div>
-      <div class="card"><div id="receipts-list"><div class="empty">No receipts yet.</div></div></div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-tab="users">Users</button>
+      <button class="admin-tab" data-tab="archived">Archived Recipes</button>
+      <button class="admin-tab" data-tab="backup">Backup</button>
     </div>
-
-    <!-- REPORTS TAB -->
-    <div id="tab-reports" class="hidden">
-      <h2>Reports &amp; Export</h2>
-      <div class="seg">
-        <button class="seg-btn on" id="rpt-time-btn">Time Log</button>
-        <button class="seg-btn" id="rpt-rcpt-btn">Receipts &amp; Bills</button>
-      </div>
-      <div class="card">
-        <div class="filter-row">
-          <div class="field"><label>Project</label><select id="rpt-project" style="min-width:160px"><option value="">All Projects</option></select></div>
-          <div class="field"><label>Employee</label><select id="rpt-employee"><option value="">All Employees</option></select></div>
-          <div class="field" id="rpt-cat-wrap"><label>Cost Category</label><select id="rpt-cat"><option value="">All Categories</option></select></div>
-          <div class="field"><label>Room</label><select id="rpt-room"><option value="">All Rooms</option></select></div>
-          <div class="field"><label>From</label><input type="date" id="rpt-from"></div>
-          <div class="field"><label>To</label><input type="date" id="rpt-to"></div>
-          <div style="display:flex;align-items:flex-end"><button class="btn btn-gold" id="rpt-run-btn" style="width:auto;padding:10px 20px;white-space:nowrap">Run Report</button></div>
-        </div>
-        <div id="rpt-active-filters" style="margin-bottom:12px;font-size:12px;color:var(--muted)"></div>
-        <div id="rpt-results"></div>
-      </div>
-    </div>
-
-    <!-- ADMIN TAB -->
-    <div id="tab-admin" class="hidden">
-      <h2>Admin</h2>
-      <div class="seg">
-        <button class="seg-btn on" id="adm-proj-btn">Projects</button>
-        <button class="seg-btn" id="adm-users-btn">Users</button>
-        <button class="seg-btn" id="adm-vendors-btn">Vendors <span id="pending-vendor-badge" class="hidden" style="background:var(--red);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px">0</span></button>
-        <button class="seg-btn priv-only" id="adm-codes-btn">Cost Codes</button>
-      </div>
-      <div id="adm-projects-panel">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <strong>Projects</strong>
-          <button class="btn btn-gold btn-sm" id="new-project-btn">+ New Project</button>
-        </div>
-        <div class="card"><div id="projects-list"><div class="empty">No projects.</div></div></div>
-      </div>
-      <div id="adm-users-panel" class="hidden">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <strong>Team Members</strong>
-          <button class="btn btn-gold btn-sm" id="new-user-btn">+ Add User</button>
-        </div>
-        <div class="card"><div id="users-list"><div class="empty">No users found.</div></div></div>
-      </div>
-      <div id="adm-vendors-panel" class="hidden">
-        <div class="card" style="margin-bottom:16px">
-          <div style="font-weight:600;margin-bottom:12px">Approved Vendors</div>
-          <div class="chip-wrap" id="approved-vendors-chips"></div>
-          <div style="display:flex;gap:8px;margin-top:12px">
-            <input type="text" id="new-vendor-input" placeholder="Add vendor..." style="flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif">
-            <button class="btn btn-gold btn-sm" id="add-vendor-btn">Add</button>
+    <!-- Users Tab -->
+    <div class="admin-section active" id="tab-users">
+      <div class="admin-section-title">Team Members</div>
+      <table class="user-table">
+        <thead>
+          <tr>
+            <th>Name</th><th>Email</th><th>Role</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="user-table-body"></tbody>
+      </table>
+      <div class="add-user-form">
+        <h4>Add New User</h4>
+        <div class="add-user-grid">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" id="new-first" placeholder="Jane" />
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" id="new-last" placeholder="Smith" />
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="new-email" placeholder="jane@gfg.com" />
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="new-password" placeholder="Temporary password" />
+          </div>
+          <div class="form-group">
+            <label>Role</label>
+            <select id="new-role">
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="form-group" style="display:flex;align-items:flex-end">
+            <button class="btn-save" id="btn-create-user" style="width:100%">Add User</button>
           </div>
         </div>
-        <div class="card" id="pending-vendors-card">
-          <div style="font-weight:600;margin-bottom:12px">Pending Approval</div>
-          <div id="pending-vendors-list"><div class="empty" style="padding:16px">No pending vendors.</div></div>
-        </div>
-      </div>
-      <div id="adm-codes-panel" class="hidden">
-        <div class="card" style="margin-bottom:16px">
-          <div style="font-weight:600;margin-bottom:4px">Add Custom Cost Code</div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Custom codes are added to existing categories or a new category you define. They appear in all cost code dropdowns alongside the standard codes.</div>
-          <div class="field" style="margin-bottom:12px"><label>Category</label>
-            <select id="cc-cat-sel"><option value="">Select existing category...</option><option value="__new__">+ New Category...</option></select>
-            <input type="text" id="cc-cat-new" class="hidden" placeholder="New category name (e.g. 28 - Exterior Work)..." style="margin-top:6px;width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:15px;font-family:'DM Sans',sans-serif;background:var(--cream)">
-          </div>
-          <div class="field" style="margin-bottom:12px"><label>Cost Code *</label>
-            <input type="text" id="cc-code-input" placeholder="e.g. 28.00 - Exterior Painting Labor..." style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:15px;font-family:'DM Sans',sans-serif;background:var(--cream)">
-          </div>
-          <div id="cc-err" class="err" style="margin-bottom:8px"></div>
-          <button class="btn btn-gold btn-sm" id="add-code-btn">Add Cost Code</button>
-        </div>
-        <div class="card">
-          <div style="font-weight:600;margin-bottom:12px">Custom Cost Codes</div>
-          <div id="custom-codes-list"><div class="empty" style="padding:16px">No custom codes yet.</div></div>
-        </div>
+        <div style="font-size:13px;color:var(--rust);margin-top:10px;min-height:18px" id="user-form-error"></div>
       </div>
     </div>
-
-  </div>
-</div>
-
-<!-- RECEIPT SUBMIT MODAL (field crew) -->
-<div id="receipt-modal" class="modal-bg hidden">
-  <div class="modal">
-    <h2>Submit Receipt</h2>
-    <div class="field"><label>Project *</label><select id="rm-project"><option value="">Select project...</option></select></div>
-    <div class="row2">
-      <div class="field"><label>Amount ($) *</label><input type="number" step="0.01" id="rm-amount" placeholder="0.00" inputmode="decimal"></div>
-      <div class="field"><label>Vendor *</label>
-        <select id="rm-vendor-sel"><option value="">Select vendor...</option></select>
-        <input type="text" id="rm-vendor-new" class="hidden" placeholder="Enter new vendor name..." style="margin-top:6px">
+    <!-- Archived Tab -->
+    <div class="admin-section" id="tab-archived">
+      <div class="admin-section-title">Archived Recipes</div>
+      <p style="font-size:14px;color:var(--warm-mid);margin-bottom:16px">These recipes are hidden from regular view. Restore or permanently delete them here.</p>
+      <div class="archived-list" id="archived-list"></div>
+    </div>
+    <!-- Backup Tab -->
+    <div class="admin-section" id="tab-backup">
+      <div class="backup-section">
+        <div class="admin-section-title">Download Backup</div>
+        <p>Downloads all recipes as a JSON file to your computer. Do this regularly to keep a local copy of the cookbook.</p>
+        <button class="btn-backup" id="btn-backup">⬇ Download All Recipes</button>
+        <p style="margin-top:16px;font-size:12px">Last recipe count will be shown after download.</p>
       </div>
     </div>
-    <div class="field"><label>Room *</label><select id="rm-room"><option value="">Select...</option></select></div>
-    <div class="field">
-      <label>Cost Codes *</label>
-      <select id="rm-code-pick"><option value="">Search / select cost code...</option></select>
-      <div class="chip-wrap" id="rm-codes-chips" style="margin-top:8px"></div>
-    </div>
-    <div class="field"><label>Notes</label><textarea id="rm-notes" rows="2" placeholder="What was purchased?"></textarea></div>
-    <div class="upload-zone" id="rm-upload-zone">
-      <div style="font-size:28px;margin-bottom:6px">&#128247;</div>
-      <div style="font-weight:500">Tap to photo or upload receipt</div>
-      <div style="font-size:12px;margin-top:4px">JPG or PNG</div>
-      <img id="rm-preview" class="hidden upload-preview" alt="preview">
-      <input type="file" id="rm-file" accept="image/*" capture="environment" style="display:none">
-    </div>
-    <div id="rm-err" class="err"></div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" id="rm-cancel">Cancel</button>
-      <button class="btn btn-gold" id="rm-submit" style="width:auto">Submit Receipt</button>
-    </div>
   </div>
-</div>
-
-<!-- VENDOR BILL MODAL (bookkeeper/admin only) -->
-<div id="bill-modal" class="modal-bg hidden">
-  <div class="modal">
-    <h2>Add Vendor Bill</h2>
-    <div class="row2">
-      <div class="field"><label>Project *</label><select id="bm-project"><option value="">Select project...</option></select></div>
-      <div class="field"><label>Bill #</label><input type="text" id="bm-billnum" placeholder="Auto-assigned" readonly style="background:#f0ece6;color:var(--muted)"></div>
-    </div>
-    <div class="row2">
-      <div class="field"><label>Pay To (Vendor) *</label>
-        <select id="bm-vendor-sel"><option value="">Select vendor...</option></select>
-        <input type="text" id="bm-vendor-new" class="hidden" placeholder="Enter new vendor name..." style="margin-top:6px">
-      </div>
-      <div class="field"><label>Amount ($) *</label><input type="number" step="0.01" id="bm-amount" placeholder="0.00" inputmode="decimal"></div>
-    </div>
-    <div class="row2">
-      <div class="field"><label>Invoice Date *</label><input type="date" id="bm-invoicedate"></div>
-      <div class="field"><label>Room</label><select id="bm-room"><option value="">Select...</option></select></div>
-    </div>
-    <div class="field">
-      <label>Cost Codes *</label>
-      <select id="bm-code-pick"><option value="">Search / select cost code...</option></select>
-      <div class="chip-wrap" id="bm-codes-chips" style="margin-top:8px"></div>
-    </div>
-    <div class="field"><label>Notes</label><textarea id="bm-notes" rows="2" placeholder="Optional notes..."></textarea></div>
-    <div class="field"><label>Attach Invoice (optional)</label>
-      <div class="upload-zone" id="bm-upload-zone">
-        <div style="font-size:24px;margin-bottom:4px">📎</div>
-        <div style="font-weight:500;font-size:13px">Tap to attach invoice or photo</div>
-        <div style="font-size:11px;margin-top:3px">JPG, PNG, or PDF</div>
-        <img id="bm-preview" class="hidden upload-preview" alt="preview">
-        <div id="bm-filename" style="font-size:12px;color:var(--green);margin-top:6px"></div>
-        <input type="file" id="bm-file" accept="image/*,application/pdf" style="display:none">
-      </div>
-    </div>
-    <div class="row2">
-      <div class="field"><label>QB Entry Date</label><input type="date" id="bm-qbdate" placeholder="Mark when entered in QB"></div>
-      <div class="field"><label>DB Entry Date</label><input type="date" id="bm-dbdate" placeholder="Mark when entered in DB"></div>
-    </div>
-    <div id="bm-err" class="err"></div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" id="bm-cancel">Cancel</button>
-      <button class="btn btn-gold" id="bm-save" style="width:auto">Save Bill</button>
-    </div>
-  </div>
-</div>
-
-<!-- PROJECT MODAL -->
-<div id="project-modal" class="modal-bg hidden">
-  <div class="modal">
-    <h2 id="pm-title">New Project</h2>
-    <div class="row2">
-      <div class="field"><label>Project Name *</label><input type="text" id="pm-name" placeholder="Jones Kitchen Remodel"></div>
-      <div class="field"><label>Bill Prefix (auto)</label><input type="text" id="pm-prefix" placeholder="JON" style="text-transform:uppercase" maxlength="6"></div>
-    </div>
-    <div class="field"><label>Job Site Address</label>
-      <div style="display:flex;gap:8px">
-        <input type="text" id="pm-address" placeholder="Start typing address..." style="flex:1" autocomplete="off">
-        <button class="btn btn-outline btn-sm" id="pm-geocode-btn">Search</button>
-      </div>
-      <div id="pm-autocomplete-list" style="position:relative;z-index:300"></div>
-    </div>
-    <div id="pm-map" style="width:100%;height:220px;border-radius:8px;border:1.5px solid var(--border);margin-bottom:8px;display:none"></div>
-    <div id="pm-geo-note" style="font-size:12px;color:var(--green);margin-bottom:12px"></div>
-    <div class="row2" id="pm-coords-row" style="display:none">
-      <div class="field"><label>Latitude</label><input type="number" step="any" id="pm-lat" placeholder="39.6133"></div>
-      <div class="field"><label>Longitude</label><input type="number" step="any" id="pm-lng" placeholder="-105.0167"></div>
-    </div>
-    <div class="divider"></div>
-    <div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Rooms (tap to remove)</div>
-    <div class="chip-wrap" id="pm-rooms"></div>
-    <div style="display:flex;gap:8px;margin-top:8px">
-      <input type="text" id="pm-new-room" placeholder="Add room..." style="flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif">
-      <button class="btn btn-outline btn-sm" id="pm-add-room-btn">Add</button>
-    </div>
-    <div id="pm-err" class="err"></div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" id="pm-cancel">Cancel</button>
-      <button class="btn btn-gold" id="pm-save" style="width:auto">Save Project</button>
-    </div>
-  </div>
-</div>
-
-<!-- USER MODAL -->
-<div id="user-modal" class="modal-bg hidden">
-  <div class="modal">
-    <h2>Add Team Member</h2>
-    <div class="notice">Fill in the form and tap Send Invite. The new team member will receive an email with a link to set their password and log in.</div>
-    <div class="field"><label>Full Name *</label><input type="text" id="um-name" placeholder="Jane Smith" autocapitalize="words"></div>
-    <div class="field"><label>Email *</label><input type="email" id="um-email" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="jane@example.com"></div>
-    <div class="field"><label>Role *</label>
-      <select id="um-role">
-        <option value="user">User (field crew)</option>
-        <option value="bookkeeper">Bookkeeper</option>
-        <option value="admin">Admin</option>
-      </select>
-    </div>
-    <div id="um-err" class="err"></div>
-    <div id="um-success" class="hidden" style="color:var(--green);font-size:13px;margin-top:8px"></div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" id="um-cancel">Cancel</button>
-      <button class="btn btn-gold" id="um-save" style="width:auto">Send Invite</button>
-    </div>
-  </div>
-</div>
-
-<!-- EDIT RECEIPT MODAL -->
-<div id="edit-receipt-modal" class="modal-bg hidden">
-  <div class="modal">
-    <h2>Edit Receipt / Bill</h2>
-    <div class="field"><label>Project *</label><select id="er-project"><option value="">Select project...</option></select></div>
-    <div class="row2">
-      <div class="field"><label>Amount ($) *</label><input type="number" step="0.01" id="er-amount" placeholder="0.00" inputmode="decimal"></div>
-      <div class="field"><label>Vendor</label>
-        <select id="er-vendor-sel"><option value="">Select vendor...</option></select>
-        <input type="text" id="er-vendor-new" class="hidden" placeholder="Enter new vendor name..." style="margin-top:6px">
-      </div>
-    </div>
-    <div class="row2">
-      <div class="field"><label>Invoice Date</label><input type="date" id="er-invoicedate"></div>
-      <div class="field"><label>Room</label><select id="er-room"><option value="">Select...</option></select></div>
-    </div>
-    <div class="field">
-      <label>Cost Codes</label>
-      <select id="er-code-pick"><option value="">Add cost code...</option></select>
-      <div class="chip-wrap" id="er-codes-chips" style="margin-top:8px"></div>
-    </div>
-    <div class="field"><label>Notes</label><textarea id="er-notes" rows="2"></textarea></div>
-    <div class="field"><label>Status</label><select id="er-status"><option value="submitted">Submitted</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select></div>
-    <div class="row2 priv-only" id="er-entry-row">
-      <div class="field"><label>QB Entry Date</label><input type="date" id="er-qbdate"></div>
-      <div class="field"><label>DB Entry Date</label><input type="date" id="er-dbdate"></div>
-    </div>
-    <div id="er-err" class="err"></div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" id="er-cancel">Cancel</button>
-      <button class="btn btn-gold" id="er-save" style="width:auto">Save Changes</button>
-    </div>
-  </div>
-</div>
-
-<!-- EDIT TIME MODAL -->
-<div id="edit-time-modal" class="modal-bg hidden">
-  <div class="modal">
-    <h2>Edit Time Entry</h2>
-    <div class="field"><label>Project *</label><select id="et-project"><option value="">Select project...</option></select></div>
-    <div class="row2">
-      <div class="field"><label>Cost Category *</label><select id="et-cat"><option value="">Select category...</option></select></div>
-      <div class="field"><label>Cost Code *</label><select id="et-code"><option value="">Select code...</option></select></div>
-    </div>
-    <div class="field"><label>Room *</label><select id="et-room"><option value="">Select...</option></select></div>
-    <div class="row2">
-      <div class="field"><label>Clock In</label><input type="datetime-local" id="et-clockin"></div>
-      <div class="field"><label>Clock Out</label><input type="datetime-local" id="et-clockout"></div>
-    </div>
-    <div class="field"><label>Notes</label><textarea id="et-notes" rows="2"></textarea></div>
-    <div id="et-err" class="err"></div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" id="et-cancel">Cancel</button>
-      <button class="btn btn-gold" id="et-save" style="width:auto">Save Changes</button>
-    </div>
-  </div>
-</div>
-
-<!-- LIGHTBOX -->
-<div id="lightbox" class="modal-bg hidden" style="cursor:pointer">
-  <img id="lightbox-img" style="max-width:90vw;max-height:90vh;border-radius:8px" alt="receipt">
 </div>
 
 <script type="module">
-import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import{getAuth,signInWithEmailAndPassword,sendPasswordResetEmail,signOut,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import{getFirestore,collection,doc,getDoc,setDoc,updateDoc,addDoc,deleteDoc,query,where,orderBy,limit,getDocs,onSnapshot,serverTimestamp,Timestamp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-import{getStorage,ref as sRef,uploadBytes,getDownloadURL}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
-import{getFunctions,httpsCallable}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore, collection, getDocs, doc, setDoc, updateDoc,
+  deleteDoc, query, orderBy, addDoc, serverTimestamp, where,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged,
+  createUserWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-const app=initializeApp({apiKey:"AIzaSyCfCholttfnLxgJwaxGwTu1-FDmO0Ob1hs",authDomain:"motif-times-and-receipts.firebaseapp.com",projectId:"motif-times-and-receipts",storageBucket:"motif-times-and-receipts.firebasestorage.app",messagingSenderId:"837311030358",appId:"1:837311030358:web:a7a391ecf6b2302d6a07f7"});
-const auth=getAuth(app),db=getFirestore(app),storage=getStorage(app),functions=getFunctions(app);
+const firebaseConfig = {
+  apiKey: "AIzaSyCy7EmiFbB14fGBSoohgSIoxq7cTwUPFfE",
+  authDomain: "gfg-recipes.firebaseapp.com",
+  projectId: "gfg-recipes",
+  storageBucket: "gfg-recipes.firebasestorage.app",
+  messagingSenderId: "939273286790",
+  appId: "1:939273286790:web:604593e9ab998b48ac8d07"
+};
 
-const GEO_M=91.44;
+const app  = initializeApp(firebaseConfig);
+const db   = getFirestore(app);
+const auth = getAuth(app);
 
-// ── COST CODES ──────────────────────────────────────────────────────────────
-const COST_CODES=[
-  {cat:'01 - Design & Construction Administration',code:'01.00 - Free One Hour Consult'},
-  {cat:'01 - Design & Construction Administration',code:'01.05 - Design Development'},
-  {cat:'01 - Design & Construction Administration',code:'01.10 - Design Project Management'},
-  {cat:'01 - Design & Construction Administration',code:'01.15 - Procurement of Design Elements'},
-  {cat:'01 - Design & Construction Administration',code:'01.20 - Design or Construction Admin'},
-  {cat:'01 - Design & Construction Administration',code:'01.25 - Construction Project Management'},
-  {cat:'01 - Design & Construction Administration',code:'01.30 - Construction Documents'},
-  {cat:'01 - Design & Construction Administration',code:'01.35 - Design Meetings, Preparation and/or Follow Up'},
-  {cat:'02 - Pre Construction Services',code:'02.00 - Specification List'},
-  {cat:'02 - Pre Construction Services',code:'02.15 - Material List Creation'},
-  {cat:'02 - Pre Construction Services',code:'02.20 - Estimating'},
-  {cat:'02 - Pre Construction Services',code:'02.30 - Field Measurements'},
-  {cat:'02 - Pre Construction Services',code:'02.35 - Shop Building Materials (Construction)'},
-  {cat:'02 - Pre Construction Services',code:'02.45 - Permit Application Process'},
-  {cat:'02 - Pre Construction Services',code:'02.50 - Structural Engineering (Subcontractor)'},
-  {cat:'03 - General Conditions',code:'03.00 - Roll Off'},
-  {cat:'03 - General Conditions',code:'03.05 - Porta Potty'},
-  {cat:'03 - General Conditions',code:'03.10 - Permit Cost/Fees'},
-  {cat:'03 - General Conditions',code:'03.15 - Trip Charge'},
-  {cat:'03 - General Conditions',code:'03.20 - MOTIF Labor Electrical (Like for Like)'},
-  {cat:'03 - General Conditions',code:'03.25 - MOTIF Labor Plumbing (Like for Like)'},
-  {cat:'03 - General Conditions',code:'03.30 - Concrete'},
-  {cat:'04 - Inspections',code:'04.00 - Rough Inspections'},
-  {cat:'04 - Inspections',code:'04.05 - Shower Pan Test Inspection'},
-  {cat:'04 - Inspections',code:'04.10 - Fireplace Inspection'},
-  {cat:'04 - Inspections',code:'04.15 - Final Inspections for All Trades'},
-  {cat:'05 - Job Site Prep',code:'05.00 - Tool Set Up Labor'},
-  {cat:'05 - Job Site Prep',code:'05.01 - Content Manipulation (Moving Client Items/Furniture)'},
-  {cat:'05 - Job Site Prep',code:'05.05 - Job Site Protection Labor'},
-  {cat:'05 - Job Site Prep',code:'05.10 - Job Site Protection Materials'},
-  {cat:'05 - Job Site Prep',code:'05.15 - Demolition Labor'},
-  {cat:'05 - Job Site Prep',code:'05.20 - Demolition Materials (includes roll-off)'},
-  {cat:'05 - Job Site Prep',code:'05.25 - Patio'},
-  {cat:'06 - Framing',code:'06.00 - Framing Materials'},
-  {cat:'06 - Framing',code:'06.05 - Framing Labor'},
-  {cat:'07 - Plumbing',code:'07.00 - Plumbing Sub Labor'},
-  {cat:'07 - Plumbing',code:'07.05 - Plumbing Materials'},
-  {cat:'08 - Electrical',code:'08.00 - Electrical Sub Labor'},
-  {cat:'08 - Electrical',code:'08.05 - Electrical Materials'},
-  {cat:'09 - HVAC',code:'09.00 - HVAC Sub Labor'},
-  {cat:'09 - HVAC',code:'09.05 - HVAC Materials'},
-  {cat:'09 - HVAC',code:'09.10 - HVAC MOTIF Labor'},
-  {cat:'10 - Insulation & Drywall',code:'10.00 - Insulation Labor'},
-  {cat:'10 - Insulation & Drywall',code:'10.05 - Insulation Material'},
-  {cat:'10 - Insulation & Drywall',code:'10.10 - Drywall Sub Labor'},
-  {cat:'10 - Insulation & Drywall',code:'10.15 - Drywall MOTIF Labor'},
-  {cat:'10 - Insulation & Drywall',code:'10.20 - Drywall Materials'},
-  {cat:'11 - Glass & Mirrors',code:'11.00 - Glass Sub Materials (Mirror, Shower Door, Cabinet Glass)'},
-  {cat:'11 - Glass & Mirrors',code:'11.05 - Mirrors (fabricated product)'},
-  {cat:'11 - Glass & Mirrors',code:'11.10 - Glass Sub Labor (Mirror, Shower Door, Cabinet Glass)'},
-  {cat:'12 - Finish Carpentry',code:'12.00 - Trim Carpentry Materials (base, case, crown, chair)'},
-  {cat:'12 - Finish Carpentry',code:'12.05 - Trim Carpentry Labor (base, case, crown, chair)'},
-  {cat:'12 - Finish Carpentry',code:'12.10 - Cabinet Hardware Materials'},
-  {cat:'12 - Finish Carpentry',code:'12.15 - Cabinet Hardware Labor'},
-  {cat:'12 - Finish Carpentry',code:'12.20 - Countertops Material (wood tops)'},
-  {cat:'12 - Finish Carpentry',code:'12.25 - Countertops Fabrication Labor (wood tops)'},
-  {cat:'12 - Finish Carpentry',code:'12.30 - Cabinet Install Materials (pre-fab cabinets only)'},
-  {cat:'12 - Finish Carpentry',code:'12.35 - Cabinet Install Labor (pre-fab cabinets only)'},
-  {cat:'12 - Finish Carpentry',code:'12.40 - Staircase Materials'},
-  {cat:'12 - Finish Carpentry',code:'12.45 - Staircase Labor'},
-  {cat:'12 - Finish Carpentry',code:'12.50 - Custom Carpentry Materials (mantels, built-ins, shelves, cabinets)'},
-  {cat:'12 - Finish Carpentry',code:'12.51 - Window Covering Installation'},
-  {cat:'12 - Finish Carpentry',code:'12.55 - Custom Carpentry Labor (mantels, built-ins, shelves, cabinets)'},
-  {cat:'13 - Windows & Doors',code:'13.00 - Door Hardware Materials'},
-  {cat:'13 - Windows & Doors',code:'13.05 - Door Hardware Labor'},
-  {cat:'13 - Windows & Doors',code:'13.10 - Interior Door Materials'},
-  {cat:'13 - Windows & Doors',code:'13.15 - Interior Door Labor'},
-  {cat:'13 - Windows & Doors',code:'13.20 - Window Materials'},
-  {cat:'13 - Windows & Doors',code:'13.25 - Window Labor'},
-  {cat:'14 - Paint, Stain & Wallcovering',code:'14.00 - Paint Materials'},
-  {cat:'14 - Paint, Stain & Wallcovering',code:'14.05 - Paint Labor'},
-  {cat:'14 - Paint, Stain & Wallcovering',code:'14.10 - Wallpaper Materials'},
-  {cat:'14 - Paint, Stain & Wallcovering',code:'14.15 - Wallpaper Labor by Subcontractor'},
-  {cat:'14 - Paint, Stain & Wallcovering',code:'14.20 - Staining Labor'},
-  {cat:'14 - Paint, Stain & Wallcovering',code:'14.25 - Staining Materials'},
-  {cat:'15 - Flooring & Tile',code:'15.00 - Hardwood Materials'},
-  {cat:'15 - Flooring & Tile',code:'15.05 - Hardwood Labor'},
-  {cat:'15 - Flooring & Tile',code:'15.10 - Hardwood Labor by Subcontractor'},
-  {cat:'15 - Flooring & Tile',code:'15.15 - Tile Labor by Subcontractor'},
-  {cat:'15 - Flooring & Tile',code:'15.20 - Tile Materials'},
-  {cat:'15 - Flooring & Tile',code:'15.25 - Tile Labor'},
-  {cat:'15 - Flooring & Tile',code:'15.30 - Carpet Materials'},
-  {cat:'15 - Flooring & Tile',code:'15.35 - Carpet Labor'},
-  {cat:'15 - Flooring & Tile',code:'15.40 - Carpet Labor by Subcontractor'},
-  {cat:'16 - Appliances',code:'16.00 - Appliance Service Call'},
-  {cat:'16 - Appliances',code:'16.05 - Appliances Installation'},
-  {cat:'17 - Fireplace & Masonry',code:'17.10 - Fireplace Materials'},
-  {cat:'17 - Fireplace & Masonry',code:'17.15 - Fireplace Subcontractor Labor'},
-  {cat:'17 - Fireplace & Masonry',code:'17.20 - Masonry Materials'},
-  {cat:'17 - Fireplace & Masonry',code:'17.25 - Masonry Subcontractor Labor'},
-  {cat:'18 - Cleaning',code:'18.00 - Daily Site Cleaning'},
-  {cat:'18 - Cleaning',code:'18.05 - Post Drywall Cleaning'},
-  {cat:'18 - Cleaning',code:'18.10 - Final Cleaning'},
-  {cat:'19 - Punch List',code:'19.00 - Punch List Materials'},
-  {cat:'19 - Punch List',code:'19.05 - Punch List Labor'},
-  {cat:'20 - Business Operations',code:'20.00 - Construction Supervision'},
-  {cat:'20 - Business Operations',code:'20.05 - General Business Operations'},
-  {cat:'20 - Business Operations',code:'20.10 - Delivery to Jobsite'},
-  {cat:'20 - Business Operations',code:'20.15 - Accounting - Sales Tax, Bookkeeping'},
-  {cat:'20 - Business Operations',code:'20.20 - Design/Value Engineering'},
-  {cat:'20 - Business Operations',code:'20.25 - Jobsite Safety/Security Materials'},
-  {cat:'20 - Business Operations',code:'20.40 - Shipping (must be taxed)'},
-  {cat:'20 - Business Operations',code:'20.45 - Contingency Labor'},
-  {cat:'20 - Business Operations',code:'20.50 - Contingency Materials'},
-  {cat:'20 - Business Operations',code:'20.55 - RDF Fee'},
-  {cat:'20 - Business Operations',code:'20.60 - Sales Tax (must manually calculate)'},
-  {cat:'20 - Business Operations',code:'20.65 - Home Depot Volume Discount'},
-  {cat:'20 - Business Operations',code:'20.75 - Driving to Office for Meetings'},
-  {cat:'21 - Interior Furnishings, Fixtures & Accessories',code:'21.00 - Furniture and Rugs (materials)'},
-  {cat:'21 - Interior Furnishings, Fixtures & Accessories',code:'21.05 - Design Accessories - Table Top (Materials)'},
-  {cat:'21 - Interior Furnishings, Fixtures & Accessories',code:'21.10 - Lighting (Materials)'},
-  {cat:'21 - Interior Furnishings, Fixtures & Accessories',code:'21.15 - Plumbing Fixtures (Materials)'},
-  {cat:'21 - Interior Furnishings, Fixtures & Accessories',code:'21.20 - Reupholster Chairs'},
-  {cat:'21 - Interior Furnishings, Fixtures & Accessories',code:'21.25 - Hardware Accessories (towel bars, tp holders, shelves)'},
-  {cat:'22 - Change Orders',code:'22.10 - CO1 Additional Scope of Work (Labor)'},
-  {cat:'22 - Change Orders',code:'22.15 - CO1 Additional Scope of Work (Materials)'},
-  {cat:'22 - Change Orders',code:'22.20 - CO2 Additional Scope of Work (Labor)'},
-  {cat:'22 - Change Orders',code:'22.25 - CO2 Additional Scope of Work (Materials)'},
-  {cat:'22 - Change Orders',code:'22.30 - CO3 Additional Scope of Work (Labor)'},
-  {cat:'22 - Change Orders',code:'22.35 - CO3 Additional Scope of Work (Materials)'},
-  {cat:'22 - Change Orders',code:'22.40 - CO4 Additional Scope of Work (Labor)'},
-  {cat:'22 - Change Orders',code:'22.45 - CO4 Additional Scope of Work (Materials)'},
-  {cat:'23 - Sick Time',code:'23.10 - Sick Time'},
-  {cat:'24 - Vacation Time',code:'24.10 - Vacation Time'},
-  {cat:'24 - Vacation Time',code:'24.15 - Unpaid Leave'},
-  {cat:'25 - Holiday Pay',code:'25.10 - Holiday Pay'},
-  {cat:'26 - MOTIF Error',code:'26.10 - Rebuilding Costs Labor'},
-  {cat:'26 - MOTIF Error',code:'26.20 - Rebuilding Costs Materials'},
-  {cat:'27 - Solid Surface & Countertops',code:'27.05 - Solid Surface Materials (Slabs of Quartz, Marble, Granite)'},
-  {cat:'27 - Solid Surface & Countertops',code:'27.10 - Solid Surface Subcontractor Labor (Slabs of Quartz, Marble, Granite)'}
-];
-const COST_CATS=[...new Set(COST_CODES.map(c=>c.cat))];
-const DEF_ROOMS=['Kitchen','Primary Bath','Primary Suite','Living Room','Dining Room','Powder Room','Laundry','Office','Basement','Exterior / Site','General / Whole Home'];
+// ── State ──────────────────────────────────────────────────────────
+let allRecipes      = [];
+let filteredRecipes = [];
+let activeCategory  = 'All';
+let searchQuery     = '';
+let editingId       = null;
+let currentRecipe   = null;
+let currentUser     = null;  // Firestore user profile
+let showArchived    = false;
 
-// ── STATE ────────────────────────────────────────────────────────────────────
-let currentUser=null,userProfile=null,activeSession=null,elapsedTimer=null,currentPos=null;
-let allProjects=[],activeProjects=[],currentRptType='time';
-let pmRooms=[...DEF_ROOMS],editingProjectId=null,rmFile=null;
-let rmSelectedCodes=[],bmSelectedCodes=[],erSelectedCodes=[];
-let _rptRawData=[],_rptType='time';
-let approvedVendors=[],pendingVendors=[],customCodes=[];
-
-const $=id=>document.getElementById(id);
-const show=id=>$(id).classList.remove('hidden');
-const hide=id=>$(id).classList.add('hidden');
-
-// ── HELPERS ──────────────────────────────────────────────────────────────────
-function hav(a,b,c,d){const R=6371000,dL=(c-a)*Math.PI/180,dl=(d-b)*Math.PI/180,x=Math.sin(dL/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dl/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))}
-function geoSt(pos,proj){if(!pos||!proj?.lat||!proj?.lng)return'unknown';return hav(pos.lat,pos.lng,proj.lat,proj.lng)<=GEO_M?'onsite':'offsite'}
-function fmtDur(ms){if(!ms)return'--';const h=Math.floor(ms/3600000),m=Math.floor((ms%3600000)/60000);return h>0?h+'h '+m+'m':m+'m'}
-function fmtTs(ts){if(!ts)return'--';const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}
-function fmtDate(ts){if(!ts)return'--';const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
-function fmtDateVal(ts){if(!ts)return'';const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
-function fmtTime(ts){if(!ts)return'--';const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}
-function ini(n){return(n||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}
-function isPriv(){return['admin','bookkeeper'].includes(userProfile?.role?.toLowerCase())}
-function isAdmin(){return userProfile?.role?.toLowerCase()==='admin'}
-function isBookkeeper(){return userProfile?.role?.toLowerCase()==='bookkeeper'}
-function autoPrefix(name){return(name||'').trim().split(/\s+/).map(w=>w.replace(/[^a-zA-Z]/g,'').toUpperCase()).filter(Boolean).map(w=>w[0]).join('').slice(0,6)||'PRJ'}
-
-// ── COST CODE HELPERS ────────────────────────────────────────────────────────
-// fillCatDropdown, fillCodeDropdown, fillAllCodesDropdown defined below in CUSTOM COST CODES section using ALL_CODES/ALL_CATS
-function renderCodeChips(containerId,codesArr,onRemove){
-  $(containerId).innerHTML=codesArr.map((c,i)=>`<span class="chip-code">${c} <span onclick="(${onRemove})(${i})" style="cursor:pointer;font-size:14px;line-height:1">×</span></span>`).join('');
-}
-
-// ── GEOLOCATION ──────────────────────────────────────────────────────────────
-if(navigator.geolocation)navigator.geolocation.watchPosition(p=>{currentPos={lat:p.coords.latitude,lng:p.coords.longitude};updateGeoBar()},()=>{},{enableHighAccuracy:true,timeout:10000});
-function updateGeoBar(){
-  const proj=activeProjects.find(p=>p.id===$('ci-project').value);
-  const st=geoSt(currentPos,proj);
-  if($('ci-project').value&&currentPos){const t=$('geo-bar-tag');t.className='geo-tag '+st;t.textContent=st==='onsite'?'On Site':st==='offsite'?'Off Site':'?';show('geo-bar-tag')}else hide('geo-bar-tag');
-}
-
-// ── VENDORS ───────────────────────────────────────────────────────────────────
-function loadVendors(){
-  onSnapshot(doc(db,'settings','vendors'),snap=>{
-    const data=snap.exists()?snap.data():{};
-    approvedVendors=(data.approved||[]).sort();
-    pendingVendors=data.pending||[];
-    populateVendorDropdowns();
-    renderVendorAdminPanel();
-    // badge on admin tab
-    const badge=$('pending-vendor-badge');
-    if(pendingVendors.length){badge.textContent=pendingVendors.length;show('pending-vendor-badge')}
-    else hide('pending-vendor-badge');
-  });
-}
-function populateVendorDropdowns(){
-  ['rm-vendor-sel','bm-vendor-sel','er-vendor-sel'].forEach(id=>{
-    const el=$(id);if(!el)return;
-    const cur=el.value;
-    el.innerHTML='<option value="">Select vendor...</option>';
-    approvedVendors.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;el.appendChild(o)});
-    const other=document.createElement('option');other.value='__new__';other.textContent='Other / New Vendor...';el.appendChild(other);
-    if(cur)el.value=cur;
-  });
-}
-function vendorSelChange(selId,newId){
-  const v=$(selId).value;
-  if(v==='__new__')show(newId);else hide(newId);
-}
-function resolveVendor(selId,newId){
-  const sel=$(selId).value;
-  if(sel==='__new__')return $(newId).value.trim();
-  return sel;
-}
-async function submitNewVendor(name){
-  if(!name||approvedVendors.includes(name)||pendingVendors.includes(name))return;
-  const ref=doc(db,'settings','vendors');
-  const snap=await getDoc(ref);
-  const data=snap.exists()?snap.data():{approved:[],pending:[]};
-  data.pending=[...new Set([...(data.pending||[]),name])];
-  await setDoc(ref,data);
-}
-function renderVendorAdminPanel(){
-  // approved chips
-  const ac=$('approved-vendors-chips');
-  if(ac)ac.innerHTML=approvedVendors.map((v,i)=>`<button class="chip" onclick="window._removeVendor(${i})">${v} ×</button>`).join('')||'<span style="font-size:13px;color:var(--muted)">No vendors yet. Add one above.</span>';
-  // pending list
-  const pl=$('pending-vendors-list');
-  if(pl){
-    if(!pendingVendors.length){pl.innerHTML='<div class="empty" style="padding:16px">No pending vendors.</div>';return}
-    pl.innerHTML=pendingVendors.map((v,i)=>`<div class="list-row">
-      <span style="font-size:14px">${v}</span>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-green btn-sm" onclick="window._approveVendor(${i})">Approve</button>
-        <button class="btn btn-red btn-sm" onclick="window._declineVendor(${i})">Decline</button>
-      </div>
-    </div>`).join('');
+// ── Auth ───────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    // Load user profile from Firestore
+    const profileSnap = await getDoc(doc(db, 'users', user.uid));
+    if (profileSnap.exists()) {
+      currentUser = { uid: user.uid, ...profileSnap.data() };
+    } else {
+      // Fallback if no profile yet (first-time admin setup)
+      currentUser = { uid: user.uid, firstName: 'User', lastName: '', role: 'user', email: user.email };
+    }
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('top-bar-user').textContent = `${currentUser.firstName} ${currentUser.lastName}`.trim();
+    const isAdmin = currentUser.role === 'admin';
+    document.getElementById('btn-add-recipe').style.display = isAdmin ? 'inline-block' : 'none';
+    document.getElementById('btn-admin').style.display      = isAdmin ? 'inline-block' : 'none';
+    loadRecipes();
+  } else {
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+    currentUser = null;
   }
-}
-window._removeVendor=async i=>{
-  const updated=[...approvedVendors];updated.splice(i,1);
-  const snap=await getDoc(doc(db,'settings','vendors'));
-  const data=snap.exists()?snap.data():{};
-  await setDoc(doc(db,'settings','vendors'),{...data,approved:updated});
-};
-window._approveVendor=async i=>{
-  const name=pendingVendors[i];
-  const snap=await getDoc(doc(db,'settings','vendors'));
-  const data=snap.exists()?snap.data():{approved:[],pending:[]};
-  const newApproved=[...new Set([...(data.approved||[]),name])].sort();
-  const newPending=(data.pending||[]).filter(v=>v!==name);
-  await setDoc(doc(db,'settings','vendors'),{...data,approved:newApproved,pending:newPending});
-};
-window._declineVendor=async i=>{
-  const name=pendingVendors[i];
-  const snap=await getDoc(doc(db,'settings','vendors'));
-  const data=snap.exists()?snap.data():{approved:[],pending:[]};
-  const newPending=(data.pending||[]).filter(v=>v!==name);
-  await setDoc(doc(db,'settings','vendors'),{...data,pending:newPending});
-};
-$('add-vendor-btn').onclick=async()=>{
-  const v=$('new-vendor-input').value.trim();if(!v)return;
-  const snap=await getDoc(doc(db,'settings','vendors'));
-  const data=snap.exists()?snap.data():{approved:[],pending:[]};
-  const newApproved=[...new Set([...(data.approved||[]),v])].sort();
-  await setDoc(doc(db,'settings','vendors'),{...data,approved:newApproved});
-  $('new-vendor-input').value='';
-};
-
-// ── CUSTOM COST CODES ─────────────────────────────────────────────────────────
-function loadCustomCodes(){
-  onSnapshot(doc(db,'settings','costCodes'),snap=>{
-    customCodes=snap.exists()?(snap.data().codes||[]):[];
-    rebuildCostCodeData();
-    renderCustomCodesList();
-    // repopulate all code dropdowns with merged list
-    fillAllCodesDropdown('rm-code-pick');
-    fillAllCodesDropdown('bm-code-pick');
-    fillAllCodesDropdown('er-code-pick');
-    // repopulate category dropdowns
-    ['ci-cat','et-cat','rpt-cat'].forEach(id=>{
-      const el=$(id);if(!el)return;
-      const cur=el.value;
-      el.innerHTML=id==='rpt-cat'?'<option value="">All Categories</option>':'<option value="">Select category...</option>';
-      ALL_CATS.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;el.appendChild(o)});
-      if(cur)el.value=cur;
-    });
-    // repopulate category sel in cost codes admin panel
-    const ccSel=$('cc-cat-sel');if(ccSel){
-      ccSel.innerHTML='<option value="">Select existing category...</option>';
-      ALL_CATS.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;ccSel.appendChild(o)});
-      const newOpt=document.createElement('option');newOpt.value='__new__';newOpt.textContent='+ New Category...';ccSel.appendChild(newOpt);
-    }
-  });
-}
-// Merged list — base COST_CODES + customCodes, used everywhere
-let ALL_CODES=[...COST_CODES];
-let ALL_CATS=[...COST_CATS];
-function rebuildCostCodeData(){
-  ALL_CODES=[...COST_CODES,...customCodes];
-  ALL_CATS=[...new Set(ALL_CODES.map(c=>c.cat))].sort();
-}
-// Override fillAllCodesDropdown and fillCatDropdown to use ALL_CODES/ALL_CATS
-function fillAllCodesDropdown(selId){
-  const s=$(selId);if(!s)return;
-  s.innerHTML='<option value="">Search / select cost code...</option>';
-  ALL_CODES.forEach(c=>{const o=document.createElement('option');o.value=c.code;o.textContent=c.code+' ['+c.cat+']';s.appendChild(o)});
-}
-function fillCatDropdown(selId){
-  const s=$(selId);if(!s)return;
-  s.innerHTML='<option value="">Select category...</option>';
-  ALL_CATS.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;s.appendChild(o)});
-}
-function fillCodeDropdown(selId,cat){
-  const s=$(selId);if(!s)return;
-  s.innerHTML='<option value="">Select code...</option>';
-  ALL_CODES.filter(c=>c.cat===cat).forEach(c=>{const o=document.createElement('option');o.value=c.code;o.textContent=c.code;s.appendChild(o)});
-}
-function renderCustomCodesList(){
-  const el=$('custom-codes-list');if(!el)return;
-  if(!customCodes.length){el.innerHTML='<div class="empty" style="padding:16px">No custom codes yet.</div>';return}
-  // group by category
-  const byCat={};
-  customCodes.forEach((c,i)=>{if(!byCat[c.cat])byCat[c.cat]=[];byCat[c.cat].push({...c,idx:i})});
-  el.innerHTML=Object.entries(byCat).map(([cat,codes])=>`
-    <div style="margin-bottom:14px">
-      <div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">${cat}</div>
-      ${codes.map(c=>`<div class="list-row" style="padding:8px 0">
-        <span style="font-size:13px">${c.code}</span>
-        <button class="btn btn-red btn-sm" onclick="window._removeCustomCode(${c.idx})">Remove</button>
-      </div>`).join('')}
-    </div>`).join('');
-}
-window._removeCustomCode=async i=>{
-  const updated=[...customCodes];updated.splice(i,1);
-  await setDoc(doc(db,'settings','costCodes'),{codes:updated});
-};
-$('cc-cat-sel').onchange=()=>{
-  if($('cc-cat-sel').value==='__new__')show('cc-cat-new');
-  else hide('cc-cat-new');
-};
-$('add-code-btn').onclick=async()=>{
-  const catSel=$('cc-cat-sel').value;
-  const cat=catSel==='__new__'?$('cc-cat-new').value.trim():catSel;
-  const code=$('cc-code-input').value.trim();
-  $('cc-err').textContent='';
-  if(!cat){$('cc-err').textContent='Select or enter a category.';return}
-  if(!code){$('cc-err').textContent='Enter a cost code.';return}
-  if(ALL_CODES.some(c=>c.code===code)){$('cc-err').textContent='That code already exists.';return}
-  const updated=[...customCodes,{cat,code}];
-  await setDoc(doc(db,'settings','costCodes'),{codes:updated});
-  $('cc-cat-sel').value='';$('cc-cat-new').value='';$('cc-code-input').value='';hide('cc-cat-new');
-};
-
-// ── AUTH ─────────────────────────────────────────────────────────────────────
-$('login-btn').onclick=async()=>{
-  const e=$('login-email').value.trim(),p=$('login-password').value;
-  $('login-err').textContent='';$('login-btn').disabled=true;$('login-btn').textContent='Signing in...';
-  try{await signInWithEmailAndPassword(auth,e,p)}catch(err){$('login-err').textContent='Invalid email or password.';$('login-btn').disabled=false;$('login-btn').textContent='Sign In'}
-};
-$('login-email').onkeydown=$('login-password').onkeydown=e=>{if(e.key==='Enter')$('login-btn').click()};
-$('logout-btn').onclick=()=>signOut(auth);
-$('forgot-link').onclick=async(e)=>{
-  e.preventDefault();const email=$('login-email').value.trim();
-  if(!email){$('login-err').textContent='Enter your email address first.';return}
-  try{await sendPasswordResetEmail(auth,email);$('forgot-success').classList.remove('hidden');$('login-err').textContent=''}
-  catch(err){$('login-err').textContent='Could not send reset email. Check the address and try again.'}
-};
-
-onAuthStateChanged(auth,async u=>{
-  currentUser=u;
-  if(!u){show('auth-screen');hide('main-screen');$('login-btn').disabled=false;$('login-btn').textContent='Sign In';return}
-  hide('auth-screen');show('main-screen');
-  const uref=doc(db,'users',u.uid);
-  try{
-    const s=await getDoc(uref);
-    if(!s.exists()){
-      let name=u.displayName||u.email.split('@')[0],role='user';
-      try{const pending=await getDoc(doc(db,'pendingUsers',u.email.toLowerCase()));if(pending.exists()){name=pending.data().name||name;role=pending.data().role||'user'}}catch(e){}
-      await setDoc(uref,{email:u.email,name,role,createdAt:serverTimestamp()});
-    }
-  }catch(e){console.warn(e)}
-  onSnapshot(doc(db,'users',u.uid),d=>{if(d.exists()){userProfile={id:d.id,...d.data()};applyProfile()}});
-  loadProjects();loadActiveSession();loadMyLog();loadReceipts();loadVendors();loadCustomCodes();
 });
 
-function applyProfile(){
-  if(!userProfile)return;
-  $('tb-name').textContent=userProfile.name||'';
-  $('tb-role').textContent=(userProfile.role||'user').toLowerCase();
-  const priv=isPriv(),adm=isAdmin();
-  document.querySelectorAll('.priv-only').forEach(el=>priv?el.classList.remove('hidden'):el.classList.add('hidden'));
-  document.querySelectorAll('.admin-only').forEach(el=>adm?el.classList.remove('hidden'):el.classList.add('hidden'));
-  const rptTab=document.querySelector('[data-tab="reports"]');
-  const admTab=document.querySelector('[data-tab="admin"]');
-  if(rptTab)rptTab.style.display=priv?'block':'none';
-  if(admTab)admTab.style.display=adm?'block':'none';
-}
+document.getElementById('auth-btn').addEventListener('click', async () => {
+  const email    = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const errEl    = document.getElementById('auth-error');
+  errEl.textContent = '';
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch (e) {
+    errEl.textContent = 'Invalid email or password.';
+  }
+});
 
-// ── PROJECTS ─────────────────────────────────────────────────────────────────
-function loadProjects(){
-  onSnapshot(query(collection(db,'projects'),orderBy('name')),snap=>{
-    allProjects=snap.docs.map(d=>({id:d.id,...d.data()}));
-    activeProjects=allProjects.filter(p=>p.active!==false);
-    ['ci-project','rm-project','bm-project'].forEach(id=>{
-      const el=$(id);if(!el)return;
-      const v=el.value;el.innerHTML='<option value="">Select project...</option>';
-      activeProjects.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.name;el.appendChild(o)});
-      el.value=v;
-    });
-    const rp=$('rpt-project');const rv=rp.value;rp.innerHTML='<option value="">All Projects</option>';
-    allProjects.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.name;rp.appendChild(o)});rp.value=rv;
-    renderProjectsList();
-  });
-}
-function fillRoomDropdown(selId,proj){
-  const rm=proj?.rooms||DEF_ROOMS;
-  const s=$(selId);s.innerHTML='<option value="">Select room...</option>';
-  rm.forEach(r=>{const o=document.createElement('option');o.value=r;o.textContent=r;s.appendChild(o)});
-  const na=document.createElement('option');na.value='N/A';na.textContent='N/A';s.appendChild(na);
-}
+document.getElementById('auth-password').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('auth-btn').click();
+});
 
-// ── CLOCK IN/OUT ─────────────────────────────────────────────────────────────
-fillCatDropdown('ci-cat');
-$('ci-project').onchange=()=>{fillRoomDropdown('ci-room',activeProjects.find(p=>p.id===$('ci-project').value));updateGeoBar()};
-$('ci-cat').onchange=()=>fillCodeDropdown('ci-code',$('ci-cat').value);
+document.getElementById('btn-signout').addEventListener('click', () => signOut(auth));
 
-function loadActiveSession(){
-  if(!currentUser)return;
-  onSnapshot(query(collection(db,'timeLogs'),where('userId','==',currentUser.uid),where('status','==','active'),limit(1)),snap=>{
-    activeSession=snap.empty?null:{id:snap.docs[0].id,...snap.docs[0].data()};
-    renderClockUI();
-  });
-}
-function renderClockUI(){
-  if(activeSession){
-    hide('clock-in-form');show('clock-out-form');
-    $('clock-dot').classList.add('pulse');$('clock-status-bar').classList.add('active');
-    $('clock-status-label').textContent='Clocked In — '+activeSession.projectName;
-    $('clock-status-sub').textContent=(activeSession.costCode||activeSession.scope||'')+(activeSession.room?' · '+activeSession.room:'');
-    const proj=allProjects.find(p=>p.id===activeSession.projectId),st=geoSt(currentPos,proj);
-    const t=$('geo-bar-tag');t.className='geo-tag '+st;t.textContent=st==='onsite'?'On Site':st==='offsite'?'Off Site':'?';show('geo-bar-tag');
-    $('active-session-info').innerHTML=`<div style="display:flex;flex-direction:column;gap:6px;font-size:14px">
-      <div><span style="color:var(--muted)">Project: </span><strong>${activeSession.projectName}</strong></div>
-      <div><span style="color:var(--muted)">Cost Code: </span>${activeSession.costCode||activeSession.scope||'--'}</div>
-      ${activeSession.room?'<div><span style="color:var(--muted)">Room: </span>'+activeSession.room+'</div>':''}
-      <div><span style="color:var(--muted)">Started: </span>${fmtTs(activeSession.clockIn)}</div>
-      ${currentPos?'<div style="font-size:12px;color:var(--muted)">GPS: '+currentPos.lat.toFixed(5)+', '+currentPos.lng.toFixed(5)+'</div>':''}
-    </div>`;
-    if(elapsedTimer)clearInterval(elapsedTimer);
-    elapsedTimer=setInterval(()=>{const s=activeSession.clockIn?.toDate?.()||new Date(activeSession.clockIn);$('clock-elapsed').textContent=fmtDur(Date.now()-s.getTime())},1000);
-  }else{
-    show('clock-in-form');hide('clock-out-form');
-    $('clock-dot').classList.remove('pulse');$('clock-status-bar').classList.remove('active');
-    $('clock-status-label').textContent='Not Clocked In';$('clock-status-sub').textContent='';$('clock-elapsed').textContent='';hide('geo-bar-tag');
-    if(elapsedTimer){clearInterval(elapsedTimer);elapsedTimer=null}
+// ── Load Recipes ───────────────────────────────────────────────────
+async function loadRecipes() {
+  const grid = document.getElementById('recipe-grid');
+  grid.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Loading recipes…</p></div>';
+  try {
+    const snap = await getDocs(query(collection(db, 'recipes'), orderBy('name')));
+    allRecipes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderSidebar();
+    applyFilters();
+  } catch (e) {
+    grid.innerHTML = `<div class="empty-state"><p>Error: ${e.message}</p></div>`;
   }
 }
-$('clock-in-btn').onclick=async()=>{
-  const pid=$('ci-project').value,cat=$('ci-cat').value,code=$('ci-code').value,rm=$('ci-room').value;
-  if(!pid||!cat||!code||!rm){alert('Select a project, cost category, cost code, and room.');return}
-  const proj=activeProjects.find(p=>p.id===pid);
-  $('clock-in-btn').disabled=true;$('clock-in-btn').textContent='Clocking in...';
-  await addDoc(collection(db,'timeLogs'),{userId:currentUser.uid,userName:userProfile?.name||currentUser.email,projectId:pid,projectName:proj?.name||pid,costCodeCategory:cat,costCode:code,room:rm,notes:$('ci-notes').value,clockIn:serverTimestamp(),clockInGeo:currentPos?{lat:currentPos.lat,lng:currentPos.lng}:null,clockInGeoStatus:geoSt(currentPos,proj),status:'active'});
-  $('ci-notes').value='';$('ci-code').innerHTML='<option value="">Select code...</option>';$('ci-cat').value='';
-  $('clock-in-btn').disabled=false;$('clock-in-btn').textContent='Clock In';
-};
-$('clock-out-btn').onclick=async()=>{
-  if(!activeSession)return;
-  $('clock-out-btn').disabled=true;$('clock-out-btn').textContent='Clocking out...';
-  const now=new Date(),start=activeSession.clockIn?.toDate?.()||new Date(activeSession.clockIn),proj=allProjects.find(p=>p.id===activeSession.projectId);
-  await updateDoc(doc(db,'timeLogs',activeSession.id),{clockOut:Timestamp.fromDate(now),clockOutGeo:currentPos?{lat:currentPos.lat,lng:currentPos.lng}:null,clockOutGeoStatus:geoSt(currentPos,proj),durationMs:now-start,status:'complete'});
-  $('clock-out-btn').disabled=false;$('clock-out-btn').textContent='Clock Out';
-};
-function loadMyLog(){
-  if(!currentUser)return;
-  onSnapshot(query(collection(db,'timeLogs'),where('userId','==',currentUser.uid),limit(30)),snap=>{
-    const tsMs=v=>{if(!v)return 0;if(typeof v.toMillis==='function')return v.toMillis();if(typeof v.toDate==='function')return v.toDate().getTime();if(v.seconds)return v.seconds*1000+(v.nanoseconds||0)/1e6;return new Date(v).getTime()||0};
-    const rows=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>tsMs(b.clockIn)-tsMs(a.clockIn));
-    window._allTimeLogs=rows;
-    const tb=$('my-log-body');
-    if(!rows.length){tb.innerHTML='<tr><td colspan="9" class="empty">No entries yet.</td></tr>';return}
-    tb.innerHTML=rows.map(r=>`<tr>
-      <td>${fmtDate(r.clockIn)}</td>
-      <td>${r.projectName||'--'}</td>
-      <td style="font-size:11px"><span class="tag">${r.costCode||r.scope||''}</span></td>
-      <td>${r.room||'--'}</td>
-      <td style="font-size:12px">${fmtTime(r.clockIn)}</td>
-      <td style="font-size:12px">${r.clockOut?fmtTime(r.clockOut):'<span class="badge active-session">Active</span>'}</td>
-      <td style="font-weight:600;color:var(--green)">${fmtDur(r.durationMs)}</td>
-      <td><span class="geo-tag ${r.clockInGeoStatus||'unknown'}" style="font-size:10px">${r.clockInGeoStatus==='onsite'?'On Site':r.clockInGeoStatus==='offsite'?'Off Site':'--'}</span></td>
-      <td>${isAdmin()?`<button class="btn btn-outline btn-sm" onclick="window._et('${r.id}')">Edit</button> <button class="btn btn-red btn-sm" onclick="window._dt('${r.id}')">Del</button>`:''}</td>
-    </tr>`).join('');
+
+// ── Sidebar ────────────────────────────────────────────────────────
+function renderSidebar() {
+  const isAdmin = currentUser?.role === 'admin';
+  const visible = allRecipes.filter(r => !r.archived);
+  const catCounts = {};
+  visible.forEach(r => {
+    (r.categories || ['Uncategorized']).forEach(c => {
+      catCounts[c] = (catCounts[c] || 0) + 1;
+    });
+  });
+  const cats = ['All', ...Object.keys(catCounts).sort()];
+  const list = document.getElementById('category-list');
+  list.innerHTML = '';
+  const label = document.createElement('div');
+  label.className = 'category-label';
+  label.textContent = 'Categories';
+  list.appendChild(label);
+  cats.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn' + (cat === activeCategory ? ' active' : '');
+    const count = cat === 'All' ? visible.length : (catCounts[cat] || 0);
+    btn.innerHTML = `${esc(cat)} <span class="cat-count">${count}</span>`;
+    btn.addEventListener('click', () => {
+      activeCategory = cat;
+      showArchived = false;
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyFilters();
+    });
+    list.appendChild(btn);
   });
 }
 
-// ── RECEIPTS ──────────────────────────────────────────────────────────────────
-function loadReceipts(){
-  if(!currentUser)return;
-  const q=isPriv()?query(collection(db,'receipts'),limit(100)):query(collection(db,'receipts'),where('userId','==',currentUser.uid),limit(100));
-  onSnapshot(q,snap=>{
-    const list=snap.docs.map(d=>({id:d.id,...d.data()}));
-    window._allReceipts=list;
-    const el=$('receipts-list');
-    if(!list.length){el.innerHTML='<div class="empty">No receipts yet.</div>';return}
-    el.innerHTML=list.map(r=>{
-      const isBill=r.billType==='bill';
-      const codes=(r.costCodes||[r.scope]).filter(Boolean);
-      const billNumHtml=r.billNumber?`<span class="bill-num">#${r.billNumber}</span> `:'';
-      const qbHtml=isPriv()?(r.qbEntryDate?`<span class="entry-date">QB ✓ ${r.qbEntryDate}</span>`:`<span class="entry-pending" onclick="window._markEntry('${r.id}','qb')">QB: mark entered</span>`):'';
-      const dbHtml=isPriv()?(r.dbEntryDate?`<span class="entry-date">DB ✓ ${r.dbEntryDate}</span>`:`<span class="entry-pending" onclick="window._markEntry('${r.id}','db')">DB: mark entered</span>`):'';
-      return`<div class="receipt-item">
-        ${r.imageUrl?`<img src="${r.imageUrl}" class="receipt-thumb" onclick="window._lb('${r.imageUrl}')" alt="receipt">`:`<div class="receipt-thumb">${isBill?'&#128220;':'&#129534;'}</div>`}
-        <div style="flex:1">
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <div class="receipt-amt">$${parseFloat(r.amount||0).toFixed(2)}</div>
-            <span class="badge ${r.status}">${r.status}</span>
-            ${isBill?'<span class="badge bill">Bill</span>':''}
-          </div>
-          <div class="receipt-meta">${billNumHtml}${r.vendor?r.vendor+' · ':''}${r.projectName||''} · ${fmtDate(r.submittedAt||r.createdAt)}${r.submittedByName?' · '+r.submittedByName:''}</div>
-          ${r.invoiceDate?`<div style="font-size:11px;color:var(--muted)">Invoice: ${r.invoiceDate}</div>`:''}
-          <div style="margin-top:6px">${codes.map(c=>`<span class="tag">${c}</span>`).join('')}${r.room?'<span class="tag">'+r.room+'</span>':''}</div>
-          ${r.notes?`<div style="font-size:12px;color:var(--muted);margin-top:4px">${r.notes}</div>`:''}
-          ${isPriv()?`<div style="display:flex;gap:12px;margin-top:6px;flex-wrap:wrap">${qbHtml}${dbHtml}</div>`:''}
-          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-            ${isAdmin()?`<button class="btn btn-outline btn-sm" onclick="window._er('${r.id}')">Edit</button><button class="btn btn-red btn-sm" onclick="window._dr('${r.id}')">Delete</button>`:''}
-            ${isPriv()&&r.status==='submitted'&&r.userId!==currentUser?.uid?`<button class="btn btn-green btn-sm" onclick="window._apr('${r.id}','approved')">Approve</button><button class="btn btn-red btn-sm" onclick="window._apr('${r.id}','rejected')">Reject</button>`:''}
-            ${!isAdmin()&&r.status==='submitted'&&r.userId===currentUser?.uid?`<button class="btn btn-red btn-sm" onclick="window._dr('${r.id}')">Delete</button>`:''}
-          </div>
-        </div>
+// ── Filters ────────────────────────────────────────────────────────
+function applyFilters() {
+  const q = searchQuery.toLowerCase();
+  filteredRecipes = allRecipes.filter(r => {
+    if (r.archived) return false;
+    const inCat = activeCategory === 'All' || (r.categories || ['Uncategorized']).includes(activeCategory);
+    const inSearch = !q ||
+      r.name.toLowerCase().includes(q) ||
+      (r.directions || '').toLowerCase().includes(q) ||
+      (r.ingredients || []).some(i => i.name && i.name.toLowerCase().includes(q));
+    return inCat && inSearch;
+  });
+  document.getElementById('content-title').textContent = activeCategory === 'All' ? 'All Recipes' : activeCategory;
+  document.getElementById('result-count').textContent = `${filteredRecipes.length} recipe${filteredRecipes.length !== 1 ? 's' : ''}`;
+  renderGrid();
+}
+
+function renderGrid() {
+  const grid = document.getElementById('recipe-grid');
+  if (!filteredRecipes.length) {
+    grid.innerHTML = '<div class="empty-state"><p>No recipes found.</p></div>';
+    return;
+  }
+  grid.innerHTML = '';
+  filteredRecipes.forEach(r => {
+    const card = document.createElement('div');
+    card.className = 'recipe-card';
+    const hasIng = (r.ingredients || []).some(i => i.type === 'ingredient');
+    const cat = (r.categories || ['Uncategorized'])[0];
+    card.innerHTML = `
+      <div class="recipe-card-name">${esc(r.name)}</div>
+      <div class="recipe-card-meta">
+        <span class="tag tag-cat">${esc(cat)}</span>
+        ${r.servings ? `<span class="tag tag-servings">Serves ${esc(r.servings)}</span>` : ''}
+        ${!hasIng ? `<span class="tag tag-review">⚠ Needs ingredients</span>` : ''}
       </div>`;
-    }).join('');
+    card.addEventListener('click', () => openDetail(r));
+    grid.appendChild(card);
   });
 }
-window._apr=async(id,action)=>updateDoc(doc(db,'receipts',id),{status:action,reviewedBy:userProfile?.name||'',reviewedAt:serverTimestamp()});
-window._lb=url=>{$('lightbox-img').src=url;show('lightbox')};
-$('lightbox').onclick=()=>hide('lightbox');
-window._dr=async(id)=>{if(!confirm('Delete this receipt? This cannot be undone.'))return;try{await deleteDoc(doc(db,'receipts',id))}catch(e){alert('Delete failed: '+e.message)}};
-window._markEntry=async(id,type)=>{
-  const today=new Date().toISOString().slice(0,10);
-  const field=type==='qb'?'qbEntryDate':'dbEntryDate';
-  await updateDoc(doc(db,'receipts',id),{[field]:today});
-};
 
-// ── RECEIPT SUBMIT (field crew) ───────────────────────────────────────────────
-fillAllCodesDropdown('rm-code-pick');
-$('new-receipt-btn').onclick=()=>{rmSelectedCodes=[];renderCodeChips('rm-codes-chips',rmSelectedCodes,i=>{rmSelectedCodes.splice(i,1);renderCodeChips('rm-codes-chips',rmSelectedCodes,window._rmRemove);});$('rm-vendor-sel').value='';hide('rm-vendor-new');show('receipt-modal')};
-window._rmRemove=i=>{rmSelectedCodes.splice(i,1);renderCodeChips('rm-codes-chips',rmSelectedCodes,window._rmRemove)};
-$('rm-project').onchange=()=>fillRoomDropdown('rm-room',activeProjects.find(p=>p.id===$('rm-project').value));
-$('rm-vendor-sel').onchange=()=>vendorSelChange('rm-vendor-sel','rm-vendor-new');
-$('rm-code-pick').onchange=()=>{
-  const v=$('rm-code-pick').value;if(!v)return;
-  if(!rmSelectedCodes.includes(v)){rmSelectedCodes.push(v);renderCodeChips('rm-codes-chips',rmSelectedCodes,window._rmRemove)}
-  $('rm-code-pick').value='';
-};
-$('rm-cancel').onclick=()=>{hide('receipt-modal');resetRM()};
-$('rm-upload-zone').onclick=()=>$('rm-file').click();
-$('rm-file').onchange=e=>{const f=e.target.files[0];if(f){rmFile=f;const r=new FileReader();r.onload=ev=>{$('rm-preview').src=ev.target.result;show('rm-preview')};r.readAsDataURL(f)}};
-function resizeImage(file,maxPx=1200){return new Promise(res=>{const r=new FileReader();r.onload=ev=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;if(w<=maxPx&&h<=maxPx)return res(file);if(w>h){h=Math.round(h*maxPx/w);w=maxPx}else{w=Math.round(w*maxPx/h);h=maxPx}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);c.toBlob(b=>res(new File([b],file.name,{type:'image/jpeg'})),'image/jpeg',0.88)};img.src=ev.target.result};r.readAsDataURL(file)})}
-$('rm-submit').onclick=async()=>{
-  const pid=$('rm-project').value,amt=$('rm-amount').value,rm=$('rm-room').value;
-  const vendor=resolveVendor('rm-vendor-sel','rm-vendor-new');
-  if(!pid||!amt||!rm){$('rm-err').textContent='Project, amount, and room are required.';return}
-  if(!vendor){$('rm-err').textContent='Select or enter a vendor.';return}
-  if(!rmSelectedCodes.length){$('rm-err').textContent='Select at least one cost code.';return}
-  $('rm-submit').disabled=true;$('rm-submit').textContent='Uploading...';
-  const proj=activeProjects.find(p=>p.id===pid);let imageUrl=null;
-  if(rmFile){try{const resized=await resizeImage(rmFile);const r=sRef(storage,'receipts/'+currentUser.uid+'/'+Date.now()+'_'+resized.name);await uploadBytes(r,resized);imageUrl=await getDownloadURL(r)}catch(e){console.warn(e)}}
-  if($('rm-vendor-sel').value==='__new__')await submitNewVendor(vendor);
-  const autoApprove=isAdmin();
-  await addDoc(collection(db,'receipts'),{userId:currentUser.uid,submittedByName:userProfile?.name||currentUser.email,projectId:pid,projectName:proj?.name||pid,costCodes:rmSelectedCodes,room:rm,amount:parseFloat(amt),vendor,notes:$('rm-notes').value,imageUrl,billType:'receipt',status:autoApprove?'approved':'submitted',reviewedBy:autoApprove?userProfile?.name||'':null,reviewedAt:autoApprove?serverTimestamp():null,submittedAt:serverTimestamp()});
-  hide('receipt-modal');resetRM();$('rm-submit').disabled=false;$('rm-submit').textContent='Submit Receipt';
-};
-function resetRM(){['rm-project','rm-room'].forEach(id=>$(id).value='');$('rm-vendor-sel').value='';$('rm-vendor-new').value='';hide('rm-vendor-new');['rm-amount','rm-notes'].forEach(id=>$(id).value='');$('rm-file').value='';hide('rm-preview');$('rm-err').textContent='';rmFile=null;rmSelectedCodes=[];$('rm-codes-chips').innerHTML=''}
+document.getElementById('search-input').addEventListener('input', e => {
+  searchQuery = e.target.value;
+  applyFilters();
+});
 
-// ── VENDOR BILL (bookkeeper/admin) ────────────────────────────────────────────
-fillAllCodesDropdown('bm-code-pick');
-$('new-bill-btn').onclick=async()=>{
-  bmSelectedCodes=[];renderCodeChips('bm-codes-chips',bmSelectedCodes,window._bmRemove);
-  $('bm-project').innerHTML='<option value="">Select project...</option>';
-  activeProjects.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.name;$('bm-project').appendChild(o)});
-  ['bm-amount','bm-notes'].forEach(id=>$(id).value='');
-  $('bm-invoicedate').value='';$('bm-qbdate').value='';$('bm-dbdate').value='';
-  $('bm-billnum').value='';$('bm-err').textContent='';
-  fillRoomDropdown('bm-room',null);
-  $('bm-vendor-sel').value='';hide('bm-vendor-new');
-  bmFile=null;hide('bm-preview');$('bm-filename').textContent='';$('bm-file').value='';
-  show('bill-modal');
-};
-let bmFile=null;
-$('bm-upload-zone').onclick=()=>$('bm-file').click();
-$('bm-file').onchange=e=>{
-  const f=e.target.files[0];if(!f)return;
-  bmFile=f;
-  if(f.type.startsWith('image/')){
-    const r=new FileReader();r.onload=ev=>{$('bm-preview').src=ev.target.result;show('bm-preview');$('bm-filename').textContent=''};r.readAsDataURL(f);
-  }else{
-    hide('bm-preview');$('bm-filename').textContent='📄 '+f.name;
+// ── Detail Modal ───────────────────────────────────────────────────
+async function openDetail(recipe) {
+  currentRecipe = recipe;
+  const isAdmin = currentUser?.role === 'admin';
+
+  document.getElementById('detail-name').textContent = recipe.name;
+  const cats = (recipe.categories || ['Uncategorized']).join(', ');
+  const metaParts = [cats];
+  if (recipe.servings) metaParts.push(`Serves ${recipe.servings}`);
+  if (recipe.author)   metaParts.push(`By ${recipe.author}`);
+  document.getElementById('detail-meta').textContent = metaParts.join(' · ');
+
+  // Ingredients
+  const ingEl = document.getElementById('detail-ingredients');
+  const ings = (recipe.ingredients || []).filter(i => i.type === 'ingredient');
+  if (!ings.length) {
+    ingEl.innerHTML = `<div class="no-ingredients">No ingredients on file yet.${isAdmin ? ' Edit to add them.' : ''}</div>`;
+  } else {
+    let html = '';
+    (recipe.ingredients || []).forEach(i => {
+      if (i.type === 'section') {
+        html += `<div class="ingredient-section-name">${esc(i.name)}</div>`;
+      } else {
+        const qty = [i.qty, i.unit].filter(Boolean).join(' ');
+        html += `<div class="ingredient-row">
+          <span class="ing-qty">${esc(qty)}</span>
+          <span>${esc(i.name)}${i.preparation ? `<span class="ing-prep">, ${esc(i.preparation)}</span>` : ''}</span>
+        </div>`;
+      }
+    });
+    ingEl.innerHTML = html;
   }
-};
-window._bmRemove=i=>{bmSelectedCodes.splice(i,1);renderCodeChips('bm-codes-chips',bmSelectedCodes,window._bmRemove)};
-$('bm-vendor-sel').onchange=()=>vendorSelChange('bm-vendor-sel','bm-vendor-new');
-$('bm-project').onchange=async()=>{
-  const pid=$('bm-project').value;
-  const proj=activeProjects.find(p=>p.id===pid);
-  fillRoomDropdown('bm-room',proj);
-  if(!pid){$('bm-billnum').value='';return}
-  const prefix=proj?.billPrefix||autoPrefix(proj?.name||'');
-  const snap=await getDocs(query(collection(db,'receipts'),where('projectId','==',pid),where('billType','==','bill')));
-  const next=String(snap.size+1).padStart(3,'0');
-  $('bm-billnum').value=prefix+'-'+next;
-};
-$('bm-code-pick').onchange=()=>{
-  const v=$('bm-code-pick').value;if(!v)return;
-  if(!bmSelectedCodes.includes(v)){bmSelectedCodes.push(v);renderCodeChips('bm-codes-chips',bmSelectedCodes,window._bmRemove)}
-  $('bm-code-pick').value='';
-};
-$('bm-cancel').onclick=()=>{hide('bill-modal');bmFile=null;hide('bm-preview');$('bm-filename').textContent=''};
-$('bm-save').onclick=async()=>{
-  const pid=$('bm-project').value,amt=$('bm-amount').value,idate=$('bm-invoicedate').value;
-  const vnd=resolveVendor('bm-vendor-sel','bm-vendor-new');
-  if(!pid||!amt||!vnd||!idate){$('bm-err').textContent='Project, vendor, amount, and invoice date are required.';return}
-  if(!bmSelectedCodes.length){$('bm-err').textContent='Select at least one cost code.';return}
-  $('bm-save').disabled=true;$('bm-save').textContent='Saving...';
-  if($('bm-vendor-sel').value==='__new__')await submitNewVendor(vnd);
-  const proj=activeProjects.find(p=>p.id===pid);
-  let imageUrl=null;
-  if(bmFile){
-    try{
-      const isImg=bmFile.type.startsWith('image/');
-      const fileToUp=isImg?await resizeImage(bmFile):bmFile;
-      const r=sRef(storage,'bills/'+currentUser.uid+'/'+Date.now()+'_'+fileToUp.name);
-      await uploadBytes(r,fileToUp);imageUrl=await getDownloadURL(r);
-    }catch(e){console.warn('Bill attachment upload failed:',e)}
+
+  document.getElementById('detail-directions').textContent = recipe.directions || 'No directions on file.';
+
+  const noteEl = document.getElementById('detail-note');
+  noteEl.innerHTML = recipe.note
+    ? `<div class="note-box"><div class="note-label">Recipe Notes</div><div class="note-text">${esc(recipe.note)}</div></div>`
+    : '';
+
+  // Action buttons
+  const actionsEl = document.getElementById('detail-actions');
+  actionsEl.innerHTML = '';
+  const printBtn = btn('🖨 Print', () => window.print());
+  actionsEl.appendChild(printBtn);
+  if (isAdmin) {
+    actionsEl.appendChild(btn('✏ Edit', () => { closeDetail(); openForm(recipe); }));
+    const archBtn = btn('Archive', () => archiveRecipe(recipe));
+    archBtn.classList.add('archive-btn');
+    actionsEl.appendChild(archBtn);
   }
-  try{
-    await addDoc(collection(db,'receipts'),{userId:currentUser.uid,submittedByName:userProfile?.name||currentUser.email,projectId:pid,projectName:proj?.name||pid,costCodes:bmSelectedCodes,room:$('bm-room').value||'',amount:parseFloat(amt),vendor:vnd,notes:$('bm-notes').value,invoiceDate:idate,billNumber:$('bm-billnum').value,billType:'bill',imageUrl,status:'approved',reviewedBy:userProfile?.name||'',reviewedAt:serverTimestamp(),qbEntryDate:$('bm-qbdate').value||null,dbEntryDate:$('bm-dbdate').value||null,createdAt:serverTimestamp(),submittedAt:serverTimestamp()});
-    hide('bill-modal');bmFile=null;hide('bm-preview');$('bm-filename').textContent='';
-  }catch(e){$('bm-err').textContent='Save failed: '+e.message}
-  $('bm-save').disabled=false;$('bm-save').textContent='Save Bill';
-};
 
-// ── EDIT RECEIPT / BILL ───────────────────────────────────────────────────────
-fillAllCodesDropdown('er-code-pick');
-let editingReceiptId=null;
-window._er=id=>{
-  const receipts=window._allReceipts||[];
-  const r=receipts.find(x=>x.id===id);if(!r)return;
-  editingReceiptId=id;
-  erSelectedCodes=[...(r.costCodes||[r.scope].filter(Boolean))];
-  const ep=$('er-project');ep.innerHTML='<option value="">Select project...</option>';
-  activeProjects.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.name;ep.appendChild(o)});
-  ep.value=r.projectId||'';
-  fillRoomDropdown('er-room',allProjects.find(p=>p.id===r.projectId));
-  $('er-room').value=r.room||'';
-  $('er-amount').value=r.amount||'';
-  // set vendor dropdown — if vendor exists in approved list select it, otherwise show as new
-  const existingVendor=r.vendor||'';
-  if(approvedVendors.includes(existingVendor)){$('er-vendor-sel').value=existingVendor;hide('er-vendor-new')}
-  else if(existingVendor){$('er-vendor-sel').value='__new__';$('er-vendor-new').value=existingVendor;show('er-vendor-new')}
-  else{$('er-vendor-sel').value='';hide('er-vendor-new')}
-  $('er-notes').value=r.notes||'';
-  $('er-status').value=r.status||'submitted';$('er-invoicedate').value=r.invoiceDate||'';
-  $('er-qbdate').value=r.qbEntryDate||'';$('er-dbdate').value=r.dbEntryDate||'';
-  renderCodeChips('er-codes-chips',erSelectedCodes,window._erRemove);
-  $('er-err').textContent='';show('edit-receipt-modal');
-};
-window._erRemove=i=>{erSelectedCodes.splice(i,1);renderCodeChips('er-codes-chips',erSelectedCodes,window._erRemove)};
-$('er-vendor-sel').onchange=()=>vendorSelChange('er-vendor-sel','er-vendor-new');
-$('er-code-pick').onchange=()=>{
-  const v=$('er-code-pick').value;if(!v)return;
-  if(!erSelectedCodes.includes(v)){erSelectedCodes.push(v);renderCodeChips('er-codes-chips',erSelectedCodes,window._erRemove)}
-  $('er-code-pick').value='';
-};
-$('er-project').onchange=()=>fillRoomDropdown('er-room',allProjects.find(p=>p.id===$('er-project').value));
-$('er-cancel').onclick=()=>hide('edit-receipt-modal');
-$('er-save').onclick=async()=>{
-  const pid=$('er-project').value,rm=$('er-room').value,amt=$('er-amount').value;
-  const vendor=resolveVendor('er-vendor-sel','er-vendor-new');
-  if(!pid||!amt){$('er-err').textContent='Project and amount required.';return}
-  $('er-save').disabled=true;$('er-save').textContent='Saving...';
-  if($('er-vendor-sel').value==='__new__')await submitNewVendor(vendor);
-  const proj=allProjects.find(p=>p.id===pid);
-  try{
-    await updateDoc(doc(db,'receipts',editingReceiptId),{projectId:pid,projectName:proj?.name||pid,costCodes:erSelectedCodes,room:rm,amount:parseFloat(amt),vendor,notes:$('er-notes').value,status:$('er-status').value,invoiceDate:$('er-invoicedate').value||null,qbEntryDate:$('er-qbdate').value||null,dbEntryDate:$('er-dbdate').value||null,updatedAt:serverTimestamp()});
-    hide('edit-receipt-modal');
-  }catch(e){$('er-err').textContent='Save failed: '+e.message}
-  $('er-save').disabled=false;$('er-save').textContent='Save Changes';
-};
+  // Load notes
+  await loadNotes(recipe.id);
 
-// ── EDIT TIME LOG ─────────────────────────────────────────────────────────────
-fillCatDropdown('et-cat');
-window._dt=async(id)=>{if(!confirm('Delete this time entry? This cannot be undone.'))return;try{await deleteDoc(doc(db,'timeLogs',id))}catch(e){alert('Delete failed: '+e.message)}};
-let editingTimeId=null;
-window._et=id=>{
-  const rows=window._allTimeLogs||[];const r=rows.find(x=>x.id===id);if(!r)return;
-  editingTimeId=id;
-  const ep=$('et-project');ep.innerHTML='<option value="">Select project...</option>';
-  allProjects.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.name;ep.appendChild(o)});
-  ep.value=r.projectId||'';
-  fillRoomDropdown('et-room',allProjects.find(p=>p.id===r.projectId));
-  // populate cat/code
-  const existingCat=r.costCodeCategory||'';const existingCode=r.costCode||r.scope||'';
-  $('et-cat').value=existingCat;
-  fillCodeDropdown('et-code',existingCat);
-  $('et-code').value=existingCode;
-  $('et-room').value=r.room||'';
-  const toLocal=ts=>{if(!ts)return'';const d=ts.toDate?ts.toDate():new Date(ts);const off=d.getTimezoneOffset()*60000;return new Date(d-off).toISOString().slice(0,16)};
-  $('et-clockin').value=toLocal(r.clockIn);$('et-clockout').value=r.clockOut?toLocal(r.clockOut):'';
-  $('et-notes').value=r.notes||'';$('et-err').textContent='';show('edit-time-modal');
-};
-$('et-cat').onchange=()=>fillCodeDropdown('et-code',$('et-cat').value);
-$('et-project').onchange=()=>fillRoomDropdown('et-room',allProjects.find(p=>p.id===$('et-project').value));
-$('et-cancel').onclick=()=>hide('edit-time-modal');
-$('et-save').onclick=async()=>{
-  const pid=$('et-project').value,cat=$('et-cat').value,code=$('et-code').value,rm=$('et-room').value,ci=$('et-clockin').value;
-  if(!pid||!cat||!code||!rm||!ci){$('et-err').textContent='Project, cost category, cost code, room, and clock-in are required.';return}
-  $('et-save').disabled=true;$('et-save').textContent='Saving...';
-  const proj=allProjects.find(p=>p.id===pid);
-  const ciDate=new Date($('et-clockin').value),coVal=$('et-clockout').value,coDate=coVal?new Date(coVal):null;
-  const durationMs=coDate?coDate-ciDate:null;
-  try{
-    await updateDoc(doc(db,'timeLogs',editingTimeId),{projectId:pid,projectName:proj?.name||pid,costCodeCategory:cat,costCode:code,room:rm,notes:$('et-notes').value,clockIn:Timestamp.fromDate(ciDate),clockOut:coDate?Timestamp.fromDate(coDate):null,durationMs,updatedAt:serverTimestamp()});
-    hide('edit-time-modal');
-  }catch(e){$('et-err').textContent='Save failed: '+e.message}
-  $('et-save').disabled=false;$('et-save').textContent='Save Changes';
-};
-
-// ── REPORTS ───────────────────────────────────────────────────────────────────
-// populate report category filter
-COST_CATS.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;$('rpt-cat').appendChild(o)});
-
-$('rpt-time-btn').onclick=()=>{currentRptType='time';$('rpt-time-btn').classList.add('on');$('rpt-rcpt-btn').classList.remove('on');$('rpt-cat-wrap').style.display='';$('rpt-results').innerHTML='';$('rpt-active-filters').textContent=''};
-$('rpt-rcpt-btn').onclick=()=>{currentRptType='receipts';$('rpt-rcpt-btn').classList.add('on');$('rpt-time-btn').classList.remove('on');$('rpt-cat-wrap').style.display='';$('rpt-results').innerHTML='';$('rpt-active-filters').textContent=''};
-
-$('rpt-run-btn').onclick=async()=>{
-  const pid=$('rpt-project').value,fr=$('rpt-from').value,to=$('rpt-to').value;
-  if(!pid&&!fr&&!to){alert('Select at least a project or a date range before running.');return}
-  $('rpt-run-btn').disabled=true;$('rpt-run-btn').textContent='Running...';$('rpt-results').innerHTML='<div class="empty">Loading...</div>';
-  const col=currentRptType==='time'?'timeLogs':'receipts';
-  const tf=currentRptType==='time'?'clockIn':'submittedAt';
-  let c=[];
-  if(pid)c.push(where('projectId','==',pid));
-  if(fr)c.push(where(tf,'>=',Timestamp.fromDate(new Date(fr))));
-  if(to){const e=new Date(to);e.setDate(e.getDate()+1);c.push(where(tf,'<=',Timestamp.fromDate(e)))}
-  try{
-    const snap=await getDocs(query(collection(db,col),...c));
-    _rptRawData=snap.docs.map(d=>({id:d.id,...d.data()}));
-    _rptType=currentRptType;
-    applyReportFilters();
-    populateSecondaryFilters(_rptRawData);
-  }catch(e){$('rpt-results').innerHTML='<div class="err">Query failed: '+e.message+'</div>'}
-  $('rpt-run-btn').disabled=false;$('rpt-run-btn').textContent='Run Report';
-};
-
-function populateSecondaryFilters(data){
-  // employee
-  const employees=[...new Set(data.map(r=>r.userName||r.submittedByName||'').filter(Boolean))].sort();
-  const empSel=$('rpt-employee');const ev=empSel.value;empSel.innerHTML='<option value="">All Employees</option>';employees.forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;empSel.appendChild(o)});empSel.value=ev;
-  // rooms
-  const rooms=[...new Set(data.map(r=>r.room||'').filter(Boolean))].sort();
-  const rmSel=$('rpt-room');const rv=rmSel.value;rmSel.innerHTML='<option value="">All Rooms</option>';rooms.forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;rmSel.appendChild(o)});rmSel.value=rv;
+  document.getElementById('detail-modal').classList.add('open');
 }
 
-// secondary filters apply client-side
-['rpt-employee','rpt-cat','rpt-room'].forEach(id=>$(id).onchange=applyReportFilters);
-
-function applyReportFilters(){
-  if(!_rptRawData.length)return;
-  const emp=$('rpt-employee').value;
-  const cat=$('rpt-cat').value;
-  const room=$('rpt-room').value;
-  let data=[..._rptRawData];
-  if(emp)data=data.filter(r=>(r.userName||r.submittedByName||'')=== emp);
-  if(room)data=data.filter(r=>r.room===room);
-  if(cat){
-    if(_rptType==='time')data=data.filter(r=>r.costCodeCategory===cat);
-    else data=data.filter(r=>(r.costCodes||[]).some(c=>{const entry=COST_CODES.find(x=>x.code===c);return entry?.cat===cat}));
-  }
-  // show active filter summary
-  const parts=[];
-  if(emp)parts.push('Employee: '+emp);
-  if(cat)parts.push('Category: '+cat);
-  if(room)parts.push('Room: '+room);
-  $('rpt-active-filters').textContent=parts.length?'Filtered by: '+parts.join(' · '):'';
-  renderReport(data);
+function btn(label, onClick) {
+  const b = document.createElement('button');
+  b.className = 'btn-icon';
+  b.textContent = label;
+  b.addEventListener('click', onClick);
+  return b;
 }
 
-function renderReport(data){
-  if(!data.length){$('rpt-results').innerHTML='<div class="empty">No records match the current filters.</div>';window._rptData=[];return}
-  const it=_rptType==='time';
-  // totals
-  let totalsHtml='';
-  if(it){const totalMs=data.reduce((s,r)=>s+(r.durationMs||0),0);totalsHtml=`<div style="font-size:13px;color:var(--muted)">Total hours: <strong style="color:var(--ink)">${fmtDur(totalMs)}</strong></div>`}
-  else{const totalAmt=data.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);totalsHtml=`<div style="font-size:13px;color:var(--muted)">Total amount: <strong style="color:var(--ink)">$${totalAmt.toFixed(2)}</strong></div>`}
+function closeDetail() {
+  document.getElementById('detail-modal').classList.remove('open');
+  currentRecipe = null;
+}
 
-  let h=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-    <div style="display:flex;gap:16px;align-items:center"><span style="font-size:13px;color:var(--muted)">${data.length} records</span>${totalsHtml}</div>
-    <button class="btn btn-outline btn-sm" onclick="window._csv()">Export CSV</button>
-  </div><div style="overflow-x:auto"><table class="tbl"><thead><tr>`;
-  if(it){
-    h+='<th>Date</th><th>Employee</th><th>Project</th><th>Cost Category</th><th>Cost Code</th><th>Room</th><th>Clock In</th><th>Clock Out</th><th>Duration</th><th>Location</th>';
-  }else{
-    h+='<th>Date</th><th>Bill #</th><th>Type</th><th>By</th><th>Project</th><th>Cost Codes</th><th>Room</th><th>Amount</th><th>Vendor</th><th>Invoice Date</th><th>Status</th><th>QB</th><th>DB</th>';
+document.getElementById('detail-close').addEventListener('click', closeDetail);
+document.getElementById('detail-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('detail-modal')) closeDetail();
+});
+
+// ── Notes ──────────────────────────────────────────────────────────
+async function loadNotes(recipeId) {
+  const notesList = document.getElementById('notes-list');
+  notesList.innerHTML = '<p style="font-size:13px;color:var(--warm-mid)">Loading notes…</p>';
+  try {
+    const snap = await getDocs(query(
+      collection(db, 'recipes', recipeId, 'notes'),
+      orderBy('createdAt', 'asc')
+    ));
+    const notes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (!notes.length) {
+      notesList.innerHTML = '<p style="font-size:13px;color:var(--warm-mid);font-style:italic">No notes yet.</p>';
+      return;
+    }
+    notesList.innerHTML = '';
+    notes.forEach(n => {
+      const isOwn = n.authorId === currentUser?.uid;
+      const isAdmin = currentUser?.role === 'admin';
+      const date = n.createdAt?.toDate ? n.createdAt.toDate().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '';
+      const item = document.createElement('div');
+      item.className = 'note-item';
+      item.innerHTML = `
+        <div class="note-item-meta">${esc(n.authorName)} · ${date}</div>
+        <div class="note-item-text">${esc(n.text)}</div>
+        ${isOwn || isAdmin ? `<button class="note-delete-btn" data-id="${n.id}" title="Delete note">×</button>` : ''}
+      `;
+      item.querySelector('.note-delete-btn')?.addEventListener('click', async () => {
+        if (!confirm('Delete this note?')) return;
+        await deleteDoc(doc(db, 'recipes', recipeId, 'notes', n.id));
+        await loadNotes(recipeId);
+      });
+      notesList.appendChild(item);
+    });
+  } catch (e) {
+    notesList.innerHTML = `<p style="font-size:13px;color:var(--rust)">${e.message}</p>`;
   }
-  h+='</tr></thead><tbody>';
-  data.forEach(r=>{
-    if(it){
-      h+=`<tr>
-        <td style="white-space:nowrap">${fmtDate(r.clockIn)}</td>
-        <td>${r.userName||'--'}</td>
-        <td>${r.projectName||'--'}</td>
-        <td style="font-size:11px">${r.costCodeCategory||r.scope||'--'}</td>
-        <td style="font-size:11px"><span class="tag">${r.costCode||r.scope||'--'}</span></td>
-        <td>${r.room||'--'}</td>
-        <td style="font-size:12px;white-space:nowrap">${fmtTs(r.clockIn)}</td>
-        <td style="font-size:12px;white-space:nowrap">${r.clockOut?fmtTs(r.clockOut):'<span class="badge active-session">Active</span>'}</td>
-        <td style="font-weight:600;color:var(--green);white-space:nowrap">${fmtDur(r.durationMs)}</td>
-        <td><span class="geo-tag ${r.clockInGeoStatus||'unknown'}" style="font-size:10px">${r.clockInGeoStatus==='onsite'?'On Site':r.clockInGeoStatus==='offsite'?'Off Site':'--'}</span></td>
-      </tr>`;
-    }else{
-      const codes=(r.costCodes||[r.scope]).filter(Boolean);
-      h+=`<tr>
-        <td style="white-space:nowrap">${fmtDate(r.submittedAt||r.createdAt)}</td>
-        <td style="font-size:11px">${r.billNumber||'--'}</td>
-        <td>${r.billType==='bill'?'<span class="badge bill">Bill</span>':'Receipt'}</td>
-        <td>${r.submittedByName||'--'}</td>
-        <td>${r.projectName||'--'}</td>
-        <td style="font-size:11px">${codes.map(c=>'<span class="tag">'+c+'</span>').join('')}</td>
-        <td>${r.room||'--'}</td>
-        <td style="font-weight:600">$${parseFloat(r.amount||0).toFixed(2)}</td>
-        <td>${r.vendor||'--'}</td>
-        <td style="font-size:11px;white-space:nowrap">${r.invoiceDate||'--'}</td>
-        <td><span class="badge ${r.status||'submitted'}">${r.status||'--'}</span></td>
-        <td style="font-size:11px">${r.qbEntryDate?'<span style="color:var(--green)">✓ '+r.qbEntryDate+'</span>':'<span style="color:var(--amber)">Pending</span>'}</td>
-        <td style="font-size:11px">${r.dbEntryDate?'<span style="color:var(--green)">✓ '+r.dbEntryDate+'</span>':'<span style="color:var(--amber)">Pending</span>'}</td>
-      </tr>`;
+}
+
+document.getElementById('btn-post-note').addEventListener('click', async () => {
+  const text = document.getElementById('note-input').value.trim();
+  if (!text || !currentRecipe) return;
+  const authorName = `${currentUser.firstName} ${currentUser.lastName}`.trim();
+  await addDoc(collection(db, 'recipes', currentRecipe.id, 'notes'), {
+    text,
+    authorId: currentUser.uid,
+    authorName,
+    createdAt: serverTimestamp()
+  });
+  document.getElementById('note-input').value = '';
+  await loadNotes(currentRecipe.id);
+});
+
+// ── Archive ────────────────────────────────────────────────────────
+async function archiveRecipe(recipe) {
+  if (!confirm(`Archive "${recipe.name}"? It will be hidden but recoverable from the Admin panel.`)) return;
+  await updateDoc(doc(db, 'recipes', recipe.id), { archived: true, archivedAt: new Date().toISOString() });
+  closeDetail();
+  await loadRecipes();
+}
+
+// ── Recipe Form ────────────────────────────────────────────────────
+function openForm(recipe = null) {
+  editingId = recipe ? recipe.id : null;
+  document.getElementById('form-modal-title').textContent = recipe ? 'Edit Recipe' : 'New Recipe';
+  document.getElementById('form-name').value       = recipe?.name || '';
+  document.getElementById('form-servings').value   = recipe?.servings || '';
+  document.getElementById('form-author').value     = recipe?.author || '';
+  document.getElementById('form-directions').value = recipe?.directions || '';
+  document.getElementById('form-note').value       = recipe?.note || '';
+  const catSel = document.getElementById('form-category');
+  catSel.value = (recipe?.categories || ['Uncategorized'])[0];
+  const ingRows = document.getElementById('ing-rows');
+  ingRows.innerHTML = '';
+  const ings = (recipe?.ingredients || []).filter(i => i.type === 'ingredient');
+  if (ings.length) { ings.forEach(i => addIngRow(i)); } else { addIngRow(); }
+  document.getElementById('form-modal').classList.add('open');
+  setTimeout(() => document.getElementById('form-name').focus(), 100);
+}
+
+function addIngRow(ing = {}) {
+  const row = document.createElement('div');
+  row.className = 'ing-editor-row';
+  row.innerHTML = `
+    <input type="text" placeholder="2" value="${esc(ing.qty||'')}" data-field="qty" />
+    <input type="text" placeholder="cups" value="${esc(ing.unit||'')}" data-field="unit" />
+    <input type="text" placeholder="Ingredient name" value="${esc(ing.name||'')}" data-field="name" />
+    <input type="text" placeholder="chopped" value="${esc(ing.preparation||'')}" data-field="preparation" />
+    <button class="btn-remove-ing" title="Remove">×</button>`;
+  row.querySelector('.btn-remove-ing').addEventListener('click', () => row.remove());
+  document.getElementById('ing-rows').appendChild(row);
+}
+
+document.getElementById('btn-add-ing').addEventListener('click', () => addIngRow());
+
+function closeForm() {
+  document.getElementById('form-modal').classList.remove('open');
+  editingId = null;
+}
+
+document.getElementById('form-close').addEventListener('click', closeForm);
+document.getElementById('form-cancel').addEventListener('click', closeForm);
+document.getElementById('form-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('form-modal')) closeForm();
+});
+document.getElementById('btn-add-recipe').addEventListener('click', () => openForm());
+
+document.getElementById('form-save').addEventListener('click', async () => {
+  const name = document.getElementById('form-name').value.trim();
+  if (!name) { alert('Recipe name is required.'); return; }
+  const ingredients = [];
+  document.querySelectorAll('#ing-rows .ing-editor-row').forEach(row => {
+    const ingName = row.querySelector('[data-field="name"]').value.trim();
+    if (ingName) {
+      ingredients.push({
+        type: 'ingredient',
+        qty:  row.querySelector('[data-field="qty"]').value.trim(),
+        unit: row.querySelector('[data-field="unit"]').value.trim(),
+        name: ingName,
+        preparation: row.querySelector('[data-field="preparation"]').value.trim()
+      });
     }
   });
-  h+='</tbody></table></div>';
-  $('rpt-results').innerHTML=h;
-  window._rptData=data;
-}
-
-window._csv=()=>{
-  const data=window._rptData||[];const it=_rptType==='time';
-  const headers=it
-    ?['Date','Employee','Project','Cost Category','Cost Code','Room','Clock In','Clock Out','Duration (min)','In Status','In Lat','In Lng','Out Status','Out Lat','Out Lng','Notes']
-    :['Date','Bill #','Type','Submitted By','Project','Cost Codes','Room','Amount','Vendor','Invoice Date','Status','QB Entry Date','DB Entry Date','Notes','Receipt URL'];
-  const rows=data.map(r=>it
-    ?[r.clockIn?.toDate?.()?.toLocaleDateString()||'',r.userName,r.projectName,r.costCodeCategory||r.scope||'',r.costCode||r.scope||'',r.room||'',r.clockIn?.toDate?.()?.toLocaleTimeString()||'',r.clockOut?.toDate?.()?.toLocaleTimeString()||'Active',r.durationMs?Math.round(r.durationMs/60000):'',r.clockInGeoStatus||'',r.clockInGeo?.lat||'',r.clockInGeo?.lng||'',r.clockOutGeoStatus||'',r.clockOutGeo?.lat||'',r.clockOutGeo?.lng||'',r.notes||'']
-    :[(r.submittedAt||r.createdAt)?.toDate?.()?.toLocaleDateString()||'',r.billNumber||'',r.billType||'receipt',r.submittedByName||'',r.projectName||'',(r.costCodes||[r.scope]).filter(Boolean).join('; '),r.room||'',r.amount||'',r.vendor||'',r.invoiceDate||'',r.status||'',r.qbEntryDate||'',r.dbEntryDate||'',r.notes||'',r.imageUrl||'']);
-  const csv=[headers,...rows].map(r=>r.map(v=>'"'+String(v||'').replace(/"/g,'""')+'"').join(',')).join('\n');
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='MOTIF_'+(it?'time':'receipts')+'_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
-};
-
-// ── ADMIN — PROJECTS ──────────────────────────────────────────────────────────
-function renderProjectsList(){
-  const el=$('projects-list');
-  if(!allProjects.length){el.innerHTML='<div class="empty">No projects.</div>';return}
-  el.innerHTML=allProjects.map(p=>`<div class="list-row">
-    <div>
-      <div style="font-weight:600">${p.name}</div>
-      <div style="font-size:12px;color:var(--muted)">${p.address||''} · Prefix: ${p.billPrefix||autoPrefix(p.name)} · ${(p.rooms||[]).length} rooms</div>
-    </div>
-    <div style="display:flex;gap:8px;flex-shrink:0">
-      <button class="btn btn-outline btn-sm" onclick="window._ep('${p.id}')">Edit</button>
-      <button class="btn btn-sm" style="background:${p.active!==false?'var(--cream)':'#d4edd9'};color:${p.active!==false?'var(--muted)':'var(--green)'};border:1px solid var(--border)" onclick="window._tp('${p.id}',${p.active!==false})">${p.active!==false?'Archive':'Activate'}</button>
-    </div>
-  </div>`).join('');
-}
-window._tp=async(id,active)=>updateDoc(doc(db,'projects',id),{active:!active});
-window._ep=id=>{
-  const p=allProjects.find(x=>x.id===id);if(!p)return;
-  editingProjectId=id;$('pm-title').textContent='Edit Project';
-  $('pm-name').value=p.name||'';$('pm-address').value=p.address||'';
-  $('pm-lat').value=p.lat||'';$('pm-lng').value=p.lng||'';
-  $('pm-prefix').value=p.billPrefix||autoPrefix(p.name||'');
-  pmRooms=[...(p.rooms||DEF_ROOMS)];renderRoomChips();
-  if(p.lat&&p.lng){setTimeout(()=>initMapPicker(p.lat,p.lng),50)}else{hide('pm-map');$('pm-coords-row').style.display='none';$('pm-geo-note').textContent=''}
-  show('project-modal');
-};
-$('new-project-btn').onclick=()=>{
-  editingProjectId=null;$('pm-title').textContent='New Project';
-  ['pm-name','pm-address','pm-lat','pm-lng','pm-prefix'].forEach(id=>$(id).value='');
-  $('pm-err').textContent='';pmRooms=[...DEF_ROOMS];renderRoomChips();
-  hide('pm-map');$('pm-coords-row').style.display='none';$('pm-geo-note').textContent='';
-  show('project-modal');
-};
-$('pm-name').oninput=()=>{if(!editingProjectId)$('pm-prefix').value=autoPrefix($('pm-name').value)};
-$('pm-cancel').onclick=()=>hide('project-modal');
-// ── GOOGLE MAPS PICKER ───────────────────────────────────────────────────────
-let _map=null,_marker=null,_autocomplete=null;
-function initMapPicker(lat,lng){
-  const center={lat:lat||39.6133,lng:lng||-105.0167};
-  show('pm-map');
-  $('pm-coords-row').style.display='grid';
-  if(!_map){
-    _map=new google.maps.Map($('pm-map'),{center,zoom:lat?17:11,mapTypeId:'roadmap',streetViewControl:false,fullscreenControl:false,mapTypeControl:false});
-    _marker=new google.maps.Marker({map:_map,draggable:true,position:center});
-    _marker.addListener('dragend',e=>{
-      const la=e.latLng.lat().toFixed(6),lo=e.latLng.lng().toFixed(6);
-      $('pm-lat').value=la;$('pm-lng').value=lo;updateGeoNote();
-    });
-    _map.addListener('click',e=>{
-      const la=e.latLng.lat().toFixed(6),lo=e.latLng.lng().toFixed(6);
-      _marker.setPosition(e.latLng);
-      $('pm-lat').value=la;$('pm-lng').value=lo;updateGeoNote();
-    });
-  }else{
-    _map.setCenter(center);
-    _marker.setPosition(center);
-    if(lat)_map.setZoom(17);
-  }
-  if(lat){$('pm-lat').value=parseFloat(lat).toFixed(6);$('pm-lng').value=parseFloat(lng).toFixed(6);updateGeoNote();}
-}
-$('pm-geocode-btn').onclick=async()=>{
-  const addr=$('pm-address').value.trim();if(!addr)return;
-  $('pm-geocode-btn').disabled=true;$('pm-geocode-btn').textContent='...';
-  const geocoder=new google.maps.Geocoder();
-  geocoder.geocode({address:addr,componentRestrictions:{country:'US'}},function(results,status){
-    if(status==='OK'&&results[0]){
-      const loc=results[0].geometry.location;
-      $('pm-address').value=results[0].formatted_address;
-      initMapPicker(loc.lat(),loc.lng());
-    }else{
-      alert('Address not found. Try adding city, state, or zip code.');
-      initMapPicker(null,null);
+  const data = {
+    name,
+    categories: [document.getElementById('form-category').value],
+    servings:   document.getElementById('form-servings').value.trim(),
+    author:     document.getElementById('form-author').value.trim(),
+    ingredients,
+    directions: document.getElementById('form-directions').value.trim(),
+    note:       document.getElementById('form-note').value.trim(),
+    updatedAt:  new Date().toISOString(),
+    updatedBy:  `${currentUser.firstName} ${currentUser.lastName}`.trim()
+  };
+  const saveBtn = document.getElementById('form-save');
+  saveBtn.textContent = 'Saving…';
+  saveBtn.disabled = true;
+  try {
+    if (editingId) {
+      await updateDoc(doc(db, 'recipes', editingId), data);
+    } else {
+      const newId = 'recipe_' + Date.now();
+      await setDoc(doc(db, 'recipes', newId), { ...data, createdAt: new Date().toISOString(), dataSource: 'Manual entry' });
     }
-    $('pm-geocode-btn').disabled=false;$('pm-geocode-btn').textContent='Search';
-  });
-};
-function updateGeoNote(){
-  const la=$('pm-lat').value,lo=$('pm-lng').value;
-  $('pm-geo-note').textContent=la&&lo?'&#10003; Geofence set — 300 ft radius ('+parseFloat(la).toFixed(4)+', '+parseFloat(lo).toFixed(4)+')':'';
-}
-$('pm-lat').oninput=$('pm-lng').oninput=()=>{
-  updateGeoNote();
-  const la=parseFloat($('pm-lat').value),lo=parseFloat($('pm-lng').value);
-  if(!isNaN(la)&&!isNaN(lo)&&_map){const ll=new google.maps.LatLng(la,lo);_map.setCenter(ll);_marker.setPosition(ll);}
-};
-function renderRoomChips(){$('pm-rooms').innerHTML=pmRooms.map((r,i)=>`<button class="chip" onclick="window._rr(${i})">${r} ×</button>`).join('')}
-window._rr=i=>{pmRooms.splice(i,1);renderRoomChips()};
-$('pm-add-room-btn').onclick=()=>{const v=$('pm-new-room').value.trim();if(v){pmRooms.push(v);$('pm-new-room').value='';renderRoomChips()}};
-$('pm-save').onclick=async()=>{
-  const name=$('pm-name').value.trim();if(!name){$('pm-err').textContent='Project name required.';return}
-  const prefix=($('pm-prefix').value.trim()||autoPrefix(name)).toUpperCase();
-  // duplicate prefix check — exclude current project when editing
-  const conflict=allProjects.find(p=>p.billPrefix===prefix&&p.id!==editingProjectId&&p.active!==false);
-  if(conflict){$('pm-err').textContent=`Prefix "${prefix}" is already used by "${conflict.name}". Choose a different prefix.`;return}
-  $('pm-save').disabled=true;$('pm-save').textContent='Saving...';
-  const payload={name,address:$('pm-address').value.trim(),lat:$('pm-lat').value?parseFloat($('pm-lat').value):null,lng:$('pm-lng').value?parseFloat($('pm-lng').value):null,rooms:pmRooms,billPrefix:prefix,active:true,updatedAt:serverTimestamp()};
-  try{
-    if(editingProjectId)await updateDoc(doc(db,'projects',editingProjectId),payload);
-    else await addDoc(collection(db,'projects'),{...payload,createdAt:serverTimestamp()});
-    hide('project-modal');
-  }catch(e){$('pm-err').textContent='Save failed: '+e.message}
-  $('pm-save').disabled=false;$('pm-save').textContent='Save Project';
-};
-
-// ── ADMIN — USERS ─────────────────────────────────────────────────────────────
-function loadUsers(){
-  onSnapshot(collection(db,'users'),snap=>{
-    const users=snap.docs.map(d=>({id:d.id,...d.data()}));
-    const el=$('users-list');
-    if(!users.length){el.innerHTML='<div class="empty">No users found.</div>';return}
-    el.innerHTML=users.map(u=>`<div class="list-row"><div style="display:flex;align-items:center;gap:10px"><div class="avatar">${ini(u.name)}</div><div><div style="font-weight:500">${u.name||'--'}</div><div style="font-size:12px;color:var(--muted)">${u.email||''}</div></div></div><select class="role-sel" onchange="window._ur('${u.id}',this.value)"><option value="user" ${u.role==='user'?'selected':''}>User</option><option value="bookkeeper" ${u.role==='bookkeeper'?'selected':''}>Bookkeeper</option><option value="admin" ${u.role==='admin'?'selected':''}>Admin</option></select></div>`).join('');
-  });
-}
-window._ur=async(id,role)=>updateDoc(doc(db,'users',id),{role});
-$('new-user-btn').onclick=()=>{['um-name','um-email'].forEach(id=>$(id).value='');$('um-role').value='user';$('um-err').textContent='';hide('um-success');show('user-modal')};
-$('um-cancel').onclick=()=>hide('user-modal');
-$('um-save').onclick=async()=>{
-  const name=$('um-name').value.trim(),email=$('um-email').value.trim().toLowerCase(),role=$('um-role').value;
-  if(!name||!email){$('um-err').textContent='Name and email are required.';return}
-  if(!email.includes('@')){$('um-err').textContent='Enter a valid email address.';return}
-  $('um-save').disabled=true;$('um-save').textContent='Sending invite...';
-  try{
-    const inviteUser=httpsCallable(functions,'inviteUser');
-    await inviteUser({name,email,role});
-    $('um-err').textContent='';$('um-success').textContent='Invite sent to '+email+'. They will receive an email with a link to set their password.';show('um-success');
-    $('um-name').value='';$('um-email').value='';
-  }catch(e){$('um-err').textContent='Invite failed: '+(e.message||'Unknown error')}
-  $('um-save').disabled=false;$('um-save').textContent='Send Invite';
-};
-
-// ── NAV ───────────────────────────────────────────────────────────────────────
-document.querySelectorAll('.nav-tab').forEach(tab=>{
-  tab.onclick=()=>{
-    const t=tab.dataset.tab;
-    document.querySelectorAll('.nav-tab').forEach(x=>x.classList.remove('active'));tab.classList.add('active');
-    ['clock','receipts','reports','admin'].forEach(x=>{const el=$('tab-'+x);if(el){t===x?el.classList.remove('hidden'):el.classList.add('hidden')}});
-    if(t==='admin')loadUsers();
+    closeForm();
+    await loadRecipes();
+  } catch (e) {
+    alert('Error saving: ' + e.message);
+  } finally {
+    saveBtn.textContent = 'Save Recipe';
+    saveBtn.disabled = false;
   }
 });
-$('adm-proj-btn').onclick=()=>{$('adm-proj-btn').classList.add('on');$('adm-users-btn').classList.remove('on');$('adm-vendors-btn').classList.remove('on');$('adm-codes-btn').classList.remove('on');show('adm-projects-panel');hide('adm-users-panel');hide('adm-vendors-panel');hide('adm-codes-panel')};
-$('adm-users-btn').onclick=()=>{$('adm-users-btn').classList.add('on');$('adm-proj-btn').classList.remove('on');$('adm-vendors-btn').classList.remove('on');$('adm-codes-btn').classList.remove('on');hide('adm-projects-panel');show('adm-users-panel');hide('adm-vendors-panel');hide('adm-codes-panel')};
-$('adm-vendors-btn').onclick=()=>{$('adm-vendors-btn').classList.add('on');$('adm-proj-btn').classList.remove('on');$('adm-users-btn').classList.remove('on');$('adm-codes-btn').classList.remove('on');hide('adm-projects-panel');hide('adm-users-panel');show('adm-vendors-panel');hide('adm-codes-panel')};
-$('adm-codes-btn').onclick=()=>{$('adm-codes-btn').classList.add('on');$('adm-proj-btn').classList.remove('on');$('adm-users-btn').classList.remove('on');$('adm-vendors-btn').classList.remove('on');hide('adm-projects-panel');hide('adm-users-panel');hide('adm-vendors-panel');show('adm-codes-panel')};
+
+// ── Admin Panel ────────────────────────────────────────────────────
+document.getElementById('btn-admin').addEventListener('click', () => openAdmin());
+document.getElementById('admin-close').addEventListener('click', () => {
+  document.getElementById('admin-modal').classList.remove('open');
+});
+document.getElementById('admin-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('admin-modal'))
+    document.getElementById('admin-modal').classList.remove('open');
+});
+
+document.querySelectorAll('.admin-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+async function openAdmin() {
+  document.getElementById('admin-modal').classList.add('open');
+  await loadUsers();
+  await loadArchivedRecipes();
+}
+
+// ── Users ──────────────────────────────────────────────────────────
+async function loadUsers() {
+  const tbody = document.getElementById('user-table-body');
+  tbody.innerHTML = '<tr><td colspan="4" style="color:var(--warm-mid);font-size:13px">Loading…</td></tr>';
+  const snap = await getDocs(collection(db, 'users'));
+  const users = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  tbody.innerHTML = '';
+  users.forEach(u => {
+    const isSelf = u.id === currentUser?.uid;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${esc(u.firstName)} ${esc(u.lastName)}</td>
+      <td style="color:var(--warm-mid)">${esc(u.email)}</td>
+      <td><span class="role-badge role-${u.role}">${u.role}</span></td>
+      <td>
+        <div class="user-actions">
+          <button class="btn-sm" data-uid="${u.id}" data-action="toggle-role" ${isSelf ? 'disabled title="Cannot change your own role"' : ''}>
+            Make ${u.role === 'admin' ? 'User' : 'Admin'}
+          </button>
+          <button class="btn-sm danger" data-uid="${u.id}" data-action="remove" ${isSelf ? 'disabled title="Cannot remove yourself"' : ''}>
+            Remove
+          </button>
+        </div>
+      </td>`;
+    // Toggle role
+    tr.querySelector('[data-action="toggle-role"]')?.addEventListener('click', async () => {
+      const newRole = u.role === 'admin' ? 'user' : 'admin';
+      await updateDoc(doc(db, 'users', u.id), { role: newRole });
+      await loadUsers();
+    });
+    // Remove user
+    tr.querySelector('[data-action="remove"]')?.addEventListener('click', async () => {
+      if (!confirm(`Remove ${u.firstName} ${u.lastName}? This removes their profile but not their login.`)) return;
+      await deleteDoc(doc(db, 'users', u.id));
+      await loadUsers();
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+document.getElementById('btn-create-user').addEventListener('click', async () => {
+  const first    = document.getElementById('new-first').value.trim();
+  const last     = document.getElementById('new-last').value.trim();
+  const email    = document.getElementById('new-email').value.trim();
+  const password = document.getElementById('new-password').value;
+  const role     = document.getElementById('new-role').value;
+  const errEl    = document.getElementById('user-form-error');
+  errEl.textContent = '';
+  if (!first || !last || !email || !password) { errEl.textContent = 'All fields are required.'; return; }
+  const btn = document.getElementById('btn-create-user');
+  btn.textContent = 'Creating…';
+  btn.disabled = true;
+  try {
+    // Create Firebase Auth account
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    // Save profile to Firestore
+    await setDoc(doc(db, 'users', cred.user.uid), { firstName: first, lastName: last, email, role, createdAt: new Date().toISOString() });
+    // Clear form
+    ['new-first','new-last','new-email','new-password'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('new-role').value = 'user';
+    await loadUsers();
+  } catch (e) {
+    errEl.textContent = e.message.replace('Firebase: ', '');
+  } finally {
+    btn.textContent = 'Add User';
+    btn.disabled = false;
+  }
+});
+
+// ── Archived Recipes ───────────────────────────────────────────────
+async function loadArchivedRecipes() {
+  const list = document.getElementById('archived-list');
+  const archived = allRecipes.filter(r => r.archived);
+  if (!archived.length) {
+    list.innerHTML = '<p style="font-size:14px;color:var(--warm-mid);font-style:italic">No archived recipes.</p>';
+    return;
+  }
+  list.innerHTML = '';
+  archived.forEach(r => {
+    const item = document.createElement('div');
+    item.className = 'archived-item';
+    item.innerHTML = `
+      <div>
+        <div class="archived-item-name">${esc(r.name)}</div>
+        <div class="archived-item-meta">${(r.categories||['Uncategorized']).join(', ')} · Archived ${r.archivedAt ? new Date(r.archivedAt).toLocaleDateString() : ''}</div>
+      </div>
+      <div class="user-actions">
+        <button class="btn-sm" data-id="${r.id}" data-action="restore">Restore</button>
+        <button class="btn-sm danger" data-id="${r.id}" data-action="delete">Delete Forever</button>
+      </div>`;
+    item.querySelector('[data-action="restore"]').addEventListener('click', async () => {
+      await updateDoc(doc(db, 'recipes', r.id), { archived: false, archivedAt: null });
+      await loadRecipes();
+      await loadArchivedRecipes();
+    });
+    item.querySelector('[data-action="delete"]').addEventListener('click', async () => {
+      if (!confirm(`Permanently delete "${r.name}"? This cannot be undone.`)) return;
+      await deleteDoc(doc(db, 'recipes', r.id));
+      await loadRecipes();
+      await loadArchivedRecipes();
+    });
+    list.appendChild(item);
+  });
+}
+
+// ── Backup ─────────────────────────────────────────────────────────
+document.getElementById('btn-backup').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-backup');
+  btn.textContent = 'Preparing backup…';
+  btn.disabled = true;
+  try {
+    const snap = await getDocs(query(collection(db, 'recipes'), orderBy('name')));
+    const recipes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const json = JSON.stringify(recipes, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `gfg-recipes-backup-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    btn.textContent = `✓ Downloaded ${recipes.length} recipes`;
+    setTimeout(() => { btn.textContent = '⬇ Download All Recipes'; btn.disabled = false; }, 3000);
+  } catch (e) {
+    alert('Backup error: ' + e.message);
+    btn.textContent = '⬇ Download All Recipes';
+    btn.disabled = false;
+  }
+});
+
+// ── Utility ────────────────────────────────────────────────────────
+function esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 </script>
 </body>
 </html>
