@@ -561,8 +561,19 @@ async function loadRecipes() {
   const grid = document.getElementById('recipe-grid');
   grid.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Loading recipes…</p></div>';
   try {
+    // Single collection, all recipes tagged with cookbooks array
     const snap = await getDocs(query(collection(db, 'recipes'), orderBy('name')));
-    allRecipes = snap.docs.map(d => ({ id: d.id, cookbookId: 'gfg', ...d.data() }));
+    allRecipes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Build cookbook list from unique tags
+    const cbSet = new Set(['gfg']);
+    allRecipes.forEach(r => (r.cookbooks || ['gfg']).forEach(c => cbSet.add(c)));
+    allCookbooks = [...cbSet].map(id => ({
+      id,
+      title: id === 'gfg' ? 'GFG Cookbook' : id.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      isGFG: id === 'gfg'
+    }));
+
     renderCookbookTabs();
     renderSidebar();
     applyFilters();
@@ -610,6 +621,8 @@ function renderSidebar() {
 function applyFilters() {
   const q = searchQuery.toLowerCase();
   filteredRecipes = allRecipes.filter(r => {
+    // Filter by cookbook
+    if ((r.cookbookId || 'gfg') !== activeCookbook) return false;
     const hasIng = (r.ingredients || []).some(i => i.type === 'ingredient');
     if (activeCategory === 'Archived') {
       if (!r.archived) return false;
@@ -713,20 +726,29 @@ async function openDetail(recipe) {
   actionsEl.innerHTML = '';
   actionsEl.appendChild(btn('🖨 Print', () => printRecipe()));
   if (isAdmin) {
-    const editBtn = document.createElement('button');
-    editBtn.className = 'btn-icon';
-    editBtn.textContent = '✏ Edit';
-    editBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-      openForm(recipe);
-      return false;
-    });
-    actionsEl.appendChild(editBtn);
-    const archBtn = btn('Archive', () => archiveRecipe(recipe));
-    archBtn.classList.add('archive-btn');
-    actionsEl.appendChild(archBtn);
+    // Graduate button — only if not already in GFG
+    if (recipe.cookbookId && recipe.cookbookId !== 'gfg') {
+      const gradBtn = document.createElement('button');
+      gradBtn.className = 'btn-graduate';
+      gradBtn.textContent = '→ Graduate to GFG';
+      gradBtn.addEventListener('click', () => graduateRecipe(recipe));
+      actionsEl.appendChild(gradBtn);
+    } else {
+      const editBtn = document.createElement('button');
+      editBtn.className = 'btn-icon';
+      editBtn.textContent = '✏ Edit';
+      editBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        openForm(recipe);
+        return false;
+      });
+      actionsEl.appendChild(editBtn);
+      const archBtn = btn('Archive', () => archiveRecipe(recipe));
+      archBtn.classList.add('archive-btn');
+      actionsEl.appendChild(archBtn);
+    }
   }
 
   // Source tag
@@ -1804,12 +1826,14 @@ async function loadPendingNotes() {
 
 // ── Graduate Recipe ────────────────────────────────────────────────
 async function graduateRecipe(recipe) {
-  if (!confirm('Copy "' + recipe.name + '" to the GFG Cookbook?')) return;
-  const data = Object.assign({}, recipe);
-  delete data.id; delete data.cookbookId; delete data.cookbookTitle;
-  data.dataSource = 'Graduated from ' + (recipe.cookbookTitle || recipe.cookbookId || 'other cookbook');
-  data.createdAt = new Date().toISOString();
-  await setDoc(doc(db, 'recipes', 'recipe_' + Date.now()), data);
+  if (!confirm('Add "' + recipe.name + '" to the GFG Cookbook?')) return;
+  const { id, cookbookId, cookbookTitle, ...data } = recipe;
+  const newId = 'recipe_' + Date.now();
+  await setDoc(doc(db, 'recipes', newId), {
+    ...data,
+    dataSource: 'Graduated from ' + (cookbookTitle || cookbookId || 'other cookbook'),
+    createdAt: new Date().toISOString()
+  });
   closeDetail();
   await loadRecipes();
   switchCookbook('gfg');
