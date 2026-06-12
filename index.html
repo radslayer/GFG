@@ -558,7 +558,9 @@ function renderSidebar() {
       catCounts[c] = (catCounts[c] || 0) + 1;
     });
   });
-  const cats = ['All', ...Object.keys(catCounts).sort()];
+    const needsIngCount = allRecipes.filter(r => !r.archived && !(r.ingredients || []).some(i => i.type === 'ingredient')).length;
+    const cats = ['All', 'Needs Ingredients', ...Object.keys(catCounts).sort()];
+
   const list = document.getElementById('category-list');
   list.innerHTML = '';
   const label = document.createElement('div');
@@ -568,7 +570,7 @@ function renderSidebar() {
   cats.forEach(cat => {
     const btn = document.createElement('button');
     btn.className = 'cat-btn' + (cat === activeCategory ? ' active' : '');
-    const count = cat === 'All' ? visible.length : (catCounts[cat] || 0);
+    const count = cat === 'All' ? visible.length : cat === 'Needs Ingredients' ? needsIngCount : (catCounts[cat] || 0);
     btn.innerHTML = `${esc(cat)} <span class="cat-count">${count}</span>`;
     btn.addEventListener('click', () => {
       activeCategory = cat;
@@ -586,12 +588,18 @@ function applyFilters() {
   const q = searchQuery.toLowerCase();
   filteredRecipes = allRecipes.filter(r => {
     if (r.archived) return false;
-    const inCat = activeCategory === 'All' || (r.categories || ['Uncategorized']).includes(activeCategory);
+    const hasIng = (r.ingredients || []).some(i => i.type === 'ingredient');
+    if (activeCategory === 'Needs Ingredients') {
+      if (hasIng) return false;
+    } else {
+      const inCat = activeCategory === 'All' || (r.categories || ['Uncategorized']).includes(activeCategory);
+      if (!inCat) return false;
+    }
     const inSearch = !q ||
       r.name.toLowerCase().includes(q) ||
       (r.directions || '').toLowerCase().includes(q) ||
       (r.ingredients || []).some(i => i.name && i.name.toLowerCase().includes(q));
-    return inCat && inSearch;
+    return inSearch;
   });
   document.getElementById('content-title').textContent = activeCategory === 'All' ? 'All Recipes' : activeCategory;
   document.getElementById('result-count').textContent = `${filteredRecipes.length} recipe${filteredRecipes.length !== 1 ? 's' : ''}`;
