@@ -1183,17 +1183,18 @@ function printRecipe() {
     + (recipe.note ? '<div class="note">' + recipe.note + '</div>' : '')
     + '</div></div></body></html>';
 
-  // Include nutrition if panel is expanded
+  // Capture nutrition HTML BEFORE opening new tab (must read from current document)
   let nutrHtml = '';
   const nutrContent = document.getElementById('nutrition-content');
-  if (nutrContent && nutrContent.style.display === 'block') {
+  if (nutrContent && nutrContent.style.display === 'block' && nutrContent.innerHTML.trim()) {
     nutrHtml = '<div style="margin-top:24px;border-top:1px solid #D4C9BB;padding-top:16px;">'
       + '<div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#6B5B45;margin-bottom:12px;">Nutrition Facts</div>'
       + nutrContent.innerHTML
       + '</div>';
   }
 
-  const blob = new Blob([html.replace('</body>', nutrHtml + '</body>')], { type: 'text/html' });
+  const finalHtml = html.replace('</body>', nutrHtml + '</body>');
+  const blob = new Blob([finalHtml], { type: 'text/html' });
   const url = URL.createObjectURL(blob);
   window.open(url, '_blank');
   setTimeout(() => URL.revokeObjectURL(url), 10000);
