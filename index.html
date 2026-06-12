@@ -841,7 +841,7 @@ async function openDetail(recipe) {
       gradBtn.addEventListener('click', () => graduateRecipe(recipe));
       actionsEl.appendChild(gradBtn);
     } else {
-      actionsEl.appendChild(btn('✏ Edit', () => { closeDetail(); openForm(recipe); }));
+      actionsEl.appendChild(btn('✏ Edit', (e) => { e.stopPropagation(); closeDetail(); setTimeout(() => openForm(recipe), 50); }));
       const archBtn = btn('Archive', () => archiveRecipe(recipe));
       archBtn.classList.add('archive-btn');
       actionsEl.appendChild(archBtn);
