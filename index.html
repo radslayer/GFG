@@ -1523,6 +1523,9 @@ async function graduateRecipe(recipe) {
 
 // ── Recipe Form ────────────────────────────────────────────────────
 function openForm(recipe = null) {
+  console.log('openForm called, recipe:', recipe?.name, 'form-modal el:', document.getElementById('form-modal'));
+  document.getElementById('form-modal').classList.add('open');
+  console.log('form-modal classes after add:', document.getElementById('form-modal').className);
   editingId = recipe ? recipe.id : null;
   document.getElementById('form-modal-title').textContent = recipe ? 'Edit Recipe' : 'New Recipe';
   document.getElementById('form-name').value       = recipe?.name || '';
@@ -1552,7 +1555,6 @@ function openForm(recipe = null) {
   ingRows.innerHTML = '';
   const ings = (recipe?.ingredients || []).filter(i => i.type === 'ingredient');
   if (ings.length) { ings.forEach(i => addIngRow(i)); } else { addIngRow(); }
-  document.getElementById('form-modal').classList.add('open');
   setTimeout(() => document.getElementById('form-name').focus(), 100);
 }
 
