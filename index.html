@@ -1200,7 +1200,63 @@ function printRecipe() {
   setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
-// ── Utility ────────────────────────────────────────────────────────
+// ── Manual Nutrition Entry ─────────────────────────────────────────
+window.openNutritionEdit = function(ingredientName) {
+  const recipe = currentRecipe;
+  if (!recipe) return;
+  const editArea = document.getElementById('nutr-edit-area');
+  if (!editArea) return;
+
+  const key = ingredientName.toLowerCase().trim();
+  const existing = (recipe.customNutrition || {})[key] || [0,0,0,0,0,0,0];
+  const existingQty = (recipe.customQuantities || {})[key] || { qty: '', unit: '' };
+  const labels = ['Cal','Fat(g)','Carbs(g)','Protein(g)','Sodium(mg)','Fiber(g)','Sugar(g)'];
+
+  editArea.innerHTML = '<div style="margin-top:16px;padding:16px;background:#EDE6DB;border-radius:3px;border:1px solid #D4C9BB;">'
+    + '<div style="font-size:12px;font-weight:700;color:#1C1C1A;margin-bottom:12px;">Enter nutrition for: <em>' + esc(ingredientName) + '</em> (per 100g)</div>'
+    + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;">'
+    + labels.map((l, i) => '<div><label style="font-size:10px;color:#6B5B45;display:block;margin-bottom:3px;">' + l + '</label>'
+        + '<input id="nutr-val-' + i + '" type="number" value="' + existing[i] + '" min="0" step="0.1" style="width:100%;padding:5px;border:1px solid #D4C9BB;border-radius:2px;font-size:13px;"></div>').join('')
+    + '</div>'
+    + '<div style="font-size:12px;font-weight:700;color:#1C1C1A;margin-bottom:8px;">Estimated quantity used in this recipe:</div>'
+    + '<div style="display:flex;gap:8px;margin-bottom:12px;">'
+    + '<div><label style="font-size:10px;color:#6B5B45;display:block;margin-bottom:3px;">Amount</label>'
+    + '<input id="nutr-qty" type="text" value="' + esc(existingQty.qty) + '" placeholder="e.g. 2" style="width:80px;padding:5px;border:1px solid #D4C9BB;border-radius:2px;font-size:13px;"></div>'
+    + '<div><label style="font-size:10px;color:#6B5B45;display:block;margin-bottom:3px;">Unit</label>'
+    + '<input id="nutr-unit" type="text" value="' + esc(existingQty.unit) + '" placeholder="e.g. cups" style="width:100px;padding:5px;border:1px solid #D4C9BB;border-radius:2px;font-size:13px;"></div>'
+    + '</div>'
+    + '<div style="display:flex;gap:8px;">'
+    + '<button onclick="saveNutritionEdit(\'' + esc(key) + '\')" style="padding:7px 16px;background:#4A5240;color:white;border:none;border-radius:3px;font-size:13px;font-weight:600;cursor:pointer;">Save</button>'
+    + '<button onclick="document.getElementById(\'nutr-edit-area\').innerHTML=\'\'" style="padding:7px 12px;background:none;border:1px solid #D4C9BB;border-radius:3px;font-size:13px;cursor:pointer;">Cancel</button>'
+    + '</div></div>';
+};
+
+window.saveNutritionEdit = async function(key) {
+  const recipe = currentRecipe;
+  if (!recipe) return;
+  const vals = [0,1,2,3,4,5,6].map(i => parseFloat(document.getElementById('nutr-val-' + i).value) || 0);
+  const qty  = document.getElementById('nutr-qty').value.trim();
+  const unit = document.getElementById('nutr-unit').value.trim();
+
+  const customNutrition  = Object.assign({}, recipe.customNutrition  || {});
+  const customQuantities = Object.assign({}, recipe.customQuantities || {});
+  customNutrition[key]  = vals;
+  if (qty) customQuantities[key] = { qty, unit };
+
+  try {
+    await updateDoc(doc(db, 'recipes', recipe.id), { customNutrition, customQuantities });
+    recipe.customNutrition  = customNutrition;
+    recipe.customQuantities = customQuantities;
+    document.getElementById('nutr-edit-area').innerHTML = '<div style="font-size:12px;color:#4A5240;padding:8px 0;">✓ Saved. Recalculating...</div>';
+    // Trigger refresh
+    const nutrContent = document.getElementById('nutrition-content');
+    if (nutrContent && nutrContent._refresh) nutrContent._refresh();
+  } catch(e) {
+    alert('Error saving: ' + e.message);
+  }
+};
+
+
 
 // ── Extra State ────────────────────────────────────────────────────
 let activeCookbook       = 'gfg';
@@ -1700,12 +1756,25 @@ function findNutrition(name) {
   return NUTRITION_DB[n.split(/[\s,]+/)[0]] || null;
 }
 
-function calculateNutrition(ingredients, servings) {
+function calculateNutrition(ingredients, servings, customNutrition, customQuantities) {
   const srv = Math.max(1, parseInt(servings) || 1);
+  const custom = customNutrition || {};
+  const customQty = customQuantities || {};
   let totals = [0,0,0,0,0,0,0];
   const unmatched = [];
   let matched = 0;
   ingredients.filter(i => i.type === 'ingredient').forEach(ing => {
+    const nameKey = ing.name.toLowerCase().trim();
+    // Check custom nutrition first
+    if (custom[nameKey]) {
+      const cq = customQty[nameKey];
+      const g = cq ? toGrams(cq.qty, cq.unit, ing.name) : toGrams(ing.qty, ing.unit, ing.name);
+      if (g) {
+        totals = totals.map((t, i) => t + custom[nameKey][i] * g / 100);
+        matched++;
+        return;
+      }
+    }
     const g = toGrams(ing.qty, ing.unit, ing.name);
     if (!g) { unmatched.push(ing.name); return; }
     const n = findNutrition(ing.name);
@@ -1754,7 +1823,7 @@ function renderNutritionPanel(recipe) {
 
   function refresh() {
     const srv = Math.max(1, parseInt(srvInput.value) || 1);
-    const result = calculateNutrition(recipe.ingredients || [], srv);
+    const result = calculateNutrition(recipe.ingredients || [], srv, recipe.customNutrition, recipe.customQuantities);
     const [cal,fat,carbs,protein,sodium,fiber,sugar] = result.perServing;
     const cov = (result.matched + result.unmatched.length) > 0
       ? Math.round(result.matched / (result.matched + result.unmatched.length) * 100) : 0;
@@ -1763,6 +1832,18 @@ function renderNutritionPanel(recipe) {
         + '<span>' + (indent ? '' : '<strong>') + label + (indent ? '' : '</strong>') + ' ' + val + unit + '</span>'
         + '<span>' + (pct != null ? '<strong>' + pct + '%</strong>' : '') + '</span></div>';
     }
+    const isAdmin = currentUser && currentUser.role === 'admin';
+    const unmatchedHtml = result.unmatched.length
+      ? '<div style="font-size:12px;color:#6B5B45;margin-bottom:8px;">Not calculated:</div>'
+        + result.unmatched.slice(0,10).map(n => {
+            const editBtn = isAdmin
+              ? ' <button onclick="openNutritionEdit(\'' + esc(n) + '\')" style="font-size:11px;padding:1px 6px;background:none;border:1px solid #D4C9BB;border-radius:2px;cursor:pointer;color:#4A5240;font-family:var(--ff-body);">Edit</button>'
+              : '';
+            return '<div style="font-size:12px;color:#6B5B45;margin-bottom:4px;">' + esc(n) + editBtn + '</div>';
+          }).join('')
+        + (result.unmatched.length > 10 ? '<div style="font-size:12px;color:#6B5B45;">...and ' + (result.unmatched.length-10) + ' more</div>' : '')
+      : '<div style="font-size:12px;color:#4A5240;">All ingredients calculated</div>';
+
     content.innerHTML = '<div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;">'
       + '<div style="min-width:220px;"><div style="border:2px solid #1C1C1A;padding:12px;max-width:240px;">'
       + '<div style="font-size:22px;font-weight:900;border-bottom:8px solid #1C1C1A;padding-bottom:4px;margin-bottom:4px;">Nutrition Facts</div>'
@@ -1780,13 +1861,14 @@ function renderNutritionPanel(recipe) {
       + '<div style="font-size:10px;margin-top:6px;color:#6B5B45;">*% Daily Values based on 2,000 cal diet</div>'
       + '</div></div>'
       + '<div style="flex:1;min-width:180px;">'
-      + '<div style="font-size:12px;color:#6B5B45;margin-bottom:8px;"><strong style="color:#1C1C1A;">Coverage: ' + cov + '%</strong> of ingredients matched</div>'
-      + (result.unmatched.length ? '<div style="font-size:12px;color:#6B5B45;margin-bottom:4px;">Not calculated:</div><ul style="font-size:12px;color:#6B5B45;padding-left:16px;margin:0;">'
-          + result.unmatched.slice(0,10).map(n => '<li>' + esc(n) + '</li>').join('')
-          + (result.unmatched.length > 10 ? '<li>...and ' + (result.unmatched.length-10) + ' more</li>' : '')
-          + '</ul>' : '<div style="font-size:12px;color:#4A5240;">All ingredients calculated</div>')
+      + '<div style="font-size:12px;color:#6B5B45;margin-bottom:12px;"><strong style="color:#1C1C1A;">Coverage: ' + cov + '%</strong> of ingredients matched</div>'
+      + unmatchedHtml
       + '<div style="font-size:11px;color:#6B5B45;margin-top:12px;font-style:italic;">Estimates based on USDA data.</div>'
-      + '</div></div>';
+      + '</div></div>'
+      + '<div id="nutr-edit-area"></div>';
+
+    // Store refresh for use by edit form
+    content._refresh = refresh;
   }
 
   toggleBtn.addEventListener('mouseover', () => toggleBtn.style.color = '#4A5240');
