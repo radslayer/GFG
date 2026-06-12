@@ -396,6 +396,65 @@
   </div>
 </div>
 
+<!-- Menu Log Modal -->
+<div class="modal-backdrop" id="new-plan-modal">
+  <div class="form-modal" style="max-width:480px">
+    <button class="close-btn" id="new-plan-close">×</button>
+    <div class="form-header"><h2 class="form-title">New Menu Plan</h2></div>
+    <div class="form-body" style="grid-template-columns:1fr;">
+      <div class="form-group"><label>Plan Name</label><input type="text" id="np-name" placeholder="e.g. Summer 2026" /></div>
+      <div class="form-group"><label>Business Unit</label>
+        <select id="np-unit"><option value="GFG">Gourmet for Good</option><option value="EE">Easy Entrées</option></select>
+      </div>
+      <div class="form-group"><label>Start Date</label><input type="date" id="np-start" /></div>
+      <div class="form-group"><label>End Date</label><input type="date" id="np-end" /></div>
+    </div>
+    <div class="form-footer">
+      <button class="btn-cancel" id="new-plan-cancel">Cancel</button>
+      <button class="btn-save" id="new-plan-save">Create Plan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Menu Log Modal -->
+<div class="modal-backdrop" id="menu-log-modal">
+  <div class="form-modal" style="max-width:480px">
+    <button class="close-btn" id="menu-log-close">×</button>
+    <div class="form-header">
+      <h2 class="form-title">Log Menu Use</h2>
+    </div>
+    <div class="form-body" style="grid-template-columns:1fr;">
+      <div class="form-group" style="grid-column:1">
+        <label>Recipe</label>
+        <div id="menu-log-recipe-name" style="font-size:15px;font-weight:600;padding:8px 0;color:var(--ink);"></div>
+      </div>
+      <div class="form-group" style="grid-column:1">
+        <label>Business Unit</label>
+        <select id="menu-log-unit">
+          <option value="GFG">Gourmet for Good</option>
+          <option value="EE">Easy Entrées</option>
+        </select>
+      </div>
+      <div class="form-group" style="grid-column:1">
+        <label>Start Date</label>
+        <input type="date" id="menu-log-start" />
+      </div>
+      <div class="form-group" style="grid-column:1">
+        <label>End Date <span style="font-weight:400;font-size:11px;color:var(--warm-mid)">(optional — fill in when it rotates off)</span></label>
+        <input type="date" id="menu-log-end" />
+      </div>
+      <div class="form-group" style="grid-column:1">
+        <label>Notes <span style="font-weight:400;font-size:11px;color:var(--warm-mid)">(optional)</span></label>
+        <input type="text" id="menu-log-notes" placeholder="e.g. Spring menu launch" />
+      </div>
+    </div>
+    <div class="form-footer">
+      <button class="btn-cancel" id="menu-log-cancel">Cancel</button>
+      <button class="btn-save" id="menu-log-save">Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- Admin Modal -->
 <div class="modal-backdrop" id="admin-modal">
   <div class="admin-panel">
@@ -408,6 +467,8 @@
       <button class="admin-tab" data-tab="review">Note Review <span id="pending-badge" style="display:none;background:var(--rust);color:white;font-size:11px;padding:1px 6px;border-radius:10px;margin-left:4px"></span></button>
       <button class="admin-tab" data-tab="archived">Archived Recipes</button>
       <button class="admin-tab" data-tab="backup">Backup</button>
+      <button class="admin-tab" data-tab="menuhistory">Menu History</button>
+      <button class="admin-tab" data-tab="menuplanning">Menu Planning</button>
     </div>
     <!-- Users Tab -->
     <div class="admin-section active" id="tab-users">
@@ -472,6 +533,107 @@
         <p>Downloads all recipes as a JSON file to your computer. Do this regularly to keep a local copy of the cookbook.</p>
         <button class="btn-backup" id="btn-backup">⬇ Download All Recipes</button>
         <p style="margin-top:16px;font-size:12px">Last recipe count will be shown after download.</p>
+      </div>
+    </div>
+    <!-- Menu History Tab -->
+    <div class="admin-section" id="tab-menuhistory">
+      <div class="admin-section-title">Menu History</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:20px;">
+        <div class="form-group" style="margin:0">
+          <label>Business Unit</label>
+          <select id="mh-unit" style="padding:8px 10px;border:1.5px solid var(--divider);border-radius:3px;font-family:var(--ff-body);font-size:14px;background:var(--cream);">
+            <option value="all">All</option>
+            <option value="GFG">Gourmet for Good</option>
+            <option value="EE">Easy Entrées</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label>From</label>
+          <input type="date" id="mh-from" style="padding:8px 10px;border:1.5px solid var(--divider);border-radius:3px;font-family:var(--ff-body);font-size:14px;background:var(--cream);" />
+        </div>
+        <div class="form-group" style="margin:0">
+          <label>To</label>
+          <input type="date" id="mh-to" style="padding:8px 10px;border:1.5px solid var(--divider);border-radius:3px;font-family:var(--ff-body);font-size:14px;background:var(--cream);" />
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-end;">
+          <button class="btn-save" id="mh-filter-btn" style="padding:9px 20px;">Filter</button>
+          <button class="btn-cancel" id="mh-clear-btn" style="padding:9px 16px;">Clear</button>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:8px;">
+          <button class="btn-sm" id="mh-q1">Q1</button>
+          <button class="btn-sm" id="mh-q2">Q2</button>
+          <button class="btn-sm" id="mh-q3">Q3</button>
+          <button class="btn-sm" id="mh-q4">Q4</button>
+        </div>
+      </div>
+      <div id="mh-results"></div>
+    </div>
+    <!-- Menu Planning Tab -->
+    <div class="admin-section" id="tab-menuplanning">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+        <div class="admin-section-title" style="margin:0">Menu Planning</div>
+        <button class="btn-new" id="mp-new-plan-btn">+ New Menu Plan</button>
+      </div>
+      <!-- Plan list -->
+      <div id="mp-plans-list"></div>
+      <!-- Plan editor (shown when a plan is selected) -->
+      <div id="mp-editor" style="display:none;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+          <button class="btn-cancel" id="mp-back-btn">← Back to Plans</button>
+          <h3 id="mp-editor-title" style="font-family:var(--ff-display);font-size:18px;font-weight:700;"></h3>
+          <span id="mp-status-badge" style="font-size:11px;padding:3px 10px;border-radius:10px;font-weight:600;"></span>
+          <div style="margin-left:auto;display:flex;gap:8px;">
+            <button class="btn-save" id="mp-publish-btn" style="background:var(--rust);">Publish Menu</button>
+            <button class="btn-icon" id="mp-print-btn">🖨 Print Draft</button>
+          </div>
+        </div>
+        <!-- Add item form -->
+        <div style="background:var(--cream);border:1px solid var(--divider);border-radius:3px;padding:16px;margin-bottom:20px;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--warm-mid);margin-bottom:12px;">Add Menu Item</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 80px;gap:10px;margin-bottom:10px;">
+            <div class="form-group" style="margin:0">
+              <label>Menu Item Name</label>
+              <input type="text" id="mp-item-name" placeholder="e.g. Spring Fling" />
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Category</label>
+              <select id="mp-item-category">
+                <option value="Hot Buffet">Hot Buffet</option>
+                <option value="Cold Buffet">Cold Buffet</option>
+                <option value="Sandwich Box">Sandwich Box</option>
+                <option value="Salad Box">Salad Box</option>
+                <option value="Hot Breakfast">Hot Breakfast</option>
+                <option value="Cold Breakfast">Cold Breakfast</option>
+                <option value="Appetizer">Appetizer</option>
+                <option value="Beverage">Beverage</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Price</label>
+              <input type="text" id="mp-item-price" placeholder="$0.00" />
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+            <div class="form-group" style="margin:0">
+              <label>Description <span style="font-weight:400;font-size:10px;color:var(--warm-mid)">(for menu print)</span></label>
+              <textarea id="mp-item-desc" rows="2" placeholder="Brief description for the menu..."></textarea>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Linked Recipes <span style="font-weight:400;font-size:10px;color:var(--warm-mid)">(type to search)</span></label>
+              <input type="text" id="mp-recipe-search" placeholder="Search recipes..." autocomplete="off" />
+              <div id="mp-recipe-dropdown" style="display:none;position:absolute;background:white;border:1.5px solid var(--divider);border-top:none;border-radius:0 0 3px 3px;max-height:160px;overflow-y:auto;z-index:500;box-shadow:0 4px 12px rgba(0,0,0,.1);min-width:300px;"></div>
+              <div id="mp-linked-recipes" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;"></div>
+            </div>
+          </div>
+          <div class="form-group" style="margin:0 0 10px">
+            <label>Notes <span style="font-weight:400;font-size:10px;color:var(--warm-mid)">(dietary, availability, etc.)</span></label>
+            <input type="text" id="mp-item-notes" placeholder="e.g. GF friendly except rolls. Dairy Free friendly." />
+          </div>
+          <button class="btn-save" id="mp-add-item-btn" style="padding:8px 20px;">Add to Menu</button>
+        </div>
+        <!-- Menu items list -->
+        <div id="mp-items-list"></div>
       </div>
     </div>
   </div>
@@ -759,6 +921,8 @@ async function openDetail(recipe) {
       const archBtn = btn('Archive', () => archiveRecipe(recipe));
       archBtn.classList.add('archive-btn');
       actionsEl.appendChild(archBtn);
+      const menuBtn = btn('📅 Log Menu Use', () => openMenuLog(recipe));
+      actionsEl.appendChild(menuBtn);
     }
   }
 
@@ -776,10 +940,15 @@ async function openDetail(recipe) {
   if (oldNutr) oldNutr.remove();
   const oldAlg = document.getElementById('allergen-edit-panel');
   if (oldAlg) oldAlg.remove();
+  const oldLs = document.getElementById('last-served-div');
+  if (oldLs) oldLs.remove();
 
   // Allergens and Nutrition
   renderAllergenBar(recipe, isAdmin);
   renderNutritionPanel(recipe);
+
+  // Last served (admin only)
+  if (isAdmin) loadLastServed(recipe.id);
 
   // Load notes
   await loadNotes(recipe.id);
@@ -1003,6 +1172,13 @@ document.querySelectorAll('.admin-tab').forEach(tab => {
     document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
     tab.classList.add('active');
     document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    if (tab.dataset.tab === 'menuhistory') loadMenuHistory();
+    if (tab.dataset.tab === 'menuplanning') {
+      document.getElementById('mp-editor').style.display = 'none';
+      document.getElementById('mp-plans-list').style.display = 'block';
+      document.getElementById('mp-new-plan-btn').style.display = 'inline-block';
+      loadMenuPlans();
+    }
   });
 });
 
@@ -1205,6 +1381,472 @@ function printRecipe() {
   window.open(url, '_blank');
   setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
+
+// ── Menu Planning ──────────────────────────────────────────────────
+let currentPlan = null;
+let mpLinkedRecipes = []; // [{id, name}] for current item being added
+
+// New plan modal
+document.getElementById('mp-new-plan-btn').addEventListener('click', () => {
+  document.getElementById('np-name').value = '';
+  document.getElementById('np-start').value = '';
+  document.getElementById('np-end').value = '';
+  document.getElementById('np-unit').value = 'GFG';
+  document.getElementById('new-plan-modal').classList.add('open');
+});
+document.getElementById('new-plan-close').addEventListener('click', () => document.getElementById('new-plan-modal').classList.remove('open'));
+document.getElementById('new-plan-cancel').addEventListener('click', () => document.getElementById('new-plan-modal').classList.remove('open'));
+document.getElementById('new-plan-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('new-plan-modal')) document.getElementById('new-plan-modal').classList.remove('open');
+});
+
+document.getElementById('new-plan-save').addEventListener('click', async () => {
+  const name  = document.getElementById('np-name').value.trim();
+  const unit  = document.getElementById('np-unit').value;
+  const start = document.getElementById('np-start').value;
+  const end   = document.getElementById('np-end').value;
+  if (!name || !start || !end) { alert('Name, start date, and end date are required.'); return; }
+  const btn = document.getElementById('new-plan-save');
+  btn.textContent = 'Creating...'; btn.disabled = true;
+  try {
+    const ref = await addDoc(collection(db, 'menuPlans'), {
+      name, businessUnit: unit, startDate: start, endDate: end,
+      status: 'draft', items: [],
+      createdBy: (currentUser.firstName + ' ' + currentUser.lastName).trim(),
+      createdAt: serverTimestamp()
+    });
+    document.getElementById('new-plan-modal').classList.remove('open');
+    await loadMenuPlans();
+    // Auto-open the new plan
+    const snap = await getDoc(doc(db, 'menuPlans', ref.id));
+    openPlanEditor({ id: ref.id, ...snap.data() });
+  } catch(e) { alert('Error: ' + e.message); }
+  finally { btn.textContent = 'Create Plan'; btn.disabled = false; }
+});
+
+async function loadMenuPlans() {
+  const list = document.getElementById('mp-plans-list');
+  list.innerHTML = '<p style="font-size:13px;color:var(--warm-mid)">Loading...</p>';
+  try {
+    const snap = await getDocs(query(collection(db, 'menuPlans'), orderBy('startDate', 'desc')));
+    const plans = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (!plans.length) {
+      list.innerHTML = '<p style="font-size:14px;color:var(--warm-mid);font-style:italic">No menu plans yet. Click "+ New Menu Plan" to get started.</p>';
+      return;
+    }
+    list.innerHTML = '';
+    plans.forEach(p => {
+      const item = document.createElement('div');
+      item.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--cream);border:1px solid var(--divider);border-radius:3px;margin-bottom:8px;cursor:pointer;transition:border-color .15s;';
+      item.addEventListener('mouseover', () => item.style.borderColor = 'var(--olive)');
+      item.addEventListener('mouseout',  () => item.style.borderColor = 'var(--divider)');
+      const statusColor = p.status === 'published' ? '#4A5240' : '#B85C38';
+      const start = new Date(p.startDate).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+      const end   = new Date(p.endDate).toLocaleDateString('en-US',   { month:'short', day:'numeric', year:'numeric' });
+      item.innerHTML = '<div>'
+        + '<div style="font-size:15px;font-weight:700;">' + esc(p.name) + '</div>'
+        + '<div style="font-size:12px;color:var(--warm-mid);margin-top:3px;">' + p.businessUnit + ' &nbsp;·&nbsp; ' + start + ' — ' + end + ' &nbsp;·&nbsp; ' + (p.items || []).length + ' items</div>'
+        + '</div>'
+        + '<div style="display:flex;align-items:center;gap:10px;">'
+        + '<span style="font-size:11px;padding:3px 10px;border-radius:10px;font-weight:600;background:' + (p.status === 'published' ? 'rgba(74,82,64,.12)' : 'rgba(184,92,56,.1)') + ';color:' + statusColor + ';">' + p.status + '</span>'
+        + '<span style="font-size:18px;color:var(--warm-mid);">›</span>'
+        + '</div>';
+      item.addEventListener('click', () => openPlanEditor(p));
+      list.appendChild(item);
+    });
+  } catch(e) { list.innerHTML = '<p style="font-size:13px;color:var(--rust)">' + e.message + '</p>'; }
+}
+
+function openPlanEditor(plan) {
+  currentPlan = plan;
+  mpLinkedRecipes = [];
+  document.getElementById('mp-plans-list').style.display = 'none';
+  document.getElementById('mp-new-plan-btn').style.display = 'none';
+  document.getElementById('mp-editor').style.display = 'block';
+  document.getElementById('mp-editor-title').textContent = plan.name;
+  const badge = document.getElementById('mp-status-badge');
+  badge.textContent = plan.status;
+  badge.style.cssText = 'font-size:11px;padding:3px 10px;border-radius:10px;font-weight:600;background:' +
+    (plan.status === 'published' ? 'rgba(74,82,64,.12);color:#4A5240' : 'rgba(184,92,56,.1);color:#B85C38') + ';';
+  document.getElementById('mp-item-name').value = '';
+  document.getElementById('mp-item-price').value = '';
+  document.getElementById('mp-item-desc').value = '';
+  document.getElementById('mp-item-notes').value = '';
+  document.getElementById('mp-linked-recipes').innerHTML = '';
+  document.getElementById('mp-recipe-search').value = '';
+  renderPlanItems();
+}
+
+document.getElementById('mp-back-btn').addEventListener('click', () => {
+  document.getElementById('mp-editor').style.display = 'none';
+  document.getElementById('mp-plans-list').style.display = 'block';
+  document.getElementById('mp-new-plan-btn').style.display = 'inline-block';
+  currentPlan = null;
+  mpLinkedRecipes = [];
+});
+
+// Recipe search for linking
+document.getElementById('mp-recipe-search').addEventListener('input', function() {
+  const val = this.value.trim().toLowerCase();
+  const dd = document.getElementById('mp-recipe-dropdown');
+  if (!val) { dd.style.display = 'none'; return; }
+  const matches = allRecipes.filter(r => r.cookbookId === 'gfg' && !r.archived && r.name.toLowerCase().includes(val)).slice(0, 8);
+  if (!matches.length) { dd.style.display = 'none'; return; }
+  dd.style.display = 'block';
+  dd.innerHTML = '';
+  matches.forEach(r => {
+    const item = document.createElement('div');
+    item.textContent = r.name;
+    item.style.cssText = 'padding:8px 12px;font-size:14px;cursor:pointer;border-bottom:1px solid var(--divider);';
+    item.addEventListener('mouseover', () => item.style.background = 'var(--parchment)');
+    item.addEventListener('mouseout',  () => item.style.background = '');
+    item.addEventListener('mousedown', () => {
+      if (!mpLinkedRecipes.find(x => x.id === r.id)) {
+        mpLinkedRecipes.push({ id: r.id, name: r.name });
+        renderLinkedRecipes();
+      }
+      document.getElementById('mp-recipe-search').value = '';
+      dd.style.display = 'none';
+    });
+    dd.appendChild(item);
+  });
+});
+document.getElementById('mp-recipe-search').addEventListener('blur', () => {
+  setTimeout(() => { document.getElementById('mp-recipe-dropdown').style.display = 'none'; }, 200);
+});
+
+function renderLinkedRecipes() {
+  const el = document.getElementById('mp-linked-recipes');
+  el.innerHTML = mpLinkedRecipes.map((r, i) =>
+    '<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(74,82,64,.1);color:var(--olive);padding:3px 8px;border-radius:10px;font-size:12px;font-weight:600;">'
+    + esc(r.name)
+    + '<button onclick="mpRemoveRecipe(' + i + ')" style="background:none;border:none;cursor:pointer;color:var(--rust);font-size:14px;line-height:1;padding:0 0 0 4px;">×</button>'
+    + '</span>'
+  ).join('');
+}
+window.mpRemoveRecipe = function(i) { mpLinkedRecipes.splice(i, 1); renderLinkedRecipes(); };
+
+// Add item to plan
+document.getElementById('mp-add-item-btn').addEventListener('click', async () => {
+  const name  = document.getElementById('mp-item-name').value.trim();
+  const cat   = document.getElementById('mp-item-category').value;
+  const price = document.getElementById('mp-item-price').value.trim();
+  const desc  = document.getElementById('mp-item-desc').value.trim();
+  const notes = document.getElementById('mp-item-notes').value.trim();
+  if (!name) { alert('Menu item name is required.'); return; }
+  const newItem = { name, category: cat, price, description: desc, notes, recipes: mpLinkedRecipes.slice() };
+  const items = [...(currentPlan.items || []), newItem];
+  await updateDoc(doc(db, 'menuPlans', currentPlan.id), { items });
+  currentPlan.items = items;
+  // Reset form
+  document.getElementById('mp-item-name').value = '';
+  document.getElementById('mp-item-price').value = '';
+  document.getElementById('mp-item-desc').value = '';
+  document.getElementById('mp-item-notes').value = '';
+  mpLinkedRecipes = [];
+  renderLinkedRecipes();
+  renderPlanItems();
+});
+
+function renderPlanItems() {
+  const el = document.getElementById('mp-items-list');
+  const items = currentPlan.items || [];
+  if (!items.length) {
+    el.innerHTML = '<p style="font-size:14px;color:var(--warm-mid);font-style:italic;padding:16px 0;">No items yet. Add your first menu item above.</p>';
+    return;
+  }
+  // Group by category
+  const cats = {};
+  const catOrder = ['Hot Buffet','Cold Buffet','Sandwich Box','Salad Box','Hot Breakfast','Cold Breakfast','Appetizer','Beverage','Other'];
+  items.forEach((item, idx) => {
+    if (!cats[item.category]) cats[item.category] = [];
+    cats[item.category].push({ ...item, _idx: idx });
+  });
+  let html = '';
+  catOrder.forEach(cat => {
+    if (!cats[cat]) return;
+    html += '<div style="margin-bottom:24px;">'
+      + '<div style="font-size:11px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:var(--rust);border-bottom:2px solid var(--rust);padding-bottom:4px;margin-bottom:12px;">' + cat + '</div>';
+    cats[cat].forEach(item => {
+      html += '<div style="display:flex;align-items:flex-start;justify-content:space-between;padding:10px 12px;background:white;border:1px solid var(--divider);border-radius:3px;margin-bottom:6px;gap:12px;">'
+        + '<div style="flex:1;">'
+        + '<div style="display:flex;align-items:baseline;gap:12px;">'
+        + '<span style="font-size:15px;font-weight:700;">' + esc(item.name) + '</span>'
+        + (item.price ? '<span style="font-size:14px;color:var(--warm-mid);">' + esc(item.price) + '</span>' : '')
+        + '</div>'
+        + (item.description ? '<div style="font-size:13px;color:var(--warm-mid);margin-top:3px;">' + esc(item.description) + '</div>' : '')
+        + (item.notes ? '<div style="font-size:12px;color:var(--sage);margin-top:3px;font-style:italic;">' + esc(item.notes) + '</div>' : '')
+        + (item.recipes && item.recipes.length ? '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;">'
+            + item.recipes.map(r => '<span style="font-size:11px;background:rgba(74,82,64,.1);color:var(--olive);padding:2px 7px;border-radius:10px;font-weight:600;">' + esc(r.name) + '</span>').join('')
+            + '</div>' : '')
+        + '</div>'
+        + '<button onclick="mpRemoveItem(' + item._idx + ')" class="btn-sm danger" style="flex-shrink:0;">Remove</button>'
+        + '</div>';
+    });
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+window.mpRemoveItem = async function(idx) {
+  if (!confirm('Remove this item from the menu plan?')) return;
+  const items = [...(currentPlan.items || [])];
+  items.splice(idx, 1);
+  await updateDoc(doc(db, 'menuPlans', currentPlan.id), { items });
+  currentPlan.items = items;
+  renderPlanItems();
+};
+
+// Publish plan
+document.getElementById('mp-publish-btn').addEventListener('click', async () => {
+  if (!currentPlan) return;
+  const items = currentPlan.items || [];
+  if (!items.length) { alert('Add at least one item before publishing.'); return; }
+  if (!confirm('Publish this menu plan? This will log all linked recipes to the menu history.')) return;
+  const btn = document.getElementById('mp-publish-btn');
+  btn.textContent = 'Publishing...'; btn.disabled = true;
+  try {
+    // Log all linked recipes to menuLog
+    const batch = [];
+    items.forEach(item => {
+      (item.recipes || []).forEach(r => {
+        batch.push(addDoc(collection(db, 'menuLog'), {
+          recipeId:     r.id,
+          recipeName:   r.name,
+          businessUnit: currentPlan.businessUnit,
+          startDate:    currentPlan.startDate,
+          endDate:      currentPlan.endDate,
+          notes:        'Menu: ' + currentPlan.name + (item.name !== r.name ? ' — ' + item.name : ''),
+          menuPlanId:   currentPlan.id,
+          menuPlanName: currentPlan.name,
+          createdBy:    (currentUser.firstName + ' ' + currentUser.lastName).trim(),
+          createdAt:    serverTimestamp()
+        }));
+      });
+    });
+    await Promise.all(batch);
+    await updateDoc(doc(db, 'menuPlans', currentPlan.id), { status: 'published', publishedAt: serverTimestamp() });
+    currentPlan.status = 'published';
+    document.getElementById('mp-status-badge').textContent = 'published';
+    document.getElementById('mp-status-badge').style.background = 'rgba(74,82,64,.12)';
+    document.getElementById('mp-status-badge').style.color = '#4A5240';
+    alert('Menu published! ' + batch.length + ' recipe' + (batch.length !== 1 ? 's' : '') + ' logged to menu history.');
+  } catch(e) { alert('Error: ' + e.message); }
+  finally { btn.textContent = 'Publish Menu'; btn.disabled = false; }
+});
+
+// Print draft
+document.getElementById('mp-print-btn').addEventListener('click', () => {
+  if (!currentPlan) return;
+  const items = currentPlan.items || [];
+  const catOrder = ['Hot Buffet','Cold Buffet','Sandwich Box','Salad Box','Hot Breakfast','Cold Breakfast','Appetizer','Beverage','Other'];
+  const cats = {};
+  items.forEach(item => { if (!cats[item.category]) cats[item.category] = []; cats[item.category].push(item); });
+
+  let body = '';
+  catOrder.forEach(cat => {
+    if (!cats[cat]) return;
+    body += '<div class="cat-section"><div class="cat-label">' + cat + '</div>';
+    cats[cat].forEach(item => {
+      body += '<div class="menu-item">'
+        + '<div class="item-header"><span class="item-name">' + item.name + '</span>'
+        + (item.price ? '<span class="item-price">' + item.price + '</span>' : '') + '</div>'
+        + (item.description ? '<div class="item-desc">' + item.description + '</div>' : '')
+        + (item.notes ? '<div class="item-notes">' + item.notes + '</div>' : '')
+        + '</div>';
+    });
+    body += '</div>';
+  });
+
+  const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + currentPlan.name + '</title>'
+    + '<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">'
+    + '<style>body{font-family:Montserrat,sans-serif;margin:40px;color:#1C1C1A;max-width:900px;}'
+    + 'h1{font-size:28px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}'
+    + '.meta{font-size:13px;color:#4A5240;font-weight:600;margin-bottom:28px;}'
+    + '.cat-section{margin-bottom:24px;}'
+    + '.cat-label{font-size:11px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#B85C38;border-bottom:2px solid #B85C38;padding-bottom:4px;margin-bottom:12px;}'
+    + '.menu-item{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #D4C9BB;}'
+    + '.item-header{display:flex;justify-content:space-between;align-items:baseline;}'
+    + '.item-name{font-size:15px;font-weight:700;}'
+    + '.item-price{font-size:14px;font-weight:700;color:#4A5240;}'
+    + '.item-desc{font-size:13px;color:#6B5B45;margin-top:3px;line-height:1.5;}'
+    + '.item-notes{font-size:12px;color:#8A9B7A;font-style:italic;margin-top:3px;}'
+    + '@media print{body{margin:24px;}}'
+    + '</style></head><body onload="window.print()">'
+    + '<h1>GFG Cookbook &nbsp;·&nbsp; ' + currentPlan.name + '</h1>'
+    + '<div class="meta">DRAFT &nbsp;·&nbsp; '
+    + new Date(currentPlan.startDate).toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'})
+    + ' — '
+    + new Date(currentPlan.endDate).toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'})
+    + '</div>'
+    + body + '</body></html>';
+
+  const blob = new Blob([html], { type: 'text/html' });
+  window.open(URL.createObjectURL(blob), '_blank');
+});
+
+// Load plans when tab is clicked (handled in admin tab listener)
+
+// ── Menu Log ───────────────────────────────────────────────────────
+let menuLogRecipe = null;
+
+function openMenuLog(recipe) {
+  menuLogRecipe = recipe;
+  document.getElementById('menu-log-recipe-name').textContent = recipe.name;
+  const today = new Date().toISOString().slice(0, 10);
+  document.getElementById('menu-log-start').value = today;
+  document.getElementById('menu-log-end').value = '';
+  document.getElementById('menu-log-notes').value = '';
+  document.getElementById('menu-log-modal').classList.add('open');
+}
+
+document.getElementById('menu-log-close').addEventListener('click', () => {
+  document.getElementById('menu-log-modal').classList.remove('open');
+});
+document.getElementById('menu-log-cancel').addEventListener('click', () => {
+  document.getElementById('menu-log-modal').classList.remove('open');
+});
+document.getElementById('menu-log-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('menu-log-modal'))
+    document.getElementById('menu-log-modal').classList.remove('open');
+});
+
+document.getElementById('menu-log-save').addEventListener('click', async () => {
+  const recipe = menuLogRecipe;
+  if (!recipe) return;
+  const startDate = document.getElementById('menu-log-start').value;
+  if (!startDate) { alert('Start date is required.'); return; }
+  const endDate   = document.getElementById('menu-log-end').value || null;
+  const unit      = document.getElementById('menu-log-unit').value;
+  const notes     = document.getElementById('menu-log-notes').value.trim();
+  const saveBtn   = document.getElementById('menu-log-save');
+  saveBtn.textContent = 'Saving...';
+  saveBtn.disabled = true;
+  try {
+    await addDoc(collection(db, 'menuLog'), {
+      recipeId:     recipe.id,
+      recipeName:   recipe.name,
+      categories:   recipe.categories || [],
+      cookbookId:   recipe.cookbookId || 'gfg',
+      businessUnit: unit,
+      startDate,
+      endDate,
+      notes,
+      createdBy:    (currentUser.firstName + ' ' + currentUser.lastName).trim(),
+      createdAt:    serverTimestamp()
+    });
+    document.getElementById('menu-log-modal').classList.remove('open');
+    if (currentRecipe && currentRecipe.id === recipe.id) loadLastServed(recipe.id);
+  } catch(e) {
+    alert('Error: ' + e.message);
+  } finally {
+    saveBtn.textContent = 'Save';
+    saveBtn.disabled = false;
+  }
+});
+
+async function loadLastServed(recipeId) {
+  let lsDiv = document.getElementById('last-served-div');
+  if (!lsDiv) {
+    lsDiv = document.createElement('div');
+    lsDiv.id = 'last-served-div';
+    lsDiv.style.cssText = 'font-size:12px;color:var(--warm-mid);margin-top:6px;';
+    const metaEl = document.getElementById('detail-meta');
+    if (metaEl) metaEl.after(lsDiv);
+  }
+  try {
+    const snap = await getDocs(query(
+      collection(db, 'menuLog'),
+      where('recipeId', '==', recipeId),
+      orderBy('startDate', 'desc')
+    ));
+    if (snap.empty) { lsDiv.textContent = ''; return; }
+    const entries = snap.docs.map(d => d.data());
+    const last = entries[0];
+    const lastDate = new Date(last.startDate).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+    lsDiv.innerHTML = '📅 Last on menu: <strong>' + lastDate + '</strong> (' + last.businessUnit + ')'
+      + ' &nbsp;·&nbsp; On menu <strong>' + entries.length + '</strong> time' + (entries.length !== 1 ? 's' : '');
+  } catch(e) { lsDiv.textContent = ''; }
+}
+
+function setQuarterFilter(q) {
+  const year = new Date().getFullYear();
+  const quarters = {
+    Q1: [year + '-01-01', year + '-03-31'],
+    Q2: [year + '-04-01', year + '-06-30'],
+    Q3: [year + '-07-01', year + '-09-30'],
+    Q4: [year + '-10-01', year + '-12-31']
+  };
+  document.getElementById('mh-from').value = quarters[q][0];
+  document.getElementById('mh-to').value   = quarters[q][1];
+  loadMenuHistory();
+}
+
+['q1','q2','q3','q4'].forEach(q => {
+  document.getElementById('mh-' + q).addEventListener('click', () => setQuarterFilter(q.toUpperCase()));
+});
+document.getElementById('mh-filter-btn').addEventListener('click', loadMenuHistory);
+document.getElementById('mh-clear-btn').addEventListener('click', () => {
+  document.getElementById('mh-from').value = '';
+  document.getElementById('mh-to').value = '';
+  document.getElementById('mh-unit').value = 'all';
+  document.getElementById('mh-results').innerHTML = '';
+});
+
+async function loadMenuHistory() {
+  const resultsEl = document.getElementById('mh-results');
+  resultsEl.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Loading...</p></div>';
+  const from = document.getElementById('mh-from').value;
+  const to   = document.getElementById('mh-to').value;
+  const unit = document.getElementById('mh-unit').value;
+  try {
+    const constraints = [orderBy('startDate', 'desc')];
+    if (from) constraints.push(where('startDate', '>=', from));
+    if (to)   constraints.push(where('startDate', '<=', to));
+    if (unit !== 'all') constraints.push(where('businessUnit', '==', unit));
+    const snap = await getDocs(query(collection(db, 'menuLog'), ...constraints));
+    const entries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (!entries.length) {
+      resultsEl.innerHTML = '<p style="font-size:14px;color:var(--warm-mid);font-style:italic">No menu entries found for this period.</p>';
+      return;
+    }
+    const byRecipe = {};
+    entries.forEach(e => {
+      if (!byRecipe[e.recipeId]) byRecipe[e.recipeId] = { name: e.recipeName, entries: [] };
+      byRecipe[e.recipeId].entries.push(e);
+    });
+    let html = '<div style="margin-bottom:12px;font-size:13px;color:var(--warm-mid);">'
+      + entries.length + ' menu entries &nbsp;·&nbsp; ' + Object.keys(byRecipe).length + ' unique recipes</div>';
+    html += '<table class="user-table"><thead><tr>'
+      + '<th>Recipe</th><th>Unit</th><th>Start</th><th>End</th><th>Notes</th><th></th>'
+      + '</tr></thead><tbody>';
+    entries.forEach(e => {
+      const start = new Date(e.startDate).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+      const end   = e.endDate ? new Date(e.endDate).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '—';
+      html += '<tr>'
+        + '<td style="font-weight:600">' + esc(e.recipeName) + '</td>'
+        + '<td>' + esc(e.businessUnit) + '</td>'
+        + '<td>' + start + '</td>'
+        + '<td>' + end + '</td>'
+        + '<td style="color:var(--warm-mid);font-size:13px">' + esc(e.notes || '') + '</td>'
+        + '<td><button class="btn-sm" onclick="editMenuLogEntry(\'' + e.id + '\',\'' + esc(e.endDate || '') + '\')">Set End Date</button></td>'
+        + '</tr>';
+    });
+    html += '</tbody></table>';
+    resultsEl.innerHTML = html;
+  } catch(e) {
+    resultsEl.innerHTML = '<p style="font-size:13px;color:var(--rust)">Error: ' + e.message + '</p>';
+  }
+}
+
+window.editMenuLogEntry = async function(entryId, currentEnd) {
+  const newEnd = prompt('Set end date (YYYY-MM-DD):', currentEnd || new Date().toISOString().slice(0,10));
+  if (!newEnd) return;
+  try {
+    await updateDoc(doc(db, 'menuLog', entryId), { endDate: newEnd });
+    loadMenuHistory();
+  } catch(e) { alert('Error: ' + e.message); }
+};
 
 // ── Manual Nutrition Entry ─────────────────────────────────────────
 window.openNutritionEdit = function(ingredientName) {
