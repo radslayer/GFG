@@ -59,7 +59,8 @@
     .cat-btn { display:block; width:100%; text-align:left; padding:8px 16px; background:none; border:none; font-family:var(--ff-body); font-size:14px; color:var(--warm-mid); cursor:pointer; transition:all .15s; border-left:3px solid transparent; }
     .cat-btn:hover { background:rgba(74,82,64,.08); color:var(--ink); }
     .cat-btn.active { background:rgba(74,82,64,.12); color:var(--olive); border-left-color:var(--olive); font-weight:500; }
-    .cat-count { float:right; font-size:11px; background:var(--divider); color:var(--warm-mid); padding:1px 6px; border-radius:10px; }
+    .cat-btn.cat-archived { color:var(--archive); font-style:italic; }
+    .cat-btn.cat-archived.active { color:var(--archive); border-left-color:var(--archive); }
     .content { padding:28px 32px; }
     .content-header { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px; }
     .content-title { font-family:var(--ff-display); font-size:26px; font-weight:700; color:var(--ink); }
@@ -558,9 +559,10 @@ function renderSidebar() {
       catCounts[c] = (catCounts[c] || 0) + 1;
     });
   });
-    const needsIngCount = allRecipes.filter(r => !r.archived && !(r.ingredients || []).some(i => i.type === 'ingredient')).length;
-    const cats = ['All', 'Needs Ingredients', ...Object.keys(catCounts).sort()];
-
+  const archivedCount = allRecipes.filter(r => r.archived).length;
+  const needsIngCount = allRecipes.filter(r => !r.archived && !(r.ingredients || []).some(i => i.type === 'ingredient')).length;
+  const isAdmin = currentUser?.role === 'admin';
+  const cats = ['All', 'Needs Ingredients', ...Object.keys(catCounts).sort(), ...(isAdmin && archivedCount ? ['Archived'] : [])];
   const list = document.getElementById('category-list');
   list.innerHTML = '';
   const label = document.createElement('div');
@@ -569,8 +571,8 @@ function renderSidebar() {
   list.appendChild(label);
   cats.forEach(cat => {
     const btn = document.createElement('button');
-    btn.className = 'cat-btn' + (cat === activeCategory ? ' active' : '');
-    const count = cat === 'All' ? visible.length : cat === 'Needs Ingredients' ? needsIngCount : (catCounts[cat] || 0);
+    btn.className = 'cat-btn' + (cat === activeCategory ? ' active' : '') + (cat === 'Archived' ? ' cat-archived' : '');
+    const count = cat === 'All' ? visible.length : cat === 'Needs Ingredients' ? needsIngCount : cat === 'Archived' ? archivedCount : (catCounts[cat] || 0);
     btn.innerHTML = `${esc(cat)} <span class="cat-count">${count}</span>`;
     btn.addEventListener('click', () => {
       activeCategory = cat;
@@ -587,11 +589,13 @@ function renderSidebar() {
 function applyFilters() {
   const q = searchQuery.toLowerCase();
   filteredRecipes = allRecipes.filter(r => {
-    if (r.archived) return false;
     const hasIng = (r.ingredients || []).some(i => i.type === 'ingredient');
-    if (activeCategory === 'Needs Ingredients') {
-      if (hasIng) return false;
+    if (activeCategory === 'Archived') {
+      if (!r.archived) return false;
+    } else if (activeCategory === 'Needs Ingredients') {
+      if (r.archived || hasIng) return false;
     } else {
+      if (r.archived) return false;
       const inCat = activeCategory === 'All' || (r.categories || ['Uncategorized']).includes(activeCategory);
       if (!inCat) return false;
     }
