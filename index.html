@@ -355,23 +355,8 @@
       </div>
       <div class="form-group">
         <label>Category</label>
-        <select id="form-category">
-          <option value="Appetizers">Appetizers</option>
-          <option value="Breakfast">Breakfast</option>
-          <option value="Desserts">Desserts</option>
-          <option value="Empanada">Empanada</option>
-          <option value="Hot Lunches">Hot Lunches</option>
-          <option value="Miscellaneous">Miscellaneous</option>
-          <option value="PC">PC</option>
-          <option value="Salad Dressings">Salad Dressings</option>
-          <option value="Salads">Salads</option>
-          <option value="Sandwich Dressings">Sandwich Dressings</option>
-          <option value="Sandwiches">Sandwiches</option>
-          <option value="Side Dishes">Side Dishes</option>
-          <option value="Soups">Soups</option>
-          <option value="Spices">Spices</option>
-          <option value="Uncategorized">Uncategorized</option>
-        </select>
+        <input type="text" id="form-category" list="category-options" placeholder="Select or type a category" autocomplete="off" />
+        <datalist id="category-options"></datalist>
       </div>
       <div class="form-group">
         <label>Servings</label>
@@ -1523,8 +1508,26 @@ function openForm(recipe = null) {
   document.getElementById('form-author').value     = recipe?.author || '';
   document.getElementById('form-directions').value = recipe?.directions || '';
   document.getElementById('form-note').value       = recipe?.note || '';
-  const catSel = document.getElementById('form-category');
-  catSel.value = (recipe?.categories || ['Uncategorized'])[0];
+  // Populate category datalist from actual data
+  const catDatalist = document.getElementById('category-options');
+  catDatalist.innerHTML = '';
+  const allCats = new Set();
+  allRecipes.filter(r => r.cookbookId === 'gfg' && !r.archived).forEach(r => {
+    (r.categories || ['Uncategorized']).forEach(c => allCats.add(c));
+  });
+  // Always include these even if not yet used
+  ['Appetizers','Breakfast','Condiment','Desserts','Empanada','Hot Lunches',
+   'Miscellaneous','PC','Salad','Salad Dressings','Salads','Sandwich',
+   'Sandwich Dressings','Sandwiches','Side Dish','Side Dishes','Soups',
+   'Spices','Uncategorized'].forEach(c => allCats.add(c));
+  [...allCats].sort().forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    catDatalist.appendChild(opt);
+  });
+
+  const catInput = document.getElementById('form-category');
+  catInput.value = (recipe?.categories || ['Uncategorized'])[0];
   const ingRows = document.getElementById('ing-rows');
   ingRows.innerHTML = '';
   const ings = (recipe?.ingredients || []).filter(i => i.type === 'ingredient');
@@ -1578,7 +1581,7 @@ document.getElementById('form-save').addEventListener('click', async () => {
   });
   const data = {
     name,
-    categories: [document.getElementById('form-category').value],
+    categories: [document.getElementById('form-category').value.trim() || 'Uncategorized'],
     servings:   document.getElementById('form-servings').value.trim(),
     author:     document.getElementById('form-author').value.trim(),
     ingredients,
