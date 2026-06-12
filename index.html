@@ -429,19 +429,30 @@
         <div id="menu-log-recipe-name" style="font-size:15px;font-weight:600;padding:8px 0;color:var(--ink);"></div>
       </div>
       <div class="form-group" style="grid-column:1">
-        <label>Business Unit</label>
-        <select id="menu-log-unit">
-          <option value="GFG">Gourmet for Good</option>
-          <option value="EE">Easy Entrées</option>
+        <label>Attach to Menu Plan <span style="font-weight:400;font-size:11px;color:var(--warm-mid)">(recommended)</span></label>
+        <select id="menu-log-plan">
+          <option value="">— Manual entry —</option>
         </select>
       </div>
-      <div class="form-group" style="grid-column:1">
-        <label>Start Date</label>
-        <input type="date" id="menu-log-start" />
-      </div>
-      <div class="form-group" style="grid-column:1">
-        <label>End Date <span style="font-weight:400;font-size:11px;color:var(--warm-mid)">(optional — fill in when it rotates off)</span></label>
-        <input type="date" id="menu-log-end" />
+      <!-- Plan summary shown when a plan is selected -->
+      <div id="menu-log-plan-summary" style="display:none;background:var(--parchment);border:1px solid var(--divider);border-radius:3px;padding:10px 12px;font-size:13px;color:var(--warm-mid);margin-top:-8px;"></div>
+      <!-- Manual date fields shown only when no plan selected -->
+      <div id="menu-log-manual-fields">
+        <div class="form-group" style="grid-column:1">
+          <label>Business Unit</label>
+          <select id="menu-log-unit">
+            <option value="GFG">Gourmet for Good</option>
+            <option value="EE">Easy Entrées</option>
+          </select>
+        </div>
+        <div class="form-group" style="grid-column:1">
+          <label>Start Date</label>
+          <input type="date" id="menu-log-start" />
+        </div>
+        <div class="form-group" style="grid-column:1">
+          <label>End Date <span style="font-weight:400;font-size:11px;color:var(--warm-mid)">(optional)</span></label>
+          <input type="date" id="menu-log-end" />
+        </div>
       </div>
       <div class="form-group" style="grid-column:1">
         <label>Notes <span style="font-weight:400;font-size:11px;color:var(--warm-mid)">(optional)</span></label>
@@ -1688,17 +1699,63 @@ document.getElementById('mp-print-btn').addEventListener('click', () => {
 // Load plans when tab is clicked (handled in admin tab listener)
 
 // ── Menu Log ───────────────────────────────────────────────────────
+let allMenuPlans = [];
 let menuLogRecipe = null;
 
-function openMenuLog(recipe) {
+async function openMenuLog(recipe) {
   menuLogRecipe = recipe;
   document.getElementById('menu-log-recipe-name').textContent = recipe.name;
-  const today = new Date().toISOString().slice(0, 10);
-  document.getElementById('menu-log-start').value = today;
-  document.getElementById('menu-log-end').value = '';
   document.getElementById('menu-log-notes').value = '';
+  document.getElementById('menu-log-start').value = new Date().toISOString().slice(0,10);
+  document.getElementById('menu-log-end').value = '';
+
+  // Load menu plans into dropdown
+  const planSel = document.getElementById('menu-log-plan');
+  planSel.innerHTML = '<option value="">— Manual entry —</option>';
+  try {
+    const snap = await getDocs(query(collection(db, 'menuPlans'), orderBy('startDate', 'desc')));
+    allMenuPlans = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    allMenuPlans.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.name + ' (' + p.businessUnit + ')' + (p.status === 'published' ? ' ✓' : ' — draft');
+      planSel.appendChild(opt);
+    });
+    // Default to most recent draft plan
+    const draft = allMenuPlans.find(p => p.status === 'draft');
+    if (draft) {
+      planSel.value = draft.id;
+      updatePlanSummary(draft.id);
+    } else {
+      updatePlanSummary('');
+    }
+  } catch(e) {
+    updatePlanSummary('');
+  }
+
   document.getElementById('menu-log-modal').classList.add('open');
 }
+
+function updatePlanSummary(planId) {
+  const summary = document.getElementById('menu-log-plan-summary');
+  const manualFields = document.getElementById('menu-log-manual-fields');
+  if (!planId) {
+    summary.style.display = 'none';
+    manualFields.style.display = 'block';
+    return;
+  }
+  const plan = allMenuPlans.find(p => p.id === planId);
+  if (!plan) { summary.style.display = 'none'; manualFields.style.display = 'block'; return; }
+  const start = new Date(plan.startDate).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+  const end   = new Date(plan.endDate).toLocaleDateString('en-US',   {month:'short', day:'numeric', year:'numeric'});
+  summary.style.display = 'block';
+  manualFields.style.display = 'none';
+  summary.innerHTML = '<strong>' + plan.businessUnit + '</strong> &nbsp;·&nbsp; ' + start + ' — ' + end;
+}
+
+document.getElementById('menu-log-plan').addEventListener('change', function() {
+  updatePlanSummary(this.value);
+});
 
 document.getElementById('menu-log-close').addEventListener('click', () => {
   document.getElementById('menu-log-modal').classList.remove('open');
@@ -1714,14 +1771,27 @@ document.getElementById('menu-log-modal').addEventListener('click', e => {
 document.getElementById('menu-log-save').addEventListener('click', async () => {
   const recipe = menuLogRecipe;
   if (!recipe) return;
-  const startDate = document.getElementById('menu-log-start').value;
-  if (!startDate) { alert('Start date is required.'); return; }
-  const endDate   = document.getElementById('menu-log-end').value || null;
-  const unit      = document.getElementById('menu-log-unit').value;
-  const notes     = document.getElementById('menu-log-notes').value.trim();
-  const saveBtn   = document.getElementById('menu-log-save');
-  saveBtn.textContent = 'Saving...';
-  saveBtn.disabled = true;
+  const planId = document.getElementById('menu-log-plan').value;
+  const notes  = document.getElementById('menu-log-notes').value.trim();
+  let startDate, endDate, unit, menuPlanId, menuPlanName;
+
+  if (planId) {
+    const plan = allMenuPlans.find(p => p.id === planId);
+    if (!plan) { alert('Plan not found.'); return; }
+    startDate    = plan.startDate;
+    endDate      = plan.endDate || null;
+    unit         = plan.businessUnit;
+    menuPlanId   = plan.id;
+    menuPlanName = plan.name;
+  } else {
+    startDate = document.getElementById('menu-log-start').value;
+    endDate   = document.getElementById('menu-log-end').value || null;
+    unit      = document.getElementById('menu-log-unit').value;
+    if (!startDate) { alert('Start date is required.'); return; }
+  }
+
+  const saveBtn = document.getElementById('menu-log-save');
+  saveBtn.textContent = 'Saving...'; saveBtn.disabled = true;
   try {
     await addDoc(collection(db, 'menuLog'), {
       recipeId:     recipe.id,
@@ -1732,6 +1802,8 @@ document.getElementById('menu-log-save').addEventListener('click', async () => {
       startDate,
       endDate,
       notes,
+      menuPlanId:   menuPlanId || null,
+      menuPlanName: menuPlanName || null,
       createdBy:    (currentUser.firstName + ' ' + currentUser.lastName).trim(),
       createdAt:    serverTimestamp()
     });
@@ -1740,8 +1812,7 @@ document.getElementById('menu-log-save').addEventListener('click', async () => {
   } catch(e) {
     alert('Error: ' + e.message);
   } finally {
-    saveBtn.textContent = 'Save';
-    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save'; saveBtn.disabled = false;
   }
 });
 
