@@ -794,6 +794,10 @@ async function openDetail(recipe) {
   currentRecipe = recipe;
   const isAdmin = currentUser?.role === 'admin';
 
+  // Clean up any panels from previous open
+  document.getElementById('nutrition-panel')?.remove();
+  document.getElementById('allergen-edit-panel')?.remove();
+
   document.getElementById('detail-name').textContent = recipe.name;
   const cats = (recipe.categories || ['Uncategorized']).join(', ');
   const metaParts = [cats];
@@ -843,7 +847,16 @@ async function openDetail(recipe) {
       gradBtn.addEventListener('click', () => graduateRecipe(recipe));
       actionsEl.appendChild(gradBtn);
     } else {
-      actionsEl.appendChild(btn('✏ Edit', (e) => { e.stopPropagation(); openForm(recipe); }));
+      const editBtn = document.createElement('button');
+      editBtn.className = 'btn-icon';
+      editBtn.textContent = '✏ Edit';
+      editBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        openForm(recipe);
+      });
+      actionsEl.appendChild(editBtn);
       const archBtn = btn('Archive', () => archiveRecipe(recipe));
       archBtn.classList.add('archive-btn');
       actionsEl.appendChild(archBtn);
@@ -880,6 +893,7 @@ function btn(label, onClick) {
 }
 
 function closeDetail() {
+  if (document.getElementById('form-modal').classList.contains('open')) return;
   document.getElementById('detail-modal').classList.remove('open');
   currentRecipe = null;
 }
@@ -1583,14 +1597,13 @@ document.getElementById('btn-add-ing').addEventListener('click', () => addIngRow
 
 function closeForm() {
   document.getElementById('form-modal').classList.remove('open');
-  closeDetail();
   editingId = null;
 }
 
 document.getElementById('form-close').addEventListener('click', closeForm);
 document.getElementById('form-cancel').addEventListener('click', closeForm);
 document.getElementById('form-modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('form-modal')) closeForm();
+  if (e.target === document.getElementById('form-modal')) { e.stopPropagation(); closeForm(); }
 });
 document.getElementById('btn-add-recipe').addEventListener('click', () => openForm());
 
@@ -1632,6 +1645,8 @@ document.getElementById('form-save').addEventListener('click', async () => {
       await setDoc(doc(db, 'recipes', newId), { ...data, createdAt: new Date().toISOString(), dataSource: 'Manual entry' });
     }
     closeForm();
+    document.getElementById('detail-modal').classList.remove('open');
+    currentRecipe = null;
     await loadRecipes();
   } catch (e) {
     alert('Error saving: ' + e.message);
