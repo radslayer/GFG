@@ -873,6 +873,9 @@ async function openDetail(recipe) {
   // Allergens
   renderAllergenBar(recipe, isAdmin);
 
+  // Nutrition
+  renderNutritionPanel(recipe);
+
   // Load notes
   await loadNotes(recipe.id);
 
@@ -977,7 +980,286 @@ document.getElementById('btn-post-note').addEventListener('click', async () => {
   }
 });
 
-// ── Allergen Detection ─────────────────────────────────────────────
+// ── Nutrition Database (USDA-based, per 100g) ─────────────────────
+// Format: name -> [calories, fat_g, carbs_g, protein_g, sodium_mg, fiber_g, sugar_g]
+const NUTRITION_DB = {
+  "butter":[717,81.1,0.1,0.9,576,0,0.1],"butter unsalted":[717,81.1,0.1,0.9,11,0,0.1],
+  "margarine":[717,80.7,0.7,0.2,751,0,0.7],"olive oil":[884,100,0,0,2,0,0],
+  "vegetable oil":[884,100,0,0,0,0,0],"canola oil":[884,100,0,0,0,0,0],
+  "oil blend":[884,100,0,0,0,0,0],"shortening":[884,100,0,0,0,0,0],
+  "cream cheese":[342,34.2,4.1,6,321,0,3.2],"sour cream":[193,20.5,3.6,2.1,53,0,0.2],
+  "heavy cream":[345,36.1,2.8,2.1,38,0,2.8],"cream":[345,36.1,2.8,2.1,38,0,2.8],
+  "whipping cream":[345,36.1,2.8,2.1,38,0,2.8],"half and half":[130,11.5,4.3,3.1,41,0,0.2],
+  "coconut milk":[230,23.8,5.5,2.3,15,2.2,3.3],"milk":[61,3.3,4.8,3.2,43,0,5.1],
+  "whole milk":[61,3.3,4.8,3.2,43,0,5.1],"buttermilk":[40,0.9,4.8,3.3,105,0,4.8],
+  "yogurt":[59,0.4,3.6,10,36,0,3.2],"eggs":[155,10.6,1.1,12.6,124,0,1.1],
+  "egg":[155,10.6,1.1,12.6,124,0,1.1],"egg whites":[52,0.2,0.7,10.9,166,0,0.7],
+  "parmesan":[431,28.6,4.1,38.5,1529,0,0.8],"mozzarella":[280,17.1,2.2,28.1,627,0,1.0],
+  "cheddar":[403,33.1,1.3,24.9,621,0,0.5],"feta":[264,21.3,4.1,14.2,1116,0,4.1],
+  "ricotta":[174,12.5,3.0,11.3,84,0,0.3],"brie":[334,27.7,0.5,20.8,629,0,0.5],
+  "flour":[364,1.0,76.3,10.3,2,2.7,0.3],"all purpose flour":[364,1.0,76.3,10.3,2,2.7,0.3],
+  "flour all-purpose":[364,1.0,76.3,10.3,2,2.7,0.3],"cornstarch":[381,0.1,91.3,0.3,9,0.9,0],
+  "cornmeal":[362,3.6,73.9,8.1,43,7.3,0.6],"oats":[389,6.9,66.3,16.9,2,10.6,0],
+  "rice":[130,0.3,28.7,2.4,1,0.4,0],"white rice":[130,0.3,28.7,2.4,1,0.4,0],
+  "brown rice":[123,1.0,25.6,2.7,4,1.8,0.4],"quinoa":[120,1.9,21.3,4.4,7,2.8,0.9],
+  "farro":[340,2.5,68.4,14.8,5,7.5,0],"couscous":[376,0.6,77.4,12.8,10,5.0,0.2],
+  "orzo":[371,1.5,74.7,13.0,5,2.9,0.5],"pasta":[371,1.5,74.7,13.0,5,2.9,0.5],
+  "breadcrumbs":[395,5.3,72.5,13.4,732,4.5,6.4],"panko":[395,5.3,72.5,13.4,732,4.5,6.4],
+  "graham cracker crumbs":[481,16.6,76.9,5.9,500,2.1,32.1],
+  "sugar":[387,0,99.9,0,1,0,99.8],"powdered sugar":[389,0,99.6,0,1,0,97.3],
+  "sugar powdered":[389,0,99.6,0,1,0,97.3],"brown sugar":[380,0,98.1,0.1,28,0,97.0],
+  "honey":[304,0,82.4,0.3,4,0.2,82.1],"maple syrup":[260,0.1,67.0,0,12,0,60.5],
+  "corn syrup":[286,0,77.0,0,100,0,32.0],"agave":[310,0.5,76.0,0.1,4,0,68.0],
+  "baking soda":[0,0,0,0,27360,0,0],"baking powder":[53,0,27.7,0,10600,0.2,0],
+  "cocoa powder":[228,13.7,57.9,19.6,21,37.0,1.8],"chocolate chips":[497,25.0,70.1,5.5,24,8.0,55.0],
+  "vanilla extract":[288,0.1,12.7,0.1,9,0,12.7],"almond extract":[289,0.1,12.5,0.1,9,0,12.5],
+  "salt":[0,0,0,0,38758,0,0],
+  "chicken breast":[165,3.6,0,31.0,74,0,0],"chicken thigh":[209,13.0,0,21.9,88,0,0],
+  "chicken":[215,12.6,0,24.7,82,0,0],"salmon":[208,13.4,0,20.4,59,0,0],
+  "salmon fillet":[208,13.4,0,20.4,59,0,0],"ground beef":[254,20.0,0,17.2,72,0,0],
+  "beef":[250,17.0,0,26.0,66,0,0],"pork":[242,16.0,0,21.0,62,0,0],
+  "turkey":[189,9.7,0,24.6,70,0,0],"shrimp":[99,1.1,0.9,19.0,111,0,0],
+  "cod":[82,0.7,0,17.8,54,0,0],"tuna":[144,4.9,0,23.4,47,0,0],
+  "bacon":[541,45.0,1.4,37.0,1717,0,0],"ham":[145,6.7,2.4,18.3,1203,0,1.6],
+  "tofu":[76,4.8,1.9,8.1,7,0.3,0.9],
+  "onion":[40,0.1,9.3,1.1,4,1.7,4.2],"garlic":[149,0.5,33.1,6.4,17,2.1,1.0],
+  "tomato":[18,0.2,3.9,0.9,5,1.2,2.6],"bell pepper":[31,0.3,6.0,1.0,4,2.1,4.2],
+  "mushroom":[22,0.3,3.3,3.1,5,1.0,1.7],"spinach":[23,0.4,3.6,2.9,79,2.2,0.4],
+  "broccoli":[34,0.4,6.6,2.8,33,2.6,1.7],"carrot":[41,0.2,9.6,0.9,69,2.8,4.7],
+  "celery":[16,0.2,3.0,0.7,80,1.6,1.3],"potato":[77,0.1,17.5,2.0,6,2.2,0.8],
+  "zucchini":[17,0.3,3.1,1.2,8,1.0,2.5],"corn":[86,1.3,19.0,3.3,15,2.7,3.2],
+  "cabbage":[25,0.1,5.8,1.3,18,2.5,3.2],"avocado":[160,14.7,8.5,2.0,7,6.7,0.7],
+  "eggplant":[25,0.2,5.9,1.0,2,3.0,3.5],"kale":[49,0.9,8.8,4.3,38,3.6,2.3],
+  "sweet potato":[86,0.1,20.1,1.6,55,3.0,4.2],"butternut squash":[45,0.1,11.7,1.0,4,2.0,2.2],
+  "lemon":[29,0.3,9.3,1.1,2,2.8,2.5],"lime":[30,0.2,10.5,0.7,2,2.8,1.7],
+  "orange":[47,0.1,11.8,0.9,0,2.4,9.4],"apple":[52,0.2,13.8,0.3,1,2.4,10.4],
+  "strawberry":[32,0.3,7.7,0.7,1,2.0,4.9],"blueberry":[57,0.3,14.5,0.7,1,2.4,10.0],
+  "cranberry":[46,0.1,12.2,0.4,2,4.6,4.0],"pineapple":[50,0.1,13.1,0.5,1,1.4,9.9],
+  "black beans":[132,0.5,23.7,8.9,1,8.7,0.3],"chickpeas":[164,2.6,27.4,8.9,7,7.6,4.8],
+  "lentils":[116,0.4,20.1,9.0,2,7.9,1.8],"peanut butter":[588,50.4,19.6,25.1,422,6.0,9.2],
+  "almonds":[579,49.9,21.6,21.2,1,12.5,4.4],"walnuts":[654,65.2,13.7,15.2,2,6.7,2.6],
+  "pecans":[691,72.0,13.9,9.2,0,9.6,3.97],"cashews":[553,43.8,30.2,18.2,12,3.3,5.9],
+  "pine nuts":[673,68.4,13.1,13.7,2,3.7,3.6],"sesame seeds":[573,49.7,23.5,17.7,11,11.8,0.3],
+  "tahini":[595,53.8,21.2,17.0,115,9.3,0.5],
+  "soy sauce":[53,0.1,4.9,8.1,5720,0.8,0.9],"worcestershire":[78,0.1,19.5,0,980,0,15.7],
+  "ketchup":[101,0.1,25.5,1.3,907,0.3,22.2],"mustard":[66,4.0,5.8,3.7,1124,3.3,2.3],
+  "mayonnaise":[680,74.9,2.6,1.0,635,0,1.4],"vinegar":[18,0,0.9,0,2,0,0],
+  "balsamic vinegar":[88,0,17.0,0.5,23,0,15.0],"tomato paste":[82,0.5,18.9,4.3,1014,4.1,11.1],
+  "pesto":[394,38.0,8.7,10.0,574,1.8,2.0],"hummus":[177,9.6,17.4,7.9,379,6.0,3.0],
+  "hoisin sauce":[220,4.5,40.7,4.0,1680,1.7,25.3],"fish sauce":[35,0.1,3.6,5.1,5990,0,2.7],
+  "teriyaki sauce":[89,0.2,17.0,5.1,2438,0.4,14.8],
+  "chicken broth":[15,0.5,1.4,1.3,714,0,0.5],"beef broth":[17,0.5,1.7,2.7,472,0,0.3],
+  "vegetable broth":[7,0.1,1.4,0.1,489,0,0.7],"white wine":[82,0,2.7,0.1,9,0,0.9],
+  "lemon juice":[22,0.2,6.9,0.4,1,0.3,2.5],"orange juice":[45,0.2,10.4,0.7,1,0.2,8.4],
+  "black pepper":[251,3.3,63.9,10.4,20,25.3,0.6],"garlic powder":[331,0.7,72.7,16.6,26,9.0,1.0],
+  "onion powder":[341,0.7,79.1,10.4,78,15.2,9.2],"cumin":[375,22.3,44.2,17.8,168,10.5,2.3],
+  "paprika":[282,12.9,53.9,14.1,68,34.9,10.3],"cinnamon":[247,1.2,80.6,4.0,10,53.1,2.2],
+  "oregano":[265,4.3,68.9,9.0,25,42.5,4.1],"basil":[23,0.6,2.7,3.2,4,1.6,0.3],
+  "thyme":[101,1.7,24.4,5.6,9,14.0,0.5],"rosemary":[131,5.9,20.7,3.3,26,14.1,0.5],
+  "cayenne":[318,17.3,56.6,12.0,30,27.2,10.3],"cilantro":[23,0.5,3.7,2.1,46,2.8,0.9],
+  "parsley":[36,0.8,6.3,3.0,56,3.3,0.9],"dill":[43,1.1,7.0,3.5,61,2.1,0],
+  "coconut":[354,33.5,15.2,3.3,20,9.0,6.2]
+};
+
+// ── Unit Conversion to grams ───────────────────────────────────────
+// Returns grams for a given qty + unit + ingredient name
+const UNIT_TO_GRAMS = {
+  // Weight
+  "pound":453.592,"pounds":453.592,"lb":453.592,"lbs":453.592,
+  "ounce":28.3495,"ounces":28.3495,"oz":28.3495,
+  "gram":1,"grams":1,"g":1,"kg":1000,"kilogram":1000,
+  // Volume (water density approximation, adjusted per ingredient type)
+  "cup":236.588,"cups":236.588,
+  "tablespoon":14.787,"tablespoons":14.787,"tbsp":14.787,"tbs":14.787,
+  "teaspoon":4.929,"teaspoons":4.929,"tsp":4.929,
+  "fluid ounce":29.574,"fl oz":29.574,"fl_oz":29.574,
+  "liter":1000,"liters":1000,"l":1000,
+  "milliliter":1,"milliliters":1,"ml":1,
+  "pint":473.176,"pints":473.176,"quart":946.353,"quarts":946.353,
+  "gallon":3785.41,"gallons":3785.41,
+};
+
+// Density adjustments for volume->weight (multiply cup grams by this factor)
+const DENSITY = {
+  "flour":0.53,"all purpose flour":0.53,"cornstarch":0.6,"sugar":0.85,
+  "powdered sugar":0.56,"brown sugar":0.93,"cocoa powder":0.43,"oats":0.34,
+  "breadcrumbs":0.5,"panko":0.4,"cornmeal":0.6,"rice":0.79,
+  "salt":1.22,"baking soda":1.08,"baking powder":0.9,"butter":0.91,
+  "honey":1.42,"maple syrup":1.32,"corn syrup":1.38,"oil":0.92,
+  "olive oil":0.92,"vegetable oil":0.92,"canola oil":0.92,
+  "milk":1.03,"cream":1.01,"heavy cream":1.0,"sour cream":1.01,
+  "mayonnaise":0.91,"peanut butter":1.09,"tahini":0.97,
+  "tomato paste":1.06,"ketchup":1.1,"soy sauce":1.09,
+};
+
+function parseQty(qtyStr) {
+  if (!qtyStr) return 0;
+  const s = qtyStr.trim();
+  // Handle fractions like "1/2", "3/4", "1 1/2"
+  const mixed = s.match(/^(\d+)\s+(\d+)\/(\d+)$/);
+  if (mixed) return parseInt(mixed[1]) + parseInt(mixed[2]) / parseInt(mixed[3]);
+  const frac = s.match(/^(\d+)\/(\d+)$/);
+  if (frac) return parseInt(frac[1]) / parseInt(frac[2]);
+  const num = parseFloat(s);
+  return isNaN(num) ? 0 : num;
+}
+
+function toGrams(qty, unit, ingredientName) {
+  const q = parseQty(qty);
+  if (!q) return 0;
+  const u = (unit || '').toLowerCase().trim();
+  if (!u) {
+    // No unit — assume whole item, estimate 100g
+    return q * 100;
+  }
+  const baseGrams = UNIT_TO_GRAMS[u];
+  if (!baseGrams) return 0;
+  // Apply density if volume unit and ingredient has known density
+  const isVolume = ['cup','cups','tablespoon','tablespoons','tbsp','teaspoon','teaspoons','tsp'].includes(u);
+  if (isVolume) {
+    const key = ingredientName.toLowerCase();
+    const density = DENSITY[key] || DENSITY[key.split(' ')[0]] || 1.0;
+    return q * baseGrams * density;
+  }
+  return q * baseGrams;
+}
+
+function findNutrition(ingredientName) {
+  const name = ingredientName.toLowerCase().trim();
+  // Exact match
+  if (NUTRITION_DB[name]) return NUTRITION_DB[name];
+  // Partial match — find longest key that appears in the ingredient name
+  let bestMatch = null, bestLen = 0;
+  for (const key of Object.keys(NUTRITION_DB)) {
+    if (name.includes(key) && key.length > bestLen) {
+      bestMatch = key;
+      bestLen = key.length;
+    }
+  }
+  if (bestMatch) return NUTRITION_DB[bestMatch];
+  // Try matching first word
+  const firstWord = name.split(/[\s,]+/)[0];
+  return NUTRITION_DB[firstWord] || null;
+}
+
+function calculateNutrition(ingredients, servings) {
+  const srv = Math.max(1, parseInt(servings) || 1);
+  let totals = [0,0,0,0,0,0,0]; // cal, fat, carbs, protein, sodium, fiber, sugar
+  let matched = 0, unmatched = [];
+
+  ingredients.filter(i => i.type === 'ingredient').forEach(ing => {
+    const grams = toGrams(ing.qty, ing.unit, ing.name);
+    if (!grams) { unmatched.push(ing.name); return; }
+    const nutr = findNutrition(ing.name);
+    if (!nutr) { unmatched.push(ing.name); return; }
+    const factor = grams / 100;
+    totals = totals.map((t, i) => t + nutr[i] * factor);
+    matched++;
+  });
+
+  return {
+    perServing: totals.map(v => Math.round(v / srv)),
+    matched,
+    unmatched,
+    servings: srv
+  };
+}
+
+// ── Render Nutrition Panel ─────────────────────────────────────────
+function renderNutritionPanel(recipe) {
+  // Remove existing panel
+  const existing = document.getElementById('nutrition-panel');
+  if (existing) existing.remove();
+
+  const ingredients = (recipe.ingredients || []).filter(i => i.type === 'ingredient');
+  if (!ingredients.length) return;
+
+  const panel = document.createElement('div');
+  panel.id = 'nutrition-panel';
+  panel.style.cssText = 'grid-column:1/-1; border-top:1px solid var(--divider);';
+
+  const toggle = document.createElement('button');
+  toggle.style.cssText = 'width:100%; padding:12px 24px; background:none; border:none; text-align:left; cursor:pointer; font-family:var(--ff-body); font-size:13px; font-weight:600; color:var(--warm-mid); letter-spacing:.06em; text-transform:uppercase; display:flex; align-items:center; justify-content:space-between; transition:color .15s;';
+  toggle.innerHTML = `<span>Nutrition Facts</span><span id="nutr-arrow" style="font-size:16px;transition:transform .2s">▸</span>`;
+  toggle.addEventListener('mouseover', () => toggle.style.color = 'var(--olive)');
+  toggle.addEventListener('mouseout',  () => toggle.style.color = 'var(--warm-mid)');
+
+  const content = document.createElement('div');
+  content.id = 'nutrition-content';
+  content.style.cssText = 'display:none; padding:0 24px 20px;';
+
+  let open = false;
+  toggle.addEventListener('click', () => {
+    open = !open;
+    content.style.display = open ? 'block' : 'none';
+    document.getElementById('nutr-arrow').style.transform = open ? 'rotate(90deg)' : '';
+    if (open && !content.dataset.loaded) {
+      loadNutritionContent(recipe, content);
+      content.dataset.loaded = '1';
+    }
+  });
+
+  panel.appendChild(toggle);
+  panel.appendChild(content);
+
+  // Insert before notes section
+  const notesSection = document.querySelector('.notes-section');
+  notesSection?.before(panel);
+}
+
+function loadNutritionContent(recipe, container) {
+  const result = calculateNutrition(recipe.ingredients || [], recipe.servings);
+  const [cal, fat, carbs, protein, sodium, fiber, sugar] = result.perServing;
+
+  const coverage = result.matched + result.unmatched.length > 0
+    ? Math.round(result.matched / (result.matched + result.unmatched.length) * 100)
+    : 0;
+
+  container.innerHTML = `
+    <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start;">
+      <div style="min-width:220px;">
+        <div style="border:2px solid var(--ink); padding:12px; max-width:240px; font-family:var(--ff-body);">
+          <div style="font-size:22px; font-weight:900; border-bottom:8px solid var(--ink); padding-bottom:4px; margin-bottom:4px;">Nutrition Facts</div>
+          <div style="font-size:12px; border-bottom:1px solid var(--ink); padding-bottom:4px; margin-bottom:4px;">${result.servings} serving${result.servings !== 1 ? 's' : ''} per batch</div>
+          <div style="font-size:11px; font-weight:700; border-bottom:4px solid var(--ink); padding-bottom:4px; margin-bottom:4px;">Amount per serving</div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; border-bottom:4px solid var(--ink); padding-bottom:4px; margin-bottom:4px;">
+            <span style="font-size:13px; font-weight:700;">Calories</span>
+            <span style="font-size:22px; font-weight:900;">${cal}</span>
+          </div>
+          <div style="font-size:11px; text-align:right; border-bottom:1px solid var(--ink); padding-bottom:2px; margin-bottom:2px;">% Daily Value*</div>
+          ${nutriRow('Total Fat', fat, 'g', Math.round(fat/78*100))}
+          ${nutriRow('Total Carbohydrate', carbs, 'g', Math.round(carbs/275*100))}
+          ${nutriRow('Dietary Fiber', fiber, 'g', Math.round(fiber/28*100), true)}
+          ${nutriRow('Total Sugars', sugar, 'g', null, true)}
+          ${nutriRow('Protein', protein, 'g', null)}
+          ${nutriRow('Sodium', sodium, 'mg', Math.round(sodium/2300*100))}
+          <div style="font-size:10px; margin-top:6px; color:var(--warm-mid);">*% Daily Values based on 2,000 cal diet</div>
+        </div>
+      </div>
+      <div style="flex:1; min-width:180px;">
+        <div style="font-size:12px; color:var(--warm-mid); margin-bottom:8px;">
+          <strong style="color:var(--ink)">Coverage: ${coverage}%</strong> of ingredients matched
+        </div>
+        ${result.unmatched.length ? `
+          <div style="font-size:12px; color:var(--warm-mid); margin-bottom:4px;">Not calculated:</div>
+          <ul style="font-size:12px; color:var(--warm-mid); padding-left:16px; margin:0;">
+            ${result.unmatched.slice(0,10).map(n => `<li>${esc(n)}</li>`).join('')}
+            ${result.unmatched.length > 10 ? `<li>...and ${result.unmatched.length - 10} more</li>` : ''}
+          </ul>
+        ` : '<div style="font-size:12px;color:var(--olive)">✓ All ingredients calculated</div>'}
+        <div style="font-size:11px; color:var(--warm-mid); margin-top:12px; font-style:italic;">Estimates based on USDA data. Results may vary based on specific brands and preparation methods.</div>
+      </div>
+    </div>`;
+}
+
+function nutriRow(label, val, unit, pct, indent = false) {
+  return `<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--divider); padding:2px 0; font-size:12px; ${indent ? 'padding-left:16px;' : ''}">
+    <span><strong>${indent ? '' : '<strong>'}</strong>${label}${indent ? '' : '</strong>'} ${val}${unit}</span>
+    <span>${pct !== null && pct !== undefined ? `<strong>${pct}%</strong>` : ''}</span>
+  </div>`;
+}
+
+
 const ALLERGENS = [
   { key: 'milk',       label: 'Milk',        keywords: ['milk','cream','butter','cheese','yogurt','whey','casein','lactose','dairy','brie','cheddar','mozzarella','parmesan','ricotta','romano','bechamel','alfredo','sour cream','half and half','buttermilk','condensed milk','evaporated milk','cream cheese','heavy cream','crème','creme fraiche'] },
   { key: 'eggs',       label: 'Eggs',        keywords: ['egg','eggs','mayonnaise','mayo','meringue','aioli','hollandaise','custard','quiche'] },
