@@ -1398,7 +1398,7 @@ let currentPlan = null;
 let mpLinkedRecipes = []; // [{id, name}] for current item being added
 
 // New plan modal
-document.getElementById('mp-new-plan-btn').addEventListener('click', () => {
+document.addEventListener('click', function(e) { if (!e.target || e.target.id !== 'mp-new-plan-btn') return;
   document.getElementById('np-name').value = '';
   document.getElementById('np-start').value = '';
   document.getElementById('np-end').value = '';
@@ -1488,7 +1488,7 @@ function openPlanEditor(plan) {
   renderPlanItems();
 }
 
-document.getElementById('mp-back-btn').addEventListener('click', () => {
+document.addEventListener('click', function(e) { if (!e.target || e.target.id !== 'mp-back-btn') return;
   document.getElementById('mp-editor').style.display = 'none';
   document.getElementById('mp-plans-list').style.display = 'block';
   document.getElementById('mp-new-plan-btn').style.display = 'inline-block';
@@ -1497,8 +1497,8 @@ document.getElementById('mp-back-btn').addEventListener('click', () => {
 });
 
 // Recipe search for linking
-document.getElementById('mp-recipe-search').addEventListener('input', function() {
-  const val = this.value.trim().toLowerCase();
+document.addEventListener('input', function(e) { if (!e.target || e.target.id !== 'mp-recipe-search') return;
+  const val = e.target.value.trim().toLowerCase();
   const dd = document.getElementById('mp-recipe-dropdown');
   if (!val) { dd.style.display = 'none'; return; }
   const matches = allRecipes.filter(r => r.cookbookId === 'gfg' && !r.archived && r.name.toLowerCase().includes(val)).slice(0, 8);
@@ -1522,9 +1522,9 @@ document.getElementById('mp-recipe-search').addEventListener('input', function()
     dd.appendChild(item);
   });
 });
-document.getElementById('mp-recipe-search').addEventListener('blur', () => {
+document.addEventListener('blur', function(e) { if (!e.target || e.target.id !== 'mp-recipe-search') return;
   setTimeout(() => { document.getElementById('mp-recipe-dropdown').style.display = 'none'; }, 200);
-});
+}, true);
 
 function renderLinkedRecipes() {
   const el = document.getElementById('mp-linked-recipes');
@@ -1538,14 +1538,15 @@ function renderLinkedRecipes() {
 window.mpRemoveRecipe = function(i) { mpLinkedRecipes.splice(i, 1); renderLinkedRecipes(); };
 
 // Add item to plan
-document.getElementById('mp-add-item-btn').addEventListener('click', async () => {
+document.addEventListener('click', async function(e) {
+  if (!e.target || e.target.id !== 'mp-add-item-btn') return;
   const name  = document.getElementById('mp-item-name').value.trim();
   const cat   = document.getElementById('mp-item-category').value;
   const price = document.getElementById('mp-item-price').value.trim();
   const desc  = document.getElementById('mp-item-desc').value.trim();
   const notes = document.getElementById('mp-item-notes').value.trim();
   if (!name) { alert('Menu item name is required.'); return; }
-  const btn = document.getElementById('mp-add-item-btn');
+  const btn = e.target;
   btn.textContent = 'Saving...'; btn.disabled = true;
   console.log('Adding item to plan:', currentPlan?.id, 'name:', name);
   try {
@@ -1618,7 +1619,7 @@ window.mpRemoveItem = async function(idx) {
 };
 
 // Publish plan
-document.getElementById('mp-publish-btn').addEventListener('click', async () => {
+document.addEventListener('click', async function(e) { if (!e.target || e.target.id !== 'mp-publish-btn') return;
   if (!currentPlan) return;
   const items = currentPlan.items || [];
   if (!items.length) { alert('Add at least one item before publishing.'); return; }
@@ -1656,7 +1657,7 @@ document.getElementById('mp-publish-btn').addEventListener('click', async () => 
 });
 
 // Print draft
-document.getElementById('mp-print-btn').addEventListener('click', () => {
+document.addEventListener('click', function(e) { if (!e.target || e.target.id !== 'mp-print-btn') return;
   if (!currentPlan) return;
   const items = currentPlan.items || [];
   const catOrder = ['Hot Buffet','Cold Buffet','Sandwich Box','Salad Box','Hot Breakfast','Cold Breakfast','Appetizer','Beverage','Other'];
