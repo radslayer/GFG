@@ -561,7 +561,6 @@ function renderSidebar() {
   });
   const archivedCount = allRecipes.filter(r => r.archived).length;
   const needsIngCount = allRecipes.filter(r => !r.archived && !(r.ingredients || []).some(i => i.type === 'ingredient')).length;
-  const isAdmin = currentUser?.role === 'admin';
   const cats = ['All', 'Needs Ingredients', ...Object.keys(catCounts).sort(), ...(isAdmin && archivedCount ? ['Archived'] : [])];
   const list = document.getElementById('category-list');
   list.innerHTML = '';
