@@ -1468,8 +1468,14 @@ async function loadMenuPlans() {
   } catch(e) { list.innerHTML = '<p style="font-size:13px;color:var(--rust)">' + e.message + '</p>'; }
 }
 
-function openPlanEditor(plan) {
-  currentPlan = plan;
+async function openPlanEditor(plan) {
+  // Always reload fresh from Firestore
+  try {
+    const snap = await getDoc(doc(db, 'menuPlans', plan.id));
+    currentPlan = { id: snap.id, ...snap.data() };
+  } catch(e) {
+    currentPlan = plan;
+  }
   mpLinkedRecipes = [];
   document.getElementById('mp-plans-list').style.display = 'none';
   document.getElementById('mp-new-plan-btn').style.display = 'none';
