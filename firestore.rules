@@ -1,12 +1,17 @@
-// firestore.rules
-// Deploy with: firebase deploy --only firestore:rules
-//
-// Only authenticated users can read or write recipes.
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /recipes/{recipeId} {
+      allow read, write: if request.auth != null;
+      match /notes/{noteId} {
+        allow read, write: if request.auth != null;
+      }
+    }
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+    match /pendingNotes/{noteId} {
       allow read, write: if request.auth != null;
     }
   }

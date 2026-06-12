@@ -179,7 +179,16 @@
     .archived-item { display:flex; align-items:center; justify-content:space-between; padding:12px; border-bottom:1px solid var(--divider); }
     .archived-item-name { font-size:14px; font-weight:500; }
     .archived-item-meta { font-size:12px; color:var(--warm-mid); margin-top:2px; }
-    .backup-section { text-align:center; padding:40px 20px; }
+    .pending-note-item { background:var(--cream); border:1px solid var(--divider); border-radius:3px; padding:16px; margin-bottom:12px; }
+    .pending-note-recipe { font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--rust); margin-bottom:4px; }
+    .pending-note-meta { font-size:12px; color:var(--warm-mid); margin-bottom:8px; }
+    .pending-note-text { font-size:14px; line-height:1.6; color:var(--ink); margin-bottom:12px; padding:10px 12px; background:white; border-radius:3px; border:1px solid var(--divider); }
+    .pending-note-actions { display:flex; gap:8px; }
+    .btn-accept { padding:7px 16px; background:var(--olive); color:white; border:none; border-radius:3px; font-family:var(--ff-body); font-size:13px; font-weight:600; cursor:pointer; transition:background .2s; }
+    .btn-accept:hover { background:var(--ink); }
+    .btn-reject { padding:7px 16px; background:none; border:1.5px solid var(--divider); border-radius:3px; font-family:var(--ff-body); font-size:13px; color:var(--rust); cursor:pointer; transition:all .15s; }
+    .btn-reject:hover { border-color:var(--rust); background:rgba(184,92,56,.05); }
+    .admin-badge { display:inline-block; background:var(--rust); color:white; font-size:11px; padding:1px 6px; border-radius:10px; margin-left:4px; }
     .backup-section p { color:var(--warm-mid); font-size:14px; line-height:1.7; margin-bottom:20px; max-width:400px; margin-left:auto; margin-right:auto; }
     .btn-backup { padding:13px 32px; background:var(--olive); color:var(--white); border:none; border-radius:3px; font-family:var(--ff-body); font-size:15px; font-weight:600; cursor:pointer; transition:background .2s; }
     .btn-backup:hover { background:var(--ink); }
@@ -374,6 +383,7 @@
     </div>
     <div class="admin-tabs">
       <button class="admin-tab active" data-tab="users">Users</button>
+      <button class="admin-tab" data-tab="review">Note Review <span id="pending-badge" style="display:none;background:var(--rust);color:white;font-size:11px;padding:1px 6px;border-radius:10px;margin-left:4px"></span></button>
       <button class="admin-tab" data-tab="archived">Archived Recipes</button>
       <button class="admin-tab" data-tab="backup">Backup</button>
     </div>
@@ -420,6 +430,12 @@
         </div>
         <div style="font-size:13px;color:var(--rust);margin-top:10px;min-height:18px" id="user-form-error"></div>
       </div>
+    </div>
+    <!-- Review Tab -->
+    <div class="admin-section" id="tab-review">
+      <div class="admin-section-title">Pending Note Review</div>
+      <p style="font-size:14px;color:var(--warm-mid);margin-bottom:16px">Notes submitted by users appear here. Accept to publish on the recipe, or reject to discard.</p>
+      <div id="pending-notes-list"></div>
     </div>
     <!-- Archived Tab -->
     <div class="admin-section" id="tab-archived">
@@ -492,6 +508,7 @@ onAuthStateChanged(auth, async user => {
     document.getElementById('btn-add-recipe').style.display = isAdmin ? 'inline-block' : 'none';
     document.getElementById('btn-admin').style.display      = isAdmin ? 'inline-block' : 'none';
     loadRecipes();
+    if (isAdmin) updatePendingBadge();
   } else {
     document.getElementById('auth-screen').style.display = 'flex';
     document.getElementById('app').style.display = 'none';
@@ -695,7 +712,9 @@ async function loadNotes(recipeId) {
       collection(db, 'recipes', recipeId, 'notes'),
       orderBy('createdAt', 'asc')
     ));
-    const notes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Only show accepted notes (status === 'accepted' or no status field = legacy)
+    const notes = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .filter(n => n.status === 'accepted' || !n.status);
     if (!notes.length) {
       notesList.innerHTML = '<p style="font-size:13px;color:var(--warm-mid);font-style:italic">No notes yet.</p>';
       return;
@@ -727,18 +746,119 @@ async function loadNotes(recipeId) {
 document.getElementById('btn-post-note').addEventListener('click', async () => {
   const text = document.getElementById('note-input').value.trim();
   if (!text || !currentRecipe) return;
+  const isAdmin = currentUser?.role === 'admin';
   const authorName = `${currentUser.firstName} ${currentUser.lastName}`.trim();
-  await addDoc(collection(db, 'recipes', currentRecipe.id, 'notes'), {
-    text,
-    authorId: currentUser.uid,
-    authorName,
-    createdAt: serverTimestamp()
-  });
-  document.getElementById('note-input').value = '';
-  await loadNotes(currentRecipe.id);
+
+  if (isAdmin) {
+    // Admins post directly as accepted
+    await addDoc(collection(db, 'recipes', currentRecipe.id, 'notes'), {
+      text,
+      authorId: currentUser.uid,
+      authorName,
+      status: 'accepted',
+      createdAt: serverTimestamp()
+    });
+    document.getElementById('note-input').value = '';
+    await loadNotes(currentRecipe.id);
+  } else {
+    // Users go to pending review
+    await addDoc(collection(db, 'pendingNotes'), {
+      text,
+      authorId: currentUser.uid,
+      authorName,
+      recipeId: currentRecipe.id,
+      recipeName: currentRecipe.name,
+      status: 'pending',
+      createdAt: serverTimestamp()
+    });
+    document.getElementById('note-input').value = '';
+    // Show confirmation
+    const notesList = document.getElementById('notes-list');
+    const confirm_msg = document.createElement('p');
+    confirm_msg.style.cssText = 'font-size:13px;color:var(--olive);font-style:italic;padding:8px 0';
+    confirm_msg.textContent = '✓ Your note has been received and is under review.';
+    document.getElementById('note-input').parentElement.before(confirm_msg);
+    setTimeout(() => confirm_msg.remove(), 4000);
+    await updatePendingBadge();
+  }
 });
 
-// ── Archive ────────────────────────────────────────────────────────
+// ── Pending Badge ──────────────────────────────────────────────────
+async function updatePendingBadge() {
+  if (currentUser?.role !== 'admin') return;
+  try {
+    const snap = await getDocs(query(collection(db, 'pendingNotes'), where('status', '==', 'pending')));
+    const count = snap.size;
+    const badge = document.getElementById('pending-badge');
+    const adminBtn = document.getElementById('btn-admin');
+    if (count > 0) {
+      badge.textContent = count;
+      badge.style.display = 'inline-block';
+      adminBtn.innerHTML = `⚙ Admin <span class="admin-badge">${count}</span>`;
+    } else {
+      badge.style.display = 'none';
+      adminBtn.textContent = '⚙ Admin';
+    }
+  } catch (e) { /* silently fail */ }
+}
+
+// ── Load Pending Notes for Review ─────────────────────────────────
+async function loadPendingNotes() {
+  const list = document.getElementById('pending-notes-list');
+  list.innerHTML = '<p style="font-size:13px;color:var(--warm-mid)">Loading…</p>';
+  try {
+    const snap = await getDocs(query(collection(db, 'pendingNotes'), where('status', '==', 'pending'), orderBy('createdAt', 'asc')));
+    const pending = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (!pending.length) {
+      list.innerHTML = '<p style="font-size:14px;color:var(--warm-mid);font-style:italic">No notes pending review.</p>';
+      return;
+    }
+    list.innerHTML = '';
+    pending.forEach(n => {
+      const date = n.createdAt?.toDate ? n.createdAt.toDate().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '';
+      const item = document.createElement('div');
+      item.className = 'pending-note-item';
+      item.innerHTML = `
+        <div class="pending-note-recipe">${esc(n.recipeName)}</div>
+        <div class="pending-note-meta">${esc(n.authorName)} · ${date}</div>
+        <div class="pending-note-text">${esc(n.text)}</div>
+        <div class="pending-note-actions">
+          <button class="btn-accept">✓ Accept</button>
+          <button class="btn-reject">✕ Reject</button>
+        </div>`;
+
+      item.querySelector('.btn-accept').addEventListener('click', async () => {
+        // Add to recipe notes as accepted
+        await addDoc(collection(db, 'recipes', n.recipeId, 'notes'), {
+          text: n.text,
+          authorId: n.authorId,
+          authorName: n.authorName,
+          status: 'accepted',
+          createdAt: n.createdAt
+        });
+        // Mark pending as accepted
+        await updateDoc(doc(db, 'pendingNotes', n.id), { status: 'accepted' });
+        item.remove();
+        await updatePendingBadge();
+        if (!list.children.length)
+          list.innerHTML = '<p style="font-size:14px;color:var(--warm-mid);font-style:italic">No notes pending review.</p>';
+      });
+
+      item.querySelector('.btn-reject').addEventListener('click', async () => {
+        if (!confirm('Reject and discard this note?')) return;
+        await updateDoc(doc(db, 'pendingNotes', n.id), { status: 'rejected' });
+        item.remove();
+        await updatePendingBadge();
+        if (!list.children.length)
+          list.innerHTML = '<p style="font-size:14px;color:var(--warm-mid);font-style:italic">No notes pending review.</p>';
+      });
+
+      list.appendChild(item);
+    });
+  } catch (e) {
+    list.innerHTML = `<p style="font-size:13px;color:var(--rust)">${e.message}</p>`;
+  }
+}
 async function archiveRecipe(recipe) {
   if (!confirm(`Archive "${recipe.name}"? It will be hidden but recoverable from the Admin panel.`)) return;
   await updateDoc(doc(db, 'recipes', recipe.id), { archived: true, archivedAt: new Date().toISOString() });
@@ -862,6 +982,7 @@ async function openAdmin() {
   document.getElementById('admin-modal').classList.add('open');
   await loadUsers();
   await loadArchivedRecipes();
+  await loadPendingNotes();
 }
 
 // ── Users ──────────────────────────────────────────────────────────
