@@ -355,8 +355,10 @@
       </div>
       <div class="form-group">
         <label>Category</label>
-        <input type="text" id="form-category" list="category-options" placeholder="Select or type a category" autocomplete="off" />
-        <datalist id="category-options"></datalist>
+        <div style="position:relative">
+          <input type="text" id="form-category" placeholder="Select or type a category" autocomplete="off" />
+          <div id="cat-dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; background:white; border:1.5px solid #D4C9BB; border-top:none; border-radius:0 0 3px 3px; max-height:200px; overflow-y:auto; z-index:500; box-shadow:0 4px 12px rgba(0,0,0,.1);"></div>
+        </div>
       </div>
       <div class="form-group">
         <label>Servings</label>
@@ -1259,11 +1261,15 @@ function loadNutritionContent(recipe, container, servingsOverride) {
     </div>`;
 }
 
-function nutriRow(label, val, unit, pct, indent = false) {
-  return `<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--divider); padding:2px 0; font-size:12px; ${indent ? 'padding-left:16px;' : ''}">
-    <span>${indent ? '' : '<strong>'}${label}${indent ? '' : '</strong>'} ${val}${unit}</span>
-    <span>${pct !== null && pct !== undefined ? `<strong>${pct}%</strong>` : ''}</span>
-  </div>`;
+function nutriRow(label, val, unit, pct, indent) {
+  indent = indent || false;
+  const indentStyle = indent ? 'padding-left:16px;' : '';
+  const labelHtml = indent ? label : '<strong>' + label + '</strong>';
+  const pctHtml = (pct !== null && pct !== undefined) ? '<strong>' + pct + '%</strong>' : '';
+  return '<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--divider); padding:2px 0; font-size:12px; ' + indentStyle + '">'
+    + '<span>' + labelHtml + ' ' + val + unit + '</span>'
+    + '<span>' + pctHtml + '</span>'
+    + '</div>';
 }
 
 
@@ -1508,26 +1514,24 @@ function openForm(recipe = null) {
   document.getElementById('form-author').value     = recipe?.author || '';
   document.getElementById('form-directions').value = recipe?.directions || '';
   document.getElementById('form-note').value       = recipe?.note || '';
-  // Populate category datalist from actual data
-  const catDatalist = document.getElementById('category-options');
-  catDatalist.innerHTML = '';
+  // Populate category dropdown from actual data
   const allCats = new Set();
   allRecipes.filter(r => r.cookbookId === 'gfg' && !r.archived).forEach(r => {
     (r.categories || ['Uncategorized']).forEach(c => allCats.add(c));
   });
-  // Always include these even if not yet used
   ['Appetizers','Breakfast','Condiment','Desserts','Empanada','Hot Lunches',
    'Miscellaneous','PC','Salad','Salad Dressings','Salads','Sandwich',
    'Sandwich Dressings','Sandwiches','Side Dish','Side Dishes','Soups',
    'Spices','Uncategorized'].forEach(c => allCats.add(c));
-  [...allCats].sort().forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c;
-    catDatalist.appendChild(opt);
-  });
+  window._allCategories = [...allCats].sort();
+  populateCatDropdown(window._allCategories);
 
   const catInput = document.getElementById('form-category');
   catInput.value = (recipe?.categories || ['Uncategorized'])[0];
+  catInput.style.cssText = 'width:100%; padding:10px 12px; border:1.5px solid var(--divider); border-radius:3px; font-family:var(--ff-body); font-size:14px; color:var(--ink); background:var(--cream); outline:none;';
+  catInput.onfocus = () => document.getElementById('cat-dropdown').style.display = 'block';
+  catInput.onblur  = () => setTimeout(() => document.getElementById('cat-dropdown').style.display = 'none', 200);
+  catInput.oninput = () => filterCatDropdown(catInput.value);
   const ingRows = document.getElementById('ing-rows');
   ingRows.innerHTML = '';
   const ings = (recipe?.ingredients || []).filter(i => i.type === 'ingredient');
@@ -1536,8 +1540,32 @@ function openForm(recipe = null) {
   setTimeout(() => document.getElementById('form-name').focus(), 100);
 }
 
+// ── Category Dropdown Helpers ──────────────────────────────────────
+function populateCatDropdown(cats) {
+  const dd = document.getElementById('cat-dropdown');
+  if (!dd) return;
+  dd.innerHTML = '';
+  cats.forEach(c => {
+    const item = document.createElement('div');
+    item.textContent = c;
+    item.style.cssText = 'padding:8px 12px; font-size:14px; cursor:pointer; transition:background .1s;';
+    item.addEventListener('mouseover', () => item.style.background = 'var(--parchment)');
+    item.addEventListener('mouseout',  () => item.style.background = '');
+    item.addEventListener('mousedown', () => {
+      document.getElementById('form-category').value = c;
+    });
+    dd.appendChild(item);
+  });
+}
+
+function filterCatDropdown(val) {
+  const cats = (window._allCategories || []).filter(c =>
+    c.toLowerCase().includes(val.toLowerCase())
+  );
+  populateCatDropdown(cats.length ? cats : window._allCategories || []);
+}
+
 function addIngRow(ing = {}) {
-  const row = document.createElement('div');
   row.className = 'ing-editor-row';
   row.innerHTML = `
     <input type="text" placeholder="2" value="${esc(ing.qty||'')}" data-field="qty" />
