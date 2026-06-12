@@ -84,8 +84,6 @@
 
     /* ── Modal Base ── */
     .modal-backdrop { display:none; position:fixed; inset:0; background:rgba(28,28,26,.6); z-index:200; overflow-y:auto; padding:24px 16px; }
-    #form-modal { z-index:300; }
-    #admin-modal { z-index:300; }
     .modal-backdrop.open { display:flex; align-items:flex-start; justify-content:center; }
 
     /* ── Detail Modal ── */
@@ -162,6 +160,31 @@
     .cookbook-tab.admin-only { color:rgba(184,92,56,.6); }
     .cookbook-tab.admin-only:hover { color:var(--rust); }
     .cookbook-tab.admin-only.active { color:var(--rust); border-bottom-color:var(--rust); }
+
+    /* ── Allergens ── */
+    .allergen-bar { grid-column:1/-1; padding:14px 24px; background:#fff8f5; border-bottom:1px solid var(--divider); display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .allergen-label { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--warm-mid); white-space:nowrap; }
+    .allergen-tag { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:3px; font-size:12px; font-weight:600; }
+    .allergen-tag.detected { background:#fde8e0; color:#b85c38; border:1px solid #f4c0a8; }
+    .allergen-tag.manual { background:#fde8e0; color:#b85c38; border:1px solid #f4c0a8; border-style:dashed; }
+    .allergen-tag.clear { background:rgba(74,82,64,.08); color:var(--olive); border:1px solid rgba(74,82,64,.2); }
+    .allergen-edit-btn { margin-left:auto; font-size:12px; color:var(--warm-mid); background:none; border:1.5px solid var(--divider); border-radius:3px; padding:4px 10px; cursor:pointer; font-family:var(--ff-body); transition:all .15s; white-space:nowrap; }
+    .allergen-edit-btn:hover { border-color:var(--olive); color:var(--olive); }
+    .allergen-edit-panel { grid-column:1/-1; padding:16px 24px; background:#fff8f5; border-bottom:1px solid var(--divider); display:none; }
+    .allergen-edit-panel.open { display:block; }
+    .allergen-edit-title { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--warm-mid); margin-bottom:12px; }
+    .allergen-checkboxes { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:12px; }
+    .allergen-check-item { display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer; }
+    .allergen-check-item input { width:15px; height:15px; cursor:pointer; accent-color:var(--rust); }
+    .btn-save-allergens { padding:8px 18px; background:var(--olive); color:white; border:none; border-radius:3px; font-family:var(--ff-body); font-size:13px; font-weight:600; cursor:pointer; }
+    .allergen-dots { display:flex; gap:3px; margin-top:6px; flex-wrap:wrap; }
+    .allergen-dot { width:8px; height:8px; border-radius:50%; background:var(--rust); }
+    .source-tag { font-size:11px; padding:2px 8px; border-radius:2px; background:rgba(107,91,69,.1); color:var(--warm-mid); font-weight:500; }
+    .btn-graduate { background:var(--rust); color:white; border:none; border-radius:3px; padding:7px 14px; font-family:var(--ff-body); font-size:13px; font-weight:600; cursor:pointer; transition:background .2s; }
+    .btn-graduate:hover { background:#9a4a2d; }
+    .cat-archived { color:var(--archive) !important; font-style:italic; }
+
+    /* ── Admin Panel ── */
     .admin-panel { background:var(--white); border-radius:4px; width:100%; max-width:860px; margin:auto; position:relative; }
     .admin-tabs { display:flex; border-bottom:1px solid var(--divider); padding:0 32px; }
     .admin-tab { padding:14px 20px; font-size:14px; font-weight:500; cursor:pointer; border-bottom:3px solid transparent; color:var(--warm-mid); transition:all .15s; background:none; border-top:none; border-left:none; border-right:none; font-family:var(--ff-body); }
@@ -189,9 +212,7 @@
     .archived-item { display:flex; align-items:center; justify-content:space-between; padding:12px; border-bottom:1px solid var(--divider); }
     .archived-item-name { font-size:14px; font-weight:500; }
     .archived-item-meta { font-size:12px; color:var(--warm-mid); margin-top:2px; }
-    .btn-graduate { background:var(--rust); color:white; border:none; border-radius:3px; padding:7px 14px; font-family:var(--ff-body); font-size:13px; font-weight:600; cursor:pointer; transition:background .2s; }
-    .btn-graduate:hover { background:#9a4a2d; }
-    .source-tag { font-size:11px; padding:2px 8px; border-radius:2px; background:rgba(107,91,69,.1); color:var(--warm-mid); font-weight:500; } background:var(--cream); border:1px solid var(--divider); border-radius:3px; padding:16px; margin-bottom:12px; }
+    .pending-note-item { background:var(--cream); border:1px solid var(--divider); border-radius:3px; padding:16px; margin-bottom:12px; }
     .pending-note-recipe { font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--rust); margin-bottom:4px; }
     .pending-note-meta { font-size:12px; color:var(--warm-mid); margin-bottom:8px; }
     .pending-note-text { font-size:14px; line-height:1.6; color:var(--ink); margin-bottom:12px; padding:10px 12px; background:white; border-radius:3px; border:1px solid var(--divider); }
@@ -205,26 +226,7 @@
     .btn-backup { padding:13px 32px; background:var(--olive); color:var(--white); border:none; border-radius:3px; font-family:var(--ff-body); font-size:15px; font-weight:600; cursor:pointer; transition:background .2s; }
     .btn-backup:hover { background:var(--ink); }
 
-    /* ── Allergens ── */
-    .allergen-bar { grid-column:1/-1; padding:14px 24px; background:#fff8f5; border-bottom:1px solid var(--divider); display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-    .allergen-label { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--warm-mid); white-space:nowrap; }
-    .allergen-tag { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:3px; font-size:12px; font-weight:600; }
-    .allergen-tag.detected { background:#fde8e0; color:#b85c38; border:1px solid #f4c0a8; }
-    .allergen-tag.manual { background:#fde8e0; color:#b85c38; border:1px solid #f4c0a8; border-style:dashed; }
-    .allergen-tag.clear { background:rgba(74,82,64,.08); color:var(--olive); border:1px solid rgba(74,82,64,.2); }
-    .allergen-edit-btn { margin-left:auto; font-size:12px; color:var(--warm-mid); background:none; border:1.5px solid var(--divider); border-radius:3px; padding:4px 10px; cursor:pointer; font-family:var(--ff-body); transition:all .15s; white-space:nowrap; }
-    .allergen-edit-btn:hover { border-color:var(--olive); color:var(--olive); }
-    .allergen-edit-panel { grid-column:1/-1; padding:16px 24px; background:#fff8f5; border-bottom:1px solid var(--divider); display:none; }
-    .allergen-edit-panel.open { display:block; }
-    .allergen-edit-title { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--warm-mid); margin-bottom:12px; }
-    .allergen-checkboxes { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:12px; }
-    .allergen-check-item { display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer; }
-    .allergen-check-item input { width:15px; height:15px; cursor:pointer; accent-color:var(--rust); }
-    .btn-save-allergens { padding:8px 18px; background:var(--olive); color:white; border:none; border-radius:3px; font-family:var(--ff-body); font-size:13px; font-weight:600; cursor:pointer; transition:background .2s; }
-    .btn-save-allergens:hover { background:var(--ink); }
-    /* Card allergen indicators */
-    .allergen-dots { display:flex; gap:3px; margin-top:6px; flex-wrap:wrap; }
-    .allergen-dot { width:8px; height:8px; border-radius:50%; background:var(--rust); title:attr(data-allergen); }
+    /* ── Print ── */
     @media print {
       body * { visibility: hidden; }
       #print-area, #print-area * { visibility: visible; }
@@ -404,6 +406,7 @@
     <div class="admin-tabs">
       <button class="admin-tab active" data-tab="users">Users</button>
       <button class="admin-tab" data-tab="review">Note Review <span id="pending-badge" style="display:none;background:var(--rust);color:white;font-size:11px;padding:1px 6px;border-radius:10px;margin-left:4px"></span></button>
+      <button class="admin-tab" data-tab="review">Note Review <span id="pending-badge" style="display:none;background:var(--rust);color:white;font-size:11px;padding:1px 6px;border-radius:10px;margin-left:4px"></span></button>
       <button class="admin-tab" data-tab="archived">Archived Recipes</button>
       <button class="admin-tab" data-tab="backup">Backup</button>
     </div>
@@ -458,6 +461,12 @@
       <div id="pending-notes-list"></div>
     </div>
     <!-- Archived Tab -->
+    <!-- Review Tab -->
+    <div class="admin-section" id="tab-review">
+      <div class="admin-section-title">Pending Note Review</div>
+      <p style="font-size:14px;color:var(--warm-mid);margin-bottom:16px">Notes submitted by users appear here. Accept to publish, or reject to discard.</p>
+      <div id="pending-notes-list"></div>
+    </div>
     <div class="admin-section" id="tab-archived">
       <div class="admin-section-title">Archived Recipes</div>
       <p style="font-size:14px;color:var(--warm-mid);margin-bottom:16px">These recipes are hidden from regular view. Restore or permanently delete them here.</p>
@@ -508,10 +517,7 @@ let searchQuery     = '';
 let editingId       = null;
 let currentRecipe   = null;
 let currentUser     = null;  // Firestore user profile
-let showArchived         = false;
-let activeAllergenFilter = null;
-let activeCookbook  = 'gfg';
-let allCookbooks    = [];
+let showArchived    = false;
 
 // ── Auth ───────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async user => {
@@ -562,36 +568,8 @@ async function loadRecipes() {
   const grid = document.getElementById('recipe-grid');
   grid.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Loading recipes…</p></div>';
   try {
-    const isAdmin = currentUser?.role === 'admin';
-
-    // Load cookbooks
-    const cbSnap = await getDocs(collection(db, 'cookbooks'));
-    allCookbooks = cbSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-    // Always ensure GFG cookbook exists in list
-    if (!allCookbooks.find(c => c.isGFG)) {
-      allCookbooks.unshift({ id: 'gfg', title: 'GFG Cookbook', isGFG: true, adminOnly: false });
-    }
-
-    // Load main GFG recipes
     const snap = await getDocs(query(collection(db, 'recipes'), orderBy('name')));
-    const gfgRecipes = snap.docs.map(d => ({ id: d.id, cookbookId: 'gfg', ...d.data() }));
-
-    // Load other cookbook recipes (admin only)
-    let otherRecipes = [];
-    if (isAdmin) {
-      for (const cb of allCookbooks.filter(c => !c.isGFG)) {
-        const cbRecipeSnap = await getDocs(query(
-          collection(db, 'cookbooks', cb.id, 'recipes'), orderBy('name')
-        ));
-        const cbRecipes = cbRecipeSnap.docs.map(d => ({
-          id: d.id, cookbookId: cb.id, cookbookTitle: cb.title, ...d.data()
-        }));
-        otherRecipes = otherRecipes.concat(cbRecipes);
-      }
-    }
-
-    allRecipes = [...gfgRecipes, ...otherRecipes];
+    allRecipes = snap.docs.map(d => ({ id: d.id, cookbookId: 'gfg', ...d.data() }));
     renderCookbookTabs();
     renderSidebar();
     applyFilters();
@@ -600,61 +578,19 @@ async function loadRecipes() {
   }
 }
 
-// ── Cookbook Tabs ──────────────────────────────────────────────────
-function renderCookbookTabs() {
-  const isAdmin = currentUser?.role === 'admin';
-  const tabsEl = document.getElementById('cookbook-tabs');
-  tabsEl.innerHTML = '';
-
-  // GFG tab always first
-  const gfgTab = document.createElement('button');
-  gfgTab.className = 'cookbook-tab' + (activeCookbook === 'gfg' ? ' active' : '');
-  gfgTab.textContent = 'GFG Cookbook';
-  gfgTab.addEventListener('click', () => switchCookbook('gfg'));
-  tabsEl.appendChild(gfgTab);
-
-  // Other cookbooks — admin only
-  if (isAdmin) {
-    allCookbooks.filter(c => !c.isGFG).forEach(cb => {
-      const tab = document.createElement('button');
-      tab.className = 'cookbook-tab admin-only' + (activeCookbook === cb.id ? ' active' : '');
-      tab.textContent = cb.title;
-      tab.addEventListener('click', () => switchCookbook(cb.id));
-      tabsEl.appendChild(tab);
-    });
-  }
-}
-
-function switchCookbook(cookbookId) {
-  activeCookbook = cookbookId;
-  activeCategory = 'All';
-  activeAllergenFilter = null;
-  searchQuery = '';
-  document.getElementById('search-input').value = '';
-  // Show/hide New Recipe button — only on GFG
-  const isAdmin = currentUser?.role === 'admin';
-  document.getElementById('btn-add-recipe').style.display =
-    isAdmin && cookbookId === 'gfg' ? 'inline-block' : 'none';
-  renderCookbookTabs();
-  renderSidebar();
-  applyFilters();
-}
-
-
+// ── Sidebar ────────────────────────────────────────────────────────
 function renderSidebar() {
   const isAdmin = currentUser?.role === 'admin';
-  const cookbookRecipes = allRecipes.filter(r => r.cookbookId === activeCookbook);
-  const visible = cookbookRecipes.filter(r => !r.archived);
+  const visible = allRecipes.filter(r => !r.archived);
   const catCounts = {};
   visible.forEach(r => {
     (r.categories || ['Uncategorized']).forEach(c => {
       catCounts[c] = (catCounts[c] || 0) + 1;
     });
   });
-  const archivedCount = cookbookRecipes.filter(r => r.archived).length;
-  const needsIngCount = cookbookRecipes.filter(r => !r.archived && !(r.ingredients || []).some(i => i.type === 'ingredient')).length;
-  const isGFG = activeCookbook === 'gfg';
-  const cats = ['All', 'Needs Ingredients', ...Object.keys(catCounts).sort(), ...(isAdmin && archivedCount && isGFG ? ['Archived'] : [])];
+  const archivedCount = allRecipes.filter(r => r.archived).length;
+  const needsIngCount = allRecipes.filter(r => !r.archived && !(r.ingredients || []).some(i => i.type === 'ingredient')).length;
+  const cats = ['All', 'Needs Ingredients', ...Object.keys(catCounts).sort(), ...(isAdmin && archivedCount ? ['Archived'] : [])];
   const list = document.getElementById('category-list');
   list.innerHTML = '';
   const label = document.createElement('div');
@@ -668,41 +604,9 @@ function renderSidebar() {
     btn.innerHTML = `${esc(cat)} <span class="cat-count">${count}</span>`;
     btn.addEventListener('click', () => {
       activeCategory = cat;
-      activeAllergenFilter = null;
       showArchived = false;
-      document.querySelectorAll('.cat-btn, .allergen-filter-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      applyFilters();
-    });
-    list.appendChild(btn);
-  });
-
-  // Allergen filter section
-  const allergenLabel = document.createElement('div');
-  allergenLabel.className = 'category-label';
-  allergenLabel.style.marginTop = '12px';
-  allergenLabel.textContent = 'Filter by Allergen';
-  list.appendChild(allergenLabel);
-
-  ALLERGENS.forEach(a => {
-    const count = visible.filter(r => {
-      const auto = detectAllergens(r.ingredients || []);
-      const added = new Set(r.allergens_added || []);
-      const removed = new Set(r.allergens_removed || []);
-      const final = new Set([...auto, ...added]);
-      removed.forEach(k => final.delete(k));
-      return final.has(a.key);
-    }).length;
-    if (!count) return;
-    const btn = document.createElement('button');
-    btn.className = 'cat-btn allergen-filter-btn' + (activeAllergenFilter === a.key ? ' active' : '');
-    btn.innerHTML = `⚠ ${a.label} <span class="cat-count">${count}</span>`;
-    btn.addEventListener('click', () => {
-      activeAllergenFilter = activeAllergenFilter === a.key ? null : a.key;
-      activeCategory = 'All';
-      document.querySelectorAll('.cat-btn, .allergen-filter-btn').forEach(b => b.classList.remove('active'));
-      if (activeAllergenFilter) btn.classList.add('active');
-      else document.querySelector('.cat-btn')?.classList.add('active');
       applyFilters();
     });
     list.appendChild(btn);
@@ -713,19 +617,7 @@ function renderSidebar() {
 function applyFilters() {
   const q = searchQuery.toLowerCase();
   filteredRecipes = allRecipes.filter(r => {
-    if (r.cookbookId !== activeCookbook) return false;
     const hasIng = (r.ingredients || []).some(i => i.type === 'ingredient');
-
-    // Allergen filter
-    if (activeAllergenFilter) {
-      const auto = detectAllergens(r.ingredients || []);
-      const added = new Set(r.allergens_added || []);
-      const removed = new Set(r.allergens_removed || []);
-      const final = new Set([...auto, ...added]);
-      removed.forEach(k => final.delete(k));
-      if (!final.has(activeAllergenFilter)) return false;
-    }
-
     if (activeCategory === 'Archived') {
       if (!r.archived) return false;
     } else if (activeCategory === 'Needs Ingredients') {
@@ -758,27 +650,21 @@ function renderGrid() {
     card.className = 'recipe-card';
     const hasIng = (r.ingredients || []).some(i => i.type === 'ingredient');
     const cat = (r.categories || ['Uncategorized'])[0];
-    card.innerHTML = `
-      <div class="recipe-card-name">${esc(r.name)}</div>
-      <div class="recipe-card-meta">
-        <span class="tag tag-cat">${esc(cat)}</span>
-        ${r.servings ? `<span class="tag tag-servings">Serves ${esc(r.servings)}</span>` : ''}
-        ${!hasIng ? `<span class="tag tag-review">⚠ Needs ingredients</span>` : ''}
-      </div>
-      ${hasIng ? (() => {
-        const autoDetected = detectAllergens(r.ingredients || []);
-        const manualAdded  = new Set(r.allergens_added || []);
-        const manualRemoved = new Set(r.allergens_removed || []);
-        const final = new Set([...autoDetected, ...manualAdded]);
-        manualRemoved.forEach(k => final.delete(k));
-        if (!final.size) return '';
-        const dots = [...final].map(k => {
-          const a = ALLERGENS.find(x => x.key === k);
-          return a ? `<span class="allergen-dot" title="${a.label}"></span>` : '';
-        }).join('');
-        return `<div class="allergen-dots" title="Contains allergens">${dots}</div>`;
-      })() : ''}
-    `;
+    const dots = hasIng ? (() => {
+      const au = detectAllergens(r.ingredients||[]);
+      const ad = new Set(r.allergens_added||[]);
+      const rm = new Set(r.allergens_removed||[]);
+      const fn = new Set([...au,...ad]);
+      rm.forEach(k=>fn.delete(k));
+      if (!fn.size) return '';
+      return '<div class="allergen-dots">' + [...fn].map(k=>'<span class="allergen-dot" title="'+k+'"></span>').join('') + '</div>';
+    })() : '';
+    card.innerHTML = '<div class="recipe-card-name">' + esc(r.name) + '</div>'
+      + '<div class="recipe-card-meta">'
+      + '<span class="tag tag-cat">' + esc(cat) + '</span>'
+      + (r.servings ? '<span class="tag tag-servings">Serves ' + esc(r.servings) + '</span>' : '')
+      + (!hasIng ? '<span class="tag tag-review">⚠ Needs ingredients</span>' : '')
+      + '</div>' + dots;
     card.addEventListener('click', () => openDetail(r));
     grid.appendChild(card);
   });
@@ -793,10 +679,6 @@ document.getElementById('search-input').addEventListener('input', e => {
 async function openDetail(recipe) {
   currentRecipe = recipe;
   const isAdmin = currentUser?.role === 'admin';
-
-  // Clean up any panels from previous open
-  document.getElementById('nutrition-panel')?.remove();
-  document.getElementById('allergen-edit-panel')?.remove();
 
   document.getElementById('detail-name').textContent = recipe.name;
   const cats = (recipe.categories || ['Uncategorized']).join(', ');
@@ -836,46 +718,41 @@ async function openDetail(recipe) {
   // Action buttons
   const actionsEl = document.getElementById('detail-actions');
   actionsEl.innerHTML = '';
-  const printBtn = btn('🖨 Print', () => printRecipe());
-  actionsEl.appendChild(printBtn);
+  actionsEl.appendChild(btn('🖨 Print', () => printRecipe()));
   if (isAdmin) {
-    // Graduate button — only on non-GFG cookbooks
-    if (recipe.cookbookId && recipe.cookbookId !== 'gfg') {
-      const gradBtn = document.createElement('button');
-      gradBtn.className = 'btn-graduate';
-      gradBtn.textContent = '→ Graduate to GFG';
-      gradBtn.addEventListener('click', () => graduateRecipe(recipe));
-      actionsEl.appendChild(gradBtn);
-    } else {
-      const editBtn = document.createElement('button');
-      editBtn.className = 'btn-icon';
-      editBtn.textContent = '✏ Edit';
-      editBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        openForm(recipe);
-      });
-      actionsEl.appendChild(editBtn);
-      const archBtn = btn('Archive', () => archiveRecipe(recipe));
-      archBtn.classList.add('archive-btn');
-      actionsEl.appendChild(archBtn);
-    }
+    const editBtn = document.createElement('button');
+    editBtn.className = 'btn-icon';
+    editBtn.textContent = '✏ Edit';
+    editBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      openForm(recipe);
+      return false;
+    });
+    actionsEl.appendChild(editBtn);
+    const archBtn = btn('Archive', () => archiveRecipe(recipe));
+    archBtn.classList.add('archive-btn');
+    actionsEl.appendChild(archBtn);
   }
 
-  // Source tag in subtitle
-  const metaEl = document.getElementById('detail-meta');
+  // Source tag
   if (recipe.dataSource || recipe.source) {
+    const metaEl = document.getElementById('detail-meta');
     const src = document.createElement('span');
     src.className = 'source-tag';
-    src.textContent = `Source: ${recipe.dataSource || recipe.source}`;
+    src.textContent = 'Source: ' + (recipe.dataSource || recipe.source);
     metaEl.appendChild(src);
   }
 
-  // Allergens
-  renderAllergenBar(recipe, isAdmin);
+  // Clean up stale panels from previous open
+  const oldNutr = document.getElementById('nutrition-panel');
+  if (oldNutr) oldNutr.remove();
+  const oldAlg = document.getElementById('allergen-edit-panel');
+  if (oldAlg) oldAlg.remove();
 
-  // Nutrition
+  // Allergens and Nutrition
+  renderAllergenBar(recipe, isAdmin);
   renderNutritionPanel(recipe);
 
   // Load notes
@@ -893,7 +770,6 @@ function btn(label, onClick) {
 }
 
 function closeDetail() {
-  if (document.getElementById('form-modal').classList.contains('open')) return;
   document.getElementById('detail-modal').classList.remove('open');
   currentRecipe = null;
 }
@@ -983,520 +859,8 @@ document.getElementById('btn-post-note').addEventListener('click', async () => {
   }
 });
 
-// ── Nutrition Database (USDA-based, per 100g) ─────────────────────
-// Format: name -> [calories, fat_g, carbs_g, protein_g, sodium_mg, fiber_g, sugar_g]
-const NUTRITION_DB = {
-  "butter":[717,81.1,0.1,0.9,576,0,0.1],"butter unsalted":[717,81.1,0.1,0.9,11,0,0.1],
-  "margarine":[717,80.7,0.7,0.2,751,0,0.7],"olive oil":[884,100,0,0,2,0,0],
-  "vegetable oil":[884,100,0,0,0,0,0],"canola oil":[884,100,0,0,0,0,0],
-  "oil blend":[884,100,0,0,0,0,0],"shortening":[884,100,0,0,0,0,0],
-  "cream cheese":[342,34.2,4.1,6,321,0,3.2],"sour cream":[193,20.5,3.6,2.1,53,0,0.2],
-  "heavy cream":[345,36.1,2.8,2.1,38,0,2.8],"cream":[345,36.1,2.8,2.1,38,0,2.8],
-  "whipping cream":[345,36.1,2.8,2.1,38,0,2.8],"half and half":[130,11.5,4.3,3.1,41,0,0.2],
-  "coconut milk":[230,23.8,5.5,2.3,15,2.2,3.3],"milk":[61,3.3,4.8,3.2,43,0,5.1],
-  "whole milk":[61,3.3,4.8,3.2,43,0,5.1],"buttermilk":[40,0.9,4.8,3.3,105,0,4.8],
-  "yogurt":[59,0.4,3.6,10,36,0,3.2],"eggs":[155,10.6,1.1,12.6,124,0,1.1],
-  "egg":[155,10.6,1.1,12.6,124,0,1.1],"egg whites":[52,0.2,0.7,10.9,166,0,0.7],
-  "parmesan":[431,28.6,4.1,38.5,1529,0,0.8],"mozzarella":[280,17.1,2.2,28.1,627,0,1.0],
-  "cheddar":[403,33.1,1.3,24.9,621,0,0.5],"feta":[264,21.3,4.1,14.2,1116,0,4.1],
-  "ricotta":[174,12.5,3.0,11.3,84,0,0.3],"brie":[334,27.7,0.5,20.8,629,0,0.5],
-  "flour":[364,1.0,76.3,10.3,2,2.7,0.3],"all purpose flour":[364,1.0,76.3,10.3,2,2.7,0.3],
-  "flour all-purpose":[364,1.0,76.3,10.3,2,2.7,0.3],"cornstarch":[381,0.1,91.3,0.3,9,0.9,0],
-  "cornmeal":[362,3.6,73.9,8.1,43,7.3,0.6],"oats":[389,6.9,66.3,16.9,2,10.6,0],
-  "rice":[130,0.3,28.7,2.4,1,0.4,0],"white rice":[130,0.3,28.7,2.4,1,0.4,0],
-  "brown rice":[123,1.0,25.6,2.7,4,1.8,0.4],"quinoa":[120,1.9,21.3,4.4,7,2.8,0.9],
-  "farro":[340,2.5,68.4,14.8,5,7.5,0],"couscous":[376,0.6,77.4,12.8,10,5.0,0.2],
-  "orzo":[371,1.5,74.7,13.0,5,2.9,0.5],"pasta":[371,1.5,74.7,13.0,5,2.9,0.5],
-  "breadcrumbs":[395,5.3,72.5,13.4,732,4.5,6.4],"panko":[395,5.3,72.5,13.4,732,4.5,6.4],
-  "graham cracker crumbs":[481,16.6,76.9,5.9,500,2.1,32.1],
-  "sugar":[387,0,99.9,0,1,0,99.8],"powdered sugar":[389,0,99.6,0,1,0,97.3],
-  "sugar powdered":[389,0,99.6,0,1,0,97.3],"brown sugar":[380,0,98.1,0.1,28,0,97.0],
-  "honey":[304,0,82.4,0.3,4,0.2,82.1],"maple syrup":[260,0.1,67.0,0,12,0,60.5],
-  "corn syrup":[286,0,77.0,0,100,0,32.0],"agave":[310,0.5,76.0,0.1,4,0,68.0],
-  "baking soda":[0,0,0,0,27360,0,0],"baking powder":[53,0,27.7,0,10600,0.2,0],
-  "cocoa powder":[228,13.7,57.9,19.6,21,37.0,1.8],"chocolate chips":[497,25.0,70.1,5.5,24,8.0,55.0],
-  "vanilla extract":[288,0.1,12.7,0.1,9,0,12.7],"almond extract":[289,0.1,12.5,0.1,9,0,12.5],
-  "salt":[0,0,0,0,38758,0,0],
-  "chicken breast":[165,3.6,0,31.0,74,0,0],"chicken thigh":[209,13.0,0,21.9,88,0,0],
-  "chicken":[215,12.6,0,24.7,82,0,0],"salmon":[208,13.4,0,20.4,59,0,0],
-  "salmon fillet":[208,13.4,0,20.4,59,0,0],"ground beef":[254,20.0,0,17.2,72,0,0],
-  "beef":[250,17.0,0,26.0,66,0,0],"pork":[242,16.0,0,21.0,62,0,0],
-  "turkey":[189,9.7,0,24.6,70,0,0],"shrimp":[99,1.1,0.9,19.0,111,0,0],
-  "cod":[82,0.7,0,17.8,54,0,0],"tuna":[144,4.9,0,23.4,47,0,0],
-  "bacon":[541,45.0,1.4,37.0,1717,0,0],"ham":[145,6.7,2.4,18.3,1203,0,1.6],
-  "tofu":[76,4.8,1.9,8.1,7,0.3,0.9],
-  "onion":[40,0.1,9.3,1.1,4,1.7,4.2],"garlic":[149,0.5,33.1,6.4,17,2.1,1.0],
-  "tomato":[18,0.2,3.9,0.9,5,1.2,2.6],"bell pepper":[31,0.3,6.0,1.0,4,2.1,4.2],
-  "mushroom":[22,0.3,3.3,3.1,5,1.0,1.7],"spinach":[23,0.4,3.6,2.9,79,2.2,0.4],
-  "broccoli":[34,0.4,6.6,2.8,33,2.6,1.7],"carrot":[41,0.2,9.6,0.9,69,2.8,4.7],
-  "celery":[16,0.2,3.0,0.7,80,1.6,1.3],"potato":[77,0.1,17.5,2.0,6,2.2,0.8],
-  "zucchini":[17,0.3,3.1,1.2,8,1.0,2.5],"corn":[86,1.3,19.0,3.3,15,2.7,3.2],
-  "cabbage":[25,0.1,5.8,1.3,18,2.5,3.2],"avocado":[160,14.7,8.5,2.0,7,6.7,0.7],
-  "eggplant":[25,0.2,5.9,1.0,2,3.0,3.5],"kale":[49,0.9,8.8,4.3,38,3.6,2.3],
-  "sweet potato":[86,0.1,20.1,1.6,55,3.0,4.2],"butternut squash":[45,0.1,11.7,1.0,4,2.0,2.2],
-  "lemon":[29,0.3,9.3,1.1,2,2.8,2.5],"lime":[30,0.2,10.5,0.7,2,2.8,1.7],
-  "orange":[47,0.1,11.8,0.9,0,2.4,9.4],"apple":[52,0.2,13.8,0.3,1,2.4,10.4],
-  "strawberry":[32,0.3,7.7,0.7,1,2.0,4.9],"blueberry":[57,0.3,14.5,0.7,1,2.4,10.0],
-  "cranberry":[46,0.1,12.2,0.4,2,4.6,4.0],"pineapple":[50,0.1,13.1,0.5,1,1.4,9.9],
-  "black beans":[132,0.5,23.7,8.9,1,8.7,0.3],"chickpeas":[164,2.6,27.4,8.9,7,7.6,4.8],
-  "lentils":[116,0.4,20.1,9.0,2,7.9,1.8],"peanut butter":[588,50.4,19.6,25.1,422,6.0,9.2],
-  "almonds":[579,49.9,21.6,21.2,1,12.5,4.4],"walnuts":[654,65.2,13.7,15.2,2,6.7,2.6],
-  "pecans":[691,72.0,13.9,9.2,0,9.6,3.97],"cashews":[553,43.8,30.2,18.2,12,3.3,5.9],
-  "pine nuts":[673,68.4,13.1,13.7,2,3.7,3.6],"sesame seeds":[573,49.7,23.5,17.7,11,11.8,0.3],
-  "tahini":[595,53.8,21.2,17.0,115,9.3,0.5],
-  "soy sauce":[53,0.1,4.9,8.1,5720,0.8,0.9],"worcestershire":[78,0.1,19.5,0,980,0,15.7],
-  "ketchup":[101,0.1,25.5,1.3,907,0.3,22.2],"mustard":[66,4.0,5.8,3.7,1124,3.3,2.3],
-  "mayonnaise":[680,74.9,2.6,1.0,635,0,1.4],"vinegar":[18,0,0.9,0,2,0,0],
-  "balsamic vinegar":[88,0,17.0,0.5,23,0,15.0],"tomato paste":[82,0.5,18.9,4.3,1014,4.1,11.1],
-  "pesto":[394,38.0,8.7,10.0,574,1.8,2.0],"hummus":[177,9.6,17.4,7.9,379,6.0,3.0],
-  "hoisin sauce":[220,4.5,40.7,4.0,1680,1.7,25.3],"fish sauce":[35,0.1,3.6,5.1,5990,0,2.7],
-  "teriyaki sauce":[89,0.2,17.0,5.1,2438,0.4,14.8],
-  "chicken broth":[15,0.5,1.4,1.3,714,0,0.5],"beef broth":[17,0.5,1.7,2.7,472,0,0.3],
-  "vegetable broth":[7,0.1,1.4,0.1,489,0,0.7],"white wine":[82,0,2.7,0.1,9,0,0.9],
-  "lemon juice":[22,0.2,6.9,0.4,1,0.3,2.5],"orange juice":[45,0.2,10.4,0.7,1,0.2,8.4],
-  "black pepper":[251,3.3,63.9,10.4,20,25.3,0.6],"garlic powder":[331,0.7,72.7,16.6,26,9.0,1.0],
-  "onion powder":[341,0.7,79.1,10.4,78,15.2,9.2],"cumin":[375,22.3,44.2,17.8,168,10.5,2.3],
-  "paprika":[282,12.9,53.9,14.1,68,34.9,10.3],"cinnamon":[247,1.2,80.6,4.0,10,53.1,2.2],
-  "oregano":[265,4.3,68.9,9.0,25,42.5,4.1],"basil":[23,0.6,2.7,3.2,4,1.6,0.3],
-  "thyme":[101,1.7,24.4,5.6,9,14.0,0.5],"rosemary":[131,5.9,20.7,3.3,26,14.1,0.5],
-  "cayenne":[318,17.3,56.6,12.0,30,27.2,10.3],"cilantro":[23,0.5,3.7,2.1,46,2.8,0.9],
-  "parsley":[36,0.8,6.3,3.0,56,3.3,0.9],"dill":[43,1.1,7.0,3.5,61,2.1,0],
-  "coconut":[354,33.5,15.2,3.3,20,9.0,6.2]
-};
+// ── Pending Badge ──────────────────────────────────────────────────
 
-// ── Unit Conversion to grams ───────────────────────────────────────
-// Returns grams for a given qty + unit + ingredient name
-const UNIT_TO_GRAMS = {
-  // Weight
-  "pound":453.592,"pounds":453.592,"lb":453.592,"lbs":453.592,
-  "ounce":28.3495,"ounces":28.3495,"oz":28.3495,
-  "gram":1,"grams":1,"g":1,"kg":1000,"kilogram":1000,
-  // Volume (water density approximation, adjusted per ingredient type)
-  "cup":236.588,"cups":236.588,
-  "tablespoon":14.787,"tablespoons":14.787,"tbsp":14.787,"tbs":14.787,
-  "teaspoon":4.929,"teaspoons":4.929,"tsp":4.929,
-  "fluid ounce":29.574,"fl oz":29.574,"fl_oz":29.574,
-  "liter":1000,"liters":1000,"l":1000,
-  "milliliter":1,"milliliters":1,"ml":1,
-  "pint":473.176,"pints":473.176,"quart":946.353,"quarts":946.353,
-  "gallon":3785.41,"gallons":3785.41,
-};
-
-// Density adjustments for volume->weight (multiply cup grams by this factor)
-const DENSITY = {
-  "flour":0.53,"all purpose flour":0.53,"cornstarch":0.6,"sugar":0.85,
-  "powdered sugar":0.56,"brown sugar":0.93,"cocoa powder":0.43,"oats":0.34,
-  "breadcrumbs":0.5,"panko":0.4,"cornmeal":0.6,"rice":0.79,
-  "salt":1.22,"baking soda":1.08,"baking powder":0.9,"butter":0.91,
-  "honey":1.42,"maple syrup":1.32,"corn syrup":1.38,"oil":0.92,
-  "olive oil":0.92,"vegetable oil":0.92,"canola oil":0.92,
-  "milk":1.03,"cream":1.01,"heavy cream":1.0,"sour cream":1.01,
-  "mayonnaise":0.91,"peanut butter":1.09,"tahini":0.97,
-  "tomato paste":1.06,"ketchup":1.1,"soy sauce":1.09,
-};
-
-function parseQty(qtyStr) {
-  if (!qtyStr) return 0;
-  const s = qtyStr.trim();
-  // Handle fractions like "1/2", "3/4", "1 1/2"
-  const mixed = s.match(/^(\d+)\s+(\d+)\/(\d+)$/);
-  if (mixed) return parseInt(mixed[1]) + parseInt(mixed[2]) / parseInt(mixed[3]);
-  const frac = s.match(/^(\d+)\/(\d+)$/);
-  if (frac) return parseInt(frac[1]) / parseInt(frac[2]);
-  const num = parseFloat(s);
-  return isNaN(num) ? 0 : num;
-}
-
-function toGrams(qty, unit, ingredientName) {
-  const q = parseQty(qty);
-  if (!q) return 0;
-  const u = (unit || '').toLowerCase().trim();
-  if (!u) {
-    // No unit — assume whole item, estimate 100g
-    return q * 100;
-  }
-  const baseGrams = UNIT_TO_GRAMS[u];
-  if (!baseGrams) return 0;
-  // Apply density if volume unit and ingredient has known density
-  const isVolume = ['cup','cups','tablespoon','tablespoons','tbsp','teaspoon','teaspoons','tsp'].includes(u);
-  if (isVolume) {
-    const key = ingredientName.toLowerCase();
-    const density = DENSITY[key] || DENSITY[key.split(' ')[0]] || 1.0;
-    return q * baseGrams * density;
-  }
-  return q * baseGrams;
-}
-
-function findNutrition(ingredientName) {
-  const name = ingredientName.toLowerCase().trim();
-  // Exact match
-  if (NUTRITION_DB[name]) return NUTRITION_DB[name];
-  // Partial match — find longest key that appears in the ingredient name
-  let bestMatch = null, bestLen = 0;
-  for (const key of Object.keys(NUTRITION_DB)) {
-    if (name.includes(key) && key.length > bestLen) {
-      bestMatch = key;
-      bestLen = key.length;
-    }
-  }
-  if (bestMatch) return NUTRITION_DB[bestMatch];
-  // Try matching first word
-  const firstWord = name.split(/[\s,]+/)[0];
-  return NUTRITION_DB[firstWord] || null;
-}
-
-function calculateNutrition(ingredients, servings) {
-  const srv = Math.max(1, parseInt(servings) || 1);
-  let totals = [0,0,0,0,0,0,0]; // cal, fat, carbs, protein, sodium, fiber, sugar
-  let matched = 0, unmatched = [];
-
-  ingredients.filter(i => i.type === 'ingredient').forEach(ing => {
-    const grams = toGrams(ing.qty, ing.unit, ing.name);
-    if (!grams) { unmatched.push(ing.name); return; }
-    const nutr = findNutrition(ing.name);
-    if (!nutr) { unmatched.push(ing.name); return; }
-    const factor = grams / 100;
-    totals = totals.map((t, i) => t + nutr[i] * factor);
-    matched++;
-  });
-
-  return {
-    perServing: totals.map(v => Math.round(v / srv)),
-    matched,
-    unmatched,
-    servings: srv
-  };
-}
-
-// ── Render Nutrition Panel ─────────────────────────────────────────
-function renderNutritionPanel(recipe) {
-  const ingredients = (recipe.ingredients || []).filter(i => i.type === 'ingredient');
-  if (!ingredients.length) return;
-
-  const panel = document.createElement('div');
-  panel.id = 'nutrition-panel';
-  panel.style.cssText = 'grid-column:1/-1; border-top:1px solid var(--divider);';
-
-  const header = document.createElement('div');
-  header.style.cssText = 'display:flex; align-items:center; padding:10px 24px; gap:12px;';
-
-  const toggleBtn = document.createElement('button');
-  toggleBtn.style.cssText = 'background:none; border:none; cursor:pointer; font-family:var(--ff-body); font-size:13px; font-weight:600; color:var(--warm-mid); letter-spacing:.06em; text-transform:uppercase; display:flex; align-items:center; gap:8px; padding:2px 0; transition:color .15s; flex:1;';
-  toggleBtn.innerHTML = `<span id="nutr-arrow" style="font-size:14px;transition:transform .2s;display:inline-block">▸</span> Nutrition Facts`;
-
-  const servingsWrap = document.createElement('div');
-  servingsWrap.style.cssText = 'display:flex; align-items:center; gap:6px; font-size:13px; color:var(--warm-mid);';
-  const servingsInput = document.createElement('input');
-  servingsInput.type = 'number';
-  servingsInput.min = '1';
-  servingsInput.value = recipe.servings || '1';
-  servingsInput.placeholder = '# servings';
-  servingsInput.style.cssText = 'width:56px; padding:4px 6px; border:1.5px solid var(--divider); border-radius:3px; font-family:var(--ff-body); font-size:13px; color:var(--ink); text-align:center; outline:none;';
-  servingsInput.title = 'Override serving count for calculation';
-  servingsWrap.innerHTML = '<span>Servings:</span>';
-  servingsWrap.appendChild(servingsInput);
-
-  header.appendChild(toggleBtn);
-  header.appendChild(servingsWrap);
-
-  const content = document.createElement('div');
-  content.style.cssText = 'display:none; padding:0 24px 20px;';
-
-  let isOpen = false;
-
-  function refresh() {
-    const srv = Math.max(1, parseInt(servingsInput.value) || 1);
-    loadNutritionContent(recipe, content, srv);
-  }
-
-  toggleBtn.addEventListener('mouseover', () => toggleBtn.style.color = 'var(--olive)');
-  toggleBtn.addEventListener('mouseout',  () => toggleBtn.style.color = 'var(--warm-mid)');
-
-  toggleBtn.addEventListener('click', () => {
-    isOpen = !isOpen;
-    content.style.display = isOpen ? 'block' : 'none';
-    document.getElementById('nutr-arrow').style.transform = isOpen ? 'rotate(90deg)' : 'rotate(0deg)';
-    if (isOpen) refresh();
-  });
-
-  servingsInput.addEventListener('change', () => {
-    if (isOpen) refresh();
-  });
-
-  servingsInput.addEventListener('click', e => e.stopPropagation());
-
-  panel.appendChild(header);
-  panel.appendChild(content);
-
-  const notesSection = document.querySelector('.notes-section');
-  notesSection?.before(panel);
-}
-
-function loadNutritionContent(recipe, container, servingsOverride) {
-  const result = calculateNutrition(recipe.ingredients || [], servingsOverride);
-  const [cal, fat, carbs, protein, sodium, fiber, sugar] = result.perServing;
-
-  const coverage = (result.matched + result.unmatched.length) > 0
-    ? Math.round(result.matched / (result.matched + result.unmatched.length) * 100)
-    : 0;
-
-  container.innerHTML = `
-    <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start;">
-      <div style="min-width:220px;">
-        <div style="border:2px solid var(--ink); padding:12px; max-width:240px; font-family:var(--ff-body);">
-          <div style="font-size:22px; font-weight:900; border-bottom:8px solid var(--ink); padding-bottom:4px; margin-bottom:4px;">Nutrition Facts</div>
-          <div style="font-size:12px; border-bottom:1px solid var(--ink); padding-bottom:4px; margin-bottom:4px;">${result.servings} serving${result.servings !== 1 ? 's' : ''} per batch</div>
-          <div style="font-size:11px; font-weight:700; border-bottom:4px solid var(--ink); padding-bottom:4px; margin-bottom:4px;">Amount per serving</div>
-          <div style="display:flex; justify-content:space-between; align-items:baseline; border-bottom:4px solid var(--ink); padding-bottom:4px; margin-bottom:4px;">
-            <span style="font-size:13px; font-weight:700;">Calories</span>
-            <span style="font-size:22px; font-weight:900;">${cal}</span>
-          </div>
-          <div style="font-size:11px; text-align:right; border-bottom:1px solid var(--ink); padding-bottom:2px; margin-bottom:2px;">% Daily Value*</div>
-          ${nutriRow('Total Fat', fat, 'g', Math.round(fat/78*100))}
-          ${nutriRow('Total Carbohydrate', carbs, 'g', Math.round(carbs/275*100))}
-          ${nutriRow('Dietary Fiber', fiber, 'g', Math.round(fiber/28*100), true)}
-          ${nutriRow('Total Sugars', sugar, 'g', null, true)}
-          ${nutriRow('Protein', protein, 'g', null)}
-          ${nutriRow('Sodium', sodium, 'mg', Math.round(sodium/2300*100))}
-          <div style="font-size:10px; margin-top:6px; color:var(--warm-mid);">*% Daily Values based on 2,000 cal diet</div>
-        </div>
-      </div>
-      <div style="flex:1; min-width:180px;">
-        <div style="font-size:12px; color:var(--warm-mid); margin-bottom:8px;">
-          <strong style="color:var(--ink)">Coverage: ${coverage}%</strong> of ingredients matched
-        </div>
-        ${result.unmatched.length ? `
-          <div style="font-size:12px; color:var(--warm-mid); margin-bottom:4px;">Not calculated:</div>
-          <ul style="font-size:12px; color:var(--warm-mid); padding-left:16px; margin:0;">
-            ${result.unmatched.slice(0,10).map(n => `<li>${esc(n)}</li>`).join('')}
-            ${result.unmatched.length > 10 ? `<li>...and ${result.unmatched.length - 10} more</li>` : ''}
-          </ul>
-        ` : '<div style="font-size:12px;color:var(--olive)">✓ All ingredients calculated</div>'}
-        <div style="font-size:11px; color:var(--warm-mid); margin-top:12px; font-style:italic;">Estimates based on USDA data. Results may vary based on specific brands and preparation methods.</div>
-      </div>
-    </div>`;
-}
-
-function nutriRow(label, val, unit, pct, indent) {
-  indent = indent || false;
-  const indentStyle = indent ? 'padding-left:16px;' : '';
-  const labelHtml = indent ? label : '<strong>' + label + '</strong>';
-  const pctHtml = (pct !== null && pct !== undefined) ? '<strong>' + pct + '%</strong>' : '';
-  return '<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--divider); padding:2px 0; font-size:12px; ' + indentStyle + '">'
-    + '<span>' + labelHtml + ' ' + val + unit + '</span>'
-    + '<span>' + pctHtml + '</span>'
-    + '</div>';
-}
-
-
-const ALLERGENS = [
-  { key: 'milk',       label: 'Milk',        keywords: ['milk','cream','butter','cheese','yogurt','whey','casein','lactose','dairy','brie','cheddar','mozzarella','parmesan','ricotta','romano','bechamel','alfredo','sour cream','half and half','buttermilk','condensed milk','evaporated milk','cream cheese','heavy cream','crème','creme fraiche'] },
-  { key: 'eggs',       label: 'Eggs',        keywords: ['egg','eggs','mayonnaise','mayo','meringue','aioli','hollandaise','custard','quiche'] },
-  { key: 'fish',       label: 'Fish',        keywords: ['fish','salmon','tuna','cod','tilapia','halibut','bass','flounder','trout','anchovy','anchovies','sardine','mahi','grouper','snapper','swordfish','worcestershire'] },
-  { key: 'shellfish',  label: 'Shellfish',   keywords: ['shrimp','crab','lobster','clam','oyster','scallop','mussel','prawn','crawfish','crayfish','crevette','shellfish'] },
-  { key: 'tree_nuts',  label: 'Tree Nuts',   keywords: ['almond','almonds','cashew','walnut','pecan','pistachio','hazelnut','macadamia','pine nut','pine nuts','brazil nut','chestnut','coconut','praline','marzipan','nougat'] },
-  { key: 'peanuts',    label: 'Peanuts',     keywords: ['peanut','peanuts','peanut butter','peanut oil','groundnut'] },
-  { key: 'wheat',      label: 'Wheat',       keywords: ['flour','wheat','bread','breadcrumb','crouton','pasta','noodle','soy sauce','teriyaki','panko','semolina','farro','spelt','durum','couscous','bulgur','roux','tortilla','pita','cracker','graham cracker','phyllo','filo'] },
-  { key: 'soy',        label: 'Soy',         keywords: ['soy','tofu','edamame','miso','tempeh','tamari','soybean','soy sauce','hoisin','teriyaki'] },
-  { key: 'sesame',     label: 'Sesame',      keywords: ['sesame','tahini','sesame oil','sesame seed'] }
-];
-
-function detectAllergens(ingredients) {
-  const detected = new Set();
-  const ingText = ingredients
-    .filter(i => i.type === 'ingredient')
-    .map(i => `${i.name} ${i.preparation || ''}`.toLowerCase())
-    .join(' ');
-
-  ALLERGENS.forEach(a => {
-    if (a.keywords.some(kw => ingText.includes(kw))) {
-      detected.add(a.key);
-    }
-  });
-  return detected;
-}
-
-function renderAllergenBar(recipe, isAdmin) {
-  const bar = document.getElementById('allergen-bar');
-  const ingredients = (recipe.ingredients || []);
-  const hasIngredients = ingredients.some(i => i.type === 'ingredient');
-
-  if (!hasIngredients) {
-    bar.style.display = 'none';
-    return;
-  }
-
-  bar.style.display = 'flex';
-
-  const autoDetected = detectAllergens(ingredients);
-  const manualAdded   = new Set(recipe.allergens_added || []);
-  const manualRemoved = new Set(recipe.allergens_removed || []);
-
-  // Final allergen set: auto + manually added - manually removed
-  const finalAllergens = new Set([...autoDetected, ...manualAdded]);
-  manualRemoved.forEach(k => finalAllergens.delete(k));
-
-  let html = `<span class="allergen-label">Contains:</span>`;
-
-  if (finalAllergens.size === 0) {
-    html += `<span class="allergen-tag clear">✓ No major allergens detected</span>`;
-  } else {
-    ALLERGENS.forEach(a => {
-      if (finalAllergens.has(a.key)) {
-        const isManual = manualAdded.has(a.key) && !autoDetected.has(a.key);
-        html += `<span class="allergen-tag ${isManual ? 'manual' : 'detected'}" title="${isManual ? 'Manually flagged' : 'Auto-detected'}">${a.label}</span>`;
-      }
-    });
-  }
-
-  if (isAdmin) {
-    html += `<button class="allergen-edit-btn" id="btn-edit-allergens">Edit Allergens</button>`;
-  }
-
-  bar.innerHTML = html;
-
-  // Edit panel (admin only)
-  if (isAdmin) {
-    // Remove existing edit panel if any
-    const existing = document.getElementById('allergen-edit-panel');
-    if (existing) existing.remove();
-
-    const panel = document.createElement('div');
-    panel.className = 'allergen-edit-panel';
-    panel.id = 'allergen-edit-panel';
-    panel.innerHTML = `
-      <div class="allergen-edit-title">Override Allergen Flags</div>
-      <div class="allergen-checkboxes">
-        ${ALLERGENS.map(a => `
-          <label class="allergen-check-item">
-            <input type="checkbox" value="${a.key}"
-              ${finalAllergens.has(a.key) ? 'checked' : ''}
-              ${autoDetected.has(a.key) && !manualRemoved.has(a.key) ? 'data-auto="true"' : ''}
-            />
-            ${a.label}
-            ${autoDetected.has(a.key) ? '<span style="font-size:10px;color:var(--warm-mid)">(auto)</span>' : ''}
-          </label>`).join('')}
-      </div>
-      <button class="btn-save-allergens" id="btn-save-allergens">Save</button>
-      <span style="font-size:12px;color:var(--warm-mid);margin-left:12px">Changes override auto-detection</span>
-    `;
-
-    // Insert after allergen-bar
-    bar.after(panel);
-    panel.style.gridColumn = '1/-1';
-
-    document.getElementById('btn-edit-allergens').addEventListener('click', () => {
-      panel.classList.toggle('open');
-    });
-
-    document.getElementById('btn-save-allergens').addEventListener('click', async () => {
-      const checked = new Set(
-        [...panel.querySelectorAll('input:checked')].map(i => i.value)
-      );
-      const unchecked = new Set(
-        [...panel.querySelectorAll('input:not(:checked)')].map(i => i.value)
-      );
-
-      // Manually added = checked but not auto-detected
-      const newAdded   = [...checked].filter(k => !autoDetected.has(k));
-      // Manually removed = unchecked but auto-detected
-      const newRemoved = [...unchecked].filter(k => autoDetected.has(k));
-
-      const collectionPath = recipe.cookbookId === 'gfg'
-        ? doc(db, 'recipes', recipe.id)
-        : doc(db, 'cookbooks', recipe.cookbookId, 'recipes', recipe.id);
-
-      await updateDoc(collectionPath, {
-        allergens_added:   newAdded,
-        allergens_removed: newRemoved
-      });
-
-      // Update local recipe object
-      recipe.allergens_added   = newAdded;
-      recipe.allergens_removed = newRemoved;
-
-      panel.classList.remove('open');
-      renderAllergenBar(recipe, isAdmin);
-    });
-  }
-}
-
-
-async function updatePendingBadge() {
-  if (currentUser?.role !== 'admin') return;
-  try {
-    const snap = await getDocs(query(collection(db, 'pendingNotes'), where('status', '==', 'pending')));
-    const count = snap.size;
-    const badge = document.getElementById('pending-badge');
-    const adminBtn = document.getElementById('btn-admin');
-    if (count > 0) {
-      badge.textContent = count;
-      badge.style.display = 'inline-block';
-      adminBtn.innerHTML = `⚙ Admin <span class="admin-badge">${count}</span>`;
-    } else {
-      badge.style.display = 'none';
-      adminBtn.textContent = '⚙ Admin';
-    }
-  } catch (e) { /* silently fail */ }
-}
-
-// ── Load Pending Notes for Review ─────────────────────────────────
-async function loadPendingNotes() {
-  const list = document.getElementById('pending-notes-list');
-  list.innerHTML = '<p style="font-size:13px;color:var(--warm-mid)">Loading…</p>';
-  try {
-    const snap = await getDocs(query(collection(db, 'pendingNotes'), where('status', '==', 'pending'), orderBy('createdAt', 'asc')));
-    const pending = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    if (!pending.length) {
-      list.innerHTML = '<p style="font-size:14px;color:var(--warm-mid);font-style:italic">No notes pending review.</p>';
-      return;
-    }
-    list.innerHTML = '';
-    pending.forEach(n => {
-      const date = n.createdAt?.toDate ? n.createdAt.toDate().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '';
-      const item = document.createElement('div');
-      item.className = 'pending-note-item';
-      item.innerHTML = `
-        <div class="pending-note-recipe">${esc(n.recipeName)}</div>
-        <div class="pending-note-meta">${esc(n.authorName)} · ${date}</div>
-        <div class="pending-note-text">${esc(n.text)}</div>
-        <div class="pending-note-actions">
-          <button class="btn-accept">✓ Accept</button>
-          <button class="btn-reject">✕ Reject</button>
-        </div>`;
-
-      item.querySelector('.btn-accept').addEventListener('click', async () => {
-        // Add to recipe notes as accepted
-        await addDoc(collection(db, 'recipes', n.recipeId, 'notes'), {
-          text: n.text,
-          authorId: n.authorId,
-          authorName: n.authorName,
-          status: 'accepted',
-          createdAt: n.createdAt
-        });
-        // Mark pending as accepted
-        await updateDoc(doc(db, 'pendingNotes', n.id), { status: 'accepted' });
-        item.remove();
-        await updatePendingBadge();
-        if (!list.children.length)
-          list.innerHTML = '<p style="font-size:14px;color:var(--warm-mid);font-style:italic">No notes pending review.</p>';
-      });
-
-      item.querySelector('.btn-reject').addEventListener('click', async () => {
-        if (!confirm('Reject and discard this note?')) return;
-        await updateDoc(doc(db, 'pendingNotes', n.id), { status: 'rejected' });
-        item.remove();
-        await updatePendingBadge();
-        if (!list.children.length)
-          list.innerHTML = '<p style="font-size:14px;color:var(--warm-mid);font-style:italic">No notes pending review.</p>';
-      });
-
-      list.appendChild(item);
-    });
-  } catch (e) {
-    list.innerHTML = `<p style="font-size:13px;color:var(--rust)">${e.message}</p>`;
-  }
-}
 async function archiveRecipe(recipe) {
   if (!confirm(`Archive "${recipe.name}"? It will be hidden but recoverable from the Admin panel.`)) return;
   await updateDoc(doc(db, 'recipes', recipe.id), { archived: true, archivedAt: new Date().toISOString() });
@@ -1504,28 +868,8 @@ async function archiveRecipe(recipe) {
   await loadRecipes();
 }
 
-// ── Graduate Recipe to GFG ─────────────────────────────────────────
-async function graduateRecipe(recipe) {
-  if (!confirm(`Copy "${recipe.name}" to the GFG Cookbook?`)) return;
-  const { id, cookbookId, cookbookTitle, ...data } = recipe;
-  const newId = 'recipe_' + Date.now();
-  await setDoc(doc(db, 'recipes', newId), {
-    ...data,
-    dataSource: `Graduated from ${recipe.cookbookTitle || cookbookId}`,
-    graduatedFrom: cookbookId,
-    createdAt: new Date().toISOString()
-  });
-  closeDetail();
-  await loadRecipes();
-  switchCookbook('gfg');
-  alert(`"${recipe.name}" has been added to the GFG Cookbook.`);
-}
-
 // ── Recipe Form ────────────────────────────────────────────────────
 function openForm(recipe = null) {
-  console.log('openForm called, recipe:', recipe?.name, 'form-modal el:', document.getElementById('form-modal'));
-  document.getElementById('form-modal').classList.add('open');
-  console.log('form-modal classes after add:', document.getElementById('form-modal').className);
   editingId = recipe ? recipe.id : null;
   document.getElementById('form-modal-title').textContent = recipe ? 'Edit Recipe' : 'New Recipe';
   document.getElementById('form-name').value       = recipe?.name || '';
@@ -1533,57 +877,18 @@ function openForm(recipe = null) {
   document.getElementById('form-author').value     = recipe?.author || '';
   document.getElementById('form-directions').value = recipe?.directions || '';
   document.getElementById('form-note').value       = recipe?.note || '';
-  // Populate category dropdown from actual data
-  const allCats = new Set();
-  allRecipes.filter(r => r.cookbookId === 'gfg' && !r.archived).forEach(r => {
-    (r.categories || ['Uncategorized']).forEach(c => allCats.add(c));
-  });
-  ['Appetizers','Breakfast','Condiment','Desserts','Empanada','Hot Lunches',
-   'Miscellaneous','PC','Salad','Salad Dressings','Salads','Sandwich',
-   'Sandwich Dressings','Sandwiches','Side Dish','Side Dishes','Soups',
-   'Spices','Uncategorized'].forEach(c => allCats.add(c));
-  window._allCategories = [...allCats].sort();
-  populateCatDropdown(window._allCategories);
-
-  const catInput = document.getElementById('form-category');
-  catInput.value = (recipe?.categories || ['Uncategorized'])[0];
-  catInput.style.cssText = 'width:100%; padding:10px 12px; border:1.5px solid var(--divider); border-radius:3px; font-family:var(--ff-body); font-size:14px; color:var(--ink); background:var(--cream); outline:none;';
-  catInput.onfocus = () => document.getElementById('cat-dropdown').style.display = 'block';
-  catInput.onblur  = () => setTimeout(() => document.getElementById('cat-dropdown').style.display = 'none', 200);
-  catInput.oninput = () => filterCatDropdown(catInput.value);
+  const catSel = document.getElementById('form-category');
+  catSel.value = (recipe?.categories || ['Uncategorized'])[0];
   const ingRows = document.getElementById('ing-rows');
   ingRows.innerHTML = '';
   const ings = (recipe?.ingredients || []).filter(i => i.type === 'ingredient');
   if (ings.length) { ings.forEach(i => addIngRow(i)); } else { addIngRow(); }
+  document.getElementById('form-modal').classList.add('open');
   setTimeout(() => document.getElementById('form-name').focus(), 100);
 }
 
-// ── Category Dropdown Helpers ──────────────────────────────────────
-function populateCatDropdown(cats) {
-  const dd = document.getElementById('cat-dropdown');
-  if (!dd) return;
-  dd.innerHTML = '';
-  cats.forEach(c => {
-    const item = document.createElement('div');
-    item.textContent = c;
-    item.style.cssText = 'padding:8px 12px; font-size:14px; cursor:pointer; transition:background .1s;';
-    item.addEventListener('mouseover', () => item.style.background = 'var(--parchment)');
-    item.addEventListener('mouseout',  () => item.style.background = '');
-    item.addEventListener('mousedown', () => {
-      document.getElementById('form-category').value = c;
-    });
-    dd.appendChild(item);
-  });
-}
-
-function filterCatDropdown(val) {
-  const cats = (window._allCategories || []).filter(c =>
-    c.toLowerCase().includes(val.toLowerCase())
-  );
-  populateCatDropdown(cats.length ? cats : window._allCategories || []);
-}
-
 function addIngRow(ing = {}) {
+  const row = document.createElement('div');
   row.className = 'ing-editor-row';
   row.innerHTML = `
     <input type="text" placeholder="2" value="${esc(ing.qty||'')}" data-field="qty" />
@@ -1605,7 +910,7 @@ function closeForm() {
 document.getElementById('form-close').addEventListener('click', closeForm);
 document.getElementById('form-cancel').addEventListener('click', closeForm);
 document.getElementById('form-modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('form-modal')) { e.stopPropagation(); closeForm(); }
+  if (e.target === document.getElementById('form-modal')) closeForm();
 });
 document.getElementById('btn-add-recipe').addEventListener('click', () => openForm());
 
@@ -1627,7 +932,7 @@ document.getElementById('form-save').addEventListener('click', async () => {
   });
   const data = {
     name,
-    categories: [document.getElementById('form-category').value.trim() || 'Uncategorized'],
+    categories: [document.getElementById('form-category').value],
     servings:   document.getElementById('form-servings').value.trim(),
     author:     document.getElementById('form-author').value.trim(),
     ingredients,
@@ -1647,8 +952,6 @@ document.getElementById('form-save').addEventListener('click', async () => {
       await setDoc(doc(db, 'recipes', newId), { ...data, createdAt: new Date().toISOString(), dataSource: 'Manual entry' });
     }
     closeForm();
-    document.getElementById('detail-modal').classList.remove('open');
-    currentRecipe = null;
     await loadRecipes();
   } catch (e) {
     alert('Error saving: ' + e.message);
@@ -1826,6 +1129,452 @@ function printRecipe() {
 }
 
 // ── Utility ────────────────────────────────────────────────────────
+
+// ── Extra State ────────────────────────────────────────────────────
+let activeCookbook       = 'gfg';
+let allCookbooks         = [];
+let activeAllergenFilter = null;
+
+// ── Cookbook Tabs ──────────────────────────────────────────────────
+function renderCookbookTabs() {
+  const isAdmin = currentUser && currentUser.role === 'admin';
+  const tabsEl = document.getElementById('cookbook-tabs');
+  tabsEl.innerHTML = '';
+  const gfgTab = document.createElement('button');
+  gfgTab.className = 'cookbook-tab' + (activeCookbook === 'gfg' ? ' active' : '');
+  gfgTab.textContent = 'GFG Cookbook';
+  gfgTab.addEventListener('click', () => switchCookbook('gfg'));
+  tabsEl.appendChild(gfgTab);
+  if (isAdmin) {
+    allCookbooks.filter(c => !c.isGFG).forEach(cb => {
+      const tab = document.createElement('button');
+      tab.className = 'cookbook-tab admin-only' + (activeCookbook === cb.id ? ' active' : '');
+      tab.textContent = cb.title;
+      tab.addEventListener('click', () => switchCookbook(cb.id));
+      tabsEl.appendChild(tab);
+    });
+  }
+}
+
+function switchCookbook(cookbookId) {
+  activeCookbook = cookbookId;
+  activeCategory = 'All';
+  activeAllergenFilter = null;
+  searchQuery = '';
+  document.getElementById('search-input').value = '';
+  const isAdmin = currentUser && currentUser.role === 'admin';
+  document.getElementById('btn-add-recipe').style.display = isAdmin && cookbookId === 'gfg' ? 'inline-block' : 'none';
+  renderCookbookTabs();
+  renderSidebar();
+  applyFilters();
+}
+
+// ── Allergen Detection ─────────────────────────────────────────────
+const ALLERGENS = [
+  { key:'milk',      label:'Milk',       keywords:['milk','cream','butter','cheese','yogurt','whey','casein','lactose','dairy','brie','cheddar','mozzarella','parmesan','ricotta','romano','bechamel','alfredo','sour cream','half and half','buttermilk','condensed milk','evaporated milk','cream cheese','heavy cream'] },
+  { key:'eggs',      label:'Eggs',       keywords:['egg','eggs','mayonnaise','mayo','meringue','aioli','hollandaise','custard'] },
+  { key:'fish',      label:'Fish',       keywords:['fish','salmon','tuna','cod','tilapia','halibut','trout','anchovy','anchovies','sardine','mahi','snapper','swordfish','worcestershire'] },
+  { key:'shellfish', label:'Shellfish',  keywords:['shrimp','crab','lobster','clam','oyster','scallop','mussel','prawn','crawfish','shellfish'] },
+  { key:'tree_nuts', label:'Tree Nuts',  keywords:['almond','cashew','walnut','pecan','pistachio','hazelnut','macadamia','pine nut','pine nuts','brazil nut','coconut','praline','marzipan','nougat'] },
+  { key:'peanuts',   label:'Peanuts',    keywords:['peanut','peanuts','peanut butter','peanut oil','groundnut'] },
+  { key:'wheat',     label:'Wheat',      keywords:['flour','wheat','bread','breadcrumb','crouton','pasta','noodle','soy sauce','teriyaki','panko','semolina','farro','spelt','couscous','bulgur','roux','tortilla','pita','cracker','graham cracker','phyllo','filo'] },
+  { key:'soy',       label:'Soy',        keywords:['soy','tofu','edamame','miso','tempeh','tamari','soybean','soy sauce','hoisin','teriyaki'] },
+  { key:'sesame',    label:'Sesame',     keywords:['sesame','tahini','sesame oil','sesame seed'] }
+];
+
+function detectAllergens(ingredients) {
+  const detected = new Set();
+  const ingText = ingredients.filter(i => i.type === 'ingredient')
+    .map(i => (i.name + ' ' + (i.preparation || '')).toLowerCase()).join(' ');
+  ALLERGENS.forEach(a => {
+    if (a.keywords.some(kw => ingText.includes(kw))) detected.add(a.key);
+  });
+  return detected;
+}
+
+function renderAllergenBar(recipe, isAdmin) {
+  const bar = document.getElementById('allergen-bar');
+  const ings = (recipe.ingredients || []);
+  if (!ings.some(i => i.type === 'ingredient')) { bar.style.display = 'none'; return; }
+  bar.style.display = 'flex';
+  const auto = detectAllergens(ings);
+  const added   = new Set(recipe.allergens_added   || []);
+  const removed = new Set(recipe.allergens_removed || []);
+  const final = new Set([...auto, ...added]);
+  removed.forEach(k => final.delete(k));
+  let html = '<span class="allergen-label">Contains:</span>';
+  if (!final.size) {
+    html += '<span class="allergen-tag clear">No major allergens detected</span>';
+  } else {
+    ALLERGENS.forEach(a => {
+      if (final.has(a.key)) {
+        const isManual = added.has(a.key) && !auto.has(a.key);
+        html += '<span class="allergen-tag ' + (isManual ? 'manual' : 'detected') + '">' + a.label + '</span>';
+      }
+    });
+  }
+  if (isAdmin) html += '<button class="allergen-edit-btn" id="btn-edit-allergens">Edit Allergens</button>';
+  bar.innerHTML = html;
+
+  if (isAdmin) {
+    document.getElementById('allergen-edit-panel') && document.getElementById('allergen-edit-panel').remove();
+    const panel = document.createElement('div');
+    panel.className = 'allergen-edit-panel';
+    panel.id = 'allergen-edit-panel';
+    panel.style.gridColumn = '1/-1';
+    panel.innerHTML = '<div class="allergen-edit-title">Override Allergen Flags</div>'
+      + '<div class="allergen-checkboxes">'
+      + ALLERGENS.map(a => '<label class="allergen-check-item"><input type="checkbox" value="' + a.key + '"'
+          + (final.has(a.key) ? ' checked' : '') + '/> ' + a.label
+          + (auto.has(a.key) ? ' <span style="font-size:10px;color:var(--warm-mid)">(auto)</span>' : '')
+          + '</label>').join('')
+      + '</div>'
+      + '<button class="btn-save-allergens" id="btn-save-allergens">Save</button>'
+      + '<span style="font-size:12px;color:var(--warm-mid);margin-left:12px">Overrides auto-detection</span>';
+    bar.after(panel);
+    document.getElementById('btn-edit-allergens').addEventListener('click', () => panel.classList.toggle('open'));
+    document.getElementById('btn-save-allergens').addEventListener('click', async () => {
+      const checked = new Set([...panel.querySelectorAll('input:checked')].map(i => i.value));
+      const unchecked = new Set([...panel.querySelectorAll('input:not(:checked)')].map(i => i.value));
+      const newAdded   = [...checked].filter(k => !auto.has(k));
+      const newRemoved = [...unchecked].filter(k => auto.has(k));
+      await updateDoc(doc(db, 'recipes', recipe.id), { allergens_added: newAdded, allergens_removed: newRemoved });
+      recipe.allergens_added   = newAdded;
+      recipe.allergens_removed = newRemoved;
+      panel.classList.remove('open');
+      renderAllergenBar(recipe, isAdmin);
+    });
+  }
+}
+
+// ── Nutrition Database (USDA per 100g) ────────────────────────────
+// [calories, fat_g, carbs_g, protein_g, sodium_mg, fiber_g, sugar_g]
+const NUTRITION_DB = {
+  "butter":[717,81.1,0.1,0.9,576,0,0.1],"butter unsalted":[717,81.1,0.1,0.9,11,0,0.1],
+  "margarine":[717,80.7,0.7,0.2,751,0,0.7],"olive oil":[884,100,0,0,2,0,0],
+  "vegetable oil":[884,100,0,0,0,0,0],"canola oil":[884,100,0,0,0,0,0],
+  "oil blend":[884,100,0,0,0,0,0],"shortening":[884,100,0,0,0,0,0],
+  "cream cheese":[342,34.2,4.1,6,321,0,3.2],"sour cream":[193,20.5,3.6,2.1,53,0,0.2],
+  "heavy cream":[345,36.1,2.8,2.1,38,0,2.8],"cream":[345,36.1,2.8,2.1,38,0,2.8],
+  "half and half":[130,11.5,4.3,3.1,41,0,0.2],"coconut milk":[230,23.8,5.5,2.3,15,2.2,3.3],
+  "milk":[61,3.3,4.8,3.2,43,0,5.1],"buttermilk":[40,0.9,4.8,3.3,105,0,4.8],
+  "yogurt":[59,0.4,3.6,10,36,0,3.2],"eggs":[155,10.6,1.1,12.6,124,0,1.1],
+  "egg":[155,10.6,1.1,12.6,124,0,1.1],"parmesan":[431,28.6,4.1,38.5,1529,0,0.8],
+  "mozzarella":[280,17.1,2.2,28.1,627,0,1.0],"cheddar":[403,33.1,1.3,24.9,621,0,0.5],
+  "feta":[264,21.3,4.1,14.2,1116,0,4.1],"ricotta":[174,12.5,3.0,11.3,84,0,0.3],
+  "flour":[364,1.0,76.3,10.3,2,2.7,0.3],"all purpose flour":[364,1.0,76.3,10.3,2,2.7,0.3],
+  "cornstarch":[381,0.1,91.3,0.3,9,0.9,0],"cornmeal":[362,3.6,73.9,8.1,43,7.3,0.6],
+  "oats":[389,6.9,66.3,16.9,2,10.6,0],"rice":[130,0.3,28.7,2.4,1,0.4,0],
+  "brown rice":[123,1.0,25.6,2.7,4,1.8,0.4],"quinoa":[120,1.9,21.3,4.4,7,2.8,0.9],
+  "farro":[340,2.5,68.4,14.8,5,7.5,0],"couscous":[376,0.6,77.4,12.8,10,5.0,0.2],
+  "orzo":[371,1.5,74.7,13.0,5,2.9,0.5],"pasta":[371,1.5,74.7,13.0,5,2.9,0.5],
+  "breadcrumbs":[395,5.3,72.5,13.4,732,4.5,6.4],"panko":[395,5.3,72.5,13.4,732,4.5,6.4],
+  "graham cracker crumbs":[481,16.6,76.9,5.9,500,2.1,32.1],
+  "sugar":[387,0,99.9,0,1,0,99.8],"powdered sugar":[389,0,99.6,0,1,0,97.3],
+  "sugar powdered":[389,0,99.6,0,1,0,97.3],"brown sugar":[380,0,98.1,0.1,28,0,97.0],
+  "honey":[304,0,82.4,0.3,4,0.2,82.1],"maple syrup":[260,0.1,67.0,0,12,0,60.5],
+  "corn syrup":[286,0,77.0,0,100,0,32.0],"agave":[310,0.5,76.0,0.1,4,0,68.0],
+  "baking soda":[0,0,0,0,27360,0,0],"baking powder":[53,0,27.7,0,10600,0.2,0],
+  "cocoa powder":[228,13.7,57.9,19.6,21,37.0,1.8],"chocolate chips":[497,25.0,70.1,5.5,24,8.0,55.0],
+  "vanilla extract":[288,0.1,12.7,0.1,9,0,12.7],"almond extract":[289,0.1,12.5,0.1,9,0,12.5],
+  "salt":[0,0,0,0,38758,0,0],
+  "chicken breast":[165,3.6,0,31.0,74,0,0],"chicken thigh":[209,13.0,0,21.9,88,0,0],
+  "chicken":[215,12.6,0,24.7,82,0,0],"salmon":[208,13.4,0,20.4,59,0,0],
+  "salmon fillet":[208,13.4,0,20.4,59,0,0],"ground beef":[254,20.0,0,17.2,72,0,0],
+  "beef":[250,17.0,0,26.0,66,0,0],"pork":[242,16.0,0,21.0,62,0,0],
+  "turkey":[189,9.7,0,24.6,70,0,0],"shrimp":[99,1.1,0.9,19.0,111,0,0],
+  "cod":[82,0.7,0,17.8,54,0,0],"tuna":[144,4.9,0,23.4,47,0,0],
+  "bacon":[541,45.0,1.4,37.0,1717,0,0],"ham":[145,6.7,2.4,18.3,1203,0,1.6],
+  "tofu":[76,4.8,1.9,8.1,7,0.3,0.9],
+  "onion":[40,0.1,9.3,1.1,4,1.7,4.2],"garlic":[149,0.5,33.1,6.4,17,2.1,1.0],
+  "tomato":[18,0.2,3.9,0.9,5,1.2,2.6],"bell pepper":[31,0.3,6.0,1.0,4,2.1,4.2],
+  "mushroom":[22,0.3,3.3,3.1,5,1.0,1.7],"spinach":[23,0.4,3.6,2.9,79,2.2,0.4],
+  "broccoli":[34,0.4,6.6,2.8,33,2.6,1.7],"carrot":[41,0.2,9.6,0.9,69,2.8,4.7],
+  "celery":[16,0.2,3.0,0.7,80,1.6,1.3],"potato":[77,0.1,17.5,2.0,6,2.2,0.8],
+  "zucchini":[17,0.3,3.1,1.2,8,1.0,2.5],"corn":[86,1.3,19.0,3.3,15,2.7,3.2],
+  "cabbage":[25,0.1,5.8,1.3,18,2.5,3.2],"avocado":[160,14.7,8.5,2.0,7,6.7,0.7],
+  "eggplant":[25,0.2,5.9,1.0,2,3.0,3.5],"kale":[49,0.9,8.8,4.3,38,3.6,2.3],
+  "sweet potato":[86,0.1,20.1,1.6,55,3.0,4.2],"butternut squash":[45,0.1,11.7,1.0,4,2.0,2.2],
+  "lemon":[29,0.3,9.3,1.1,2,2.8,2.5],"lime":[30,0.2,10.5,0.7,2,2.8,1.7],
+  "strawberry":[32,0.3,7.7,0.7,1,2.0,4.9],"blueberry":[57,0.3,14.5,0.7,1,2.4,10.0],
+  "cranberry":[46,0.1,12.2,0.4,2,4.6,4.0],"pineapple":[50,0.1,13.1,0.5,1,1.4,9.9],
+  "black beans":[132,0.5,23.7,8.9,1,8.7,0.3],"chickpeas":[164,2.6,27.4,8.9,7,7.6,4.8],
+  "lentils":[116,0.4,20.1,9.0,2,7.9,1.8],"peanut butter":[588,50.4,19.6,25.1,422,6.0,9.2],
+  "almonds":[579,49.9,21.6,21.2,1,12.5,4.4],"walnuts":[654,65.2,13.7,15.2,2,6.7,2.6],
+  "pecans":[691,72.0,13.9,9.2,0,9.6,3.97],"cashews":[553,43.8,30.2,18.2,12,3.3,5.9],
+  "pine nuts":[673,68.4,13.1,13.7,2,3.7,3.6],"sesame seeds":[573,49.7,23.5,17.7,11,11.8,0.3],
+  "tahini":[595,53.8,21.2,17.0,115,9.3,0.5],
+  "soy sauce":[53,0.1,4.9,8.1,5720,0.8,0.9],"worcestershire":[78,0.1,19.5,0,980,0,15.7],
+  "ketchup":[101,0.1,25.5,1.3,907,0.3,22.2],"mustard":[66,4.0,5.8,3.7,1124,3.3,2.3],
+  "mayonnaise":[680,74.9,2.6,1.0,635,0,1.4],"vinegar":[18,0,0.9,0,2,0,0],
+  "balsamic vinegar":[88,0,17.0,0.5,23,0,15.0],"tomato paste":[82,0.5,18.9,4.3,1014,4.1,11.1],
+  "pesto":[394,38.0,8.7,10.0,574,1.8,2.0],"hummus":[177,9.6,17.4,7.9,379,6.0,3.0],
+  "hoisin sauce":[220,4.5,40.7,4.0,1680,1.7,25.3],"fish sauce":[35,0.1,3.6,5.1,5990,0,2.7],
+  "teriyaki sauce":[89,0.2,17.0,5.1,2438,0.4,14.8],
+  "chicken broth":[15,0.5,1.4,1.3,714,0,0.5],"beef broth":[17,0.5,1.7,2.7,472,0,0.3],
+  "vegetable broth":[7,0.1,1.4,0.1,489,0,0.7],"white wine":[82,0,2.7,0.1,9,0,0.9],
+  "lemon juice":[22,0.2,6.9,0.4,1,0.3,2.5],"orange juice":[45,0.2,10.4,0.7,1,0.2,8.4],
+  "black pepper":[251,3.3,63.9,10.4,20,25.3,0.6],"garlic powder":[331,0.7,72.7,16.6,26,9.0,1.0],
+  "cumin":[375,22.3,44.2,17.8,168,10.5,2.3],"paprika":[282,12.9,53.9,14.1,68,34.9,10.3],
+  "cinnamon":[247,1.2,80.6,4.0,10,53.1,2.2],"oregano":[265,4.3,68.9,9.0,25,42.5,4.1],
+  "basil":[23,0.6,2.7,3.2,4,1.6,0.3],"thyme":[101,1.7,24.4,5.6,9,14.0,0.5],
+  "rosemary":[131,5.9,20.7,3.3,26,14.1,0.5],"cayenne":[318,17.3,56.6,12.0,30,27.2,10.3],
+  "cilantro":[23,0.5,3.7,2.1,46,2.8,0.9],"parsley":[36,0.8,6.3,3.0,56,3.3,0.9],
+  "coconut":[354,33.5,15.2,3.3,20,9.0,6.2]
+};
+
+const UNIT_TO_GRAMS = {
+  "pound":453.592,"pounds":453.592,"lb":453.592,"lbs":453.592,
+  "ounce":28.3495,"ounces":28.3495,"oz":28.3495,"gram":1,"grams":1,"g":1,"kg":1000,
+  "cup":236.588,"cups":236.588,"tablespoon":14.787,"tablespoons":14.787,"tbsp":14.787,
+  "teaspoon":4.929,"teaspoons":4.929,"tsp":4.929,"fl oz":29.574,
+  "liter":1000,"liters":1000,"ml":1,"milliliter":1,"milliliters":1,
+  "pint":473.176,"quart":946.353,"gallon":3785.41
+};
+
+const DENSITY = {
+  "flour":0.53,"all purpose flour":0.53,"cornstarch":0.6,"sugar":0.85,
+  "powdered sugar":0.56,"brown sugar":0.93,"cocoa powder":0.43,"oats":0.34,
+  "breadcrumbs":0.5,"panko":0.4,"cornmeal":0.6,"rice":0.79,
+  "salt":1.22,"baking soda":1.08,"baking powder":0.9,"butter":0.91,
+  "honey":1.42,"maple syrup":1.32,"corn syrup":1.38,
+  "olive oil":0.92,"vegetable oil":0.92,"canola oil":0.92,"oil":0.92,
+  "milk":1.03,"cream":1.01,"heavy cream":1.0,"sour cream":1.01,
+  "mayonnaise":0.91,"peanut butter":1.09,"tahini":0.97,"tomato paste":1.06
+};
+
+function parseQty(s) {
+  if (!s) return 0;
+  s = String(s).trim();
+  const mixed = s.match(/^(\d+)\s+(\d+)\/(\d+)$/);
+  if (mixed) return parseInt(mixed[1]) + parseInt(mixed[2]) / parseInt(mixed[3]);
+  const frac = s.match(/^(\d+)\/(\d+)$/);
+  if (frac) return parseInt(frac[1]) / parseInt(frac[2]);
+  const n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+}
+
+function toGrams(qty, unit, name) {
+  const q = parseQty(qty);
+  if (!q) return 0;
+  const u = (unit || '').toLowerCase().trim();
+  if (!u) return q * 100;
+  const base = UNIT_TO_GRAMS[u];
+  if (!base) return 0;
+  const isVol = ['cup','cups','tablespoon','tablespoons','tbsp','teaspoon','teaspoons','tsp'].includes(u);
+  if (isVol) {
+    const k = name.toLowerCase();
+    const d = DENSITY[k] || DENSITY[k.split(' ')[0]] || 1.0;
+    return q * base * d;
+  }
+  return q * base;
+}
+
+function findNutrition(name) {
+  const n = name.toLowerCase().trim();
+  if (NUTRITION_DB[n]) return NUTRITION_DB[n];
+  let best = null, bestLen = 0;
+  for (const key of Object.keys(NUTRITION_DB)) {
+    if (n.includes(key) && key.length > bestLen) { best = key; bestLen = key.length; }
+  }
+  if (best) return NUTRITION_DB[best];
+  return NUTRITION_DB[n.split(/[\s,]+/)[0]] || null;
+}
+
+function calculateNutrition(ingredients, servings) {
+  const srv = Math.max(1, parseInt(servings) || 1);
+  let totals = [0,0,0,0,0,0,0];
+  const unmatched = [];
+  let matched = 0;
+  ingredients.filter(i => i.type === 'ingredient').forEach(ing => {
+    const g = toGrams(ing.qty, ing.unit, ing.name);
+    if (!g) { unmatched.push(ing.name); return; }
+    const n = findNutrition(ing.name);
+    if (!n) { unmatched.push(ing.name); return; }
+    totals = totals.map((t, i) => t + n[i] * g / 100);
+    matched++;
+  });
+  return { perServing: totals.map(v => Math.round(v / srv)), matched, unmatched, servings: srv };
+}
+
+function renderNutritionPanel(recipe) {
+  document.getElementById('nutrition-panel') && document.getElementById('nutrition-panel').remove();
+  const ings = (recipe.ingredients || []).filter(i => i.type === 'ingredient');
+  if (!ings.length) return;
+
+  const panel = document.createElement('div');
+  panel.id = 'nutrition-panel';
+  panel.style.cssText = 'grid-column:1/-1; border-top:1px solid var(--divider);';
+
+  const header = document.createElement('div');
+  header.style.cssText = 'display:flex; align-items:center; padding:10px 24px; gap:12px;';
+
+  const toggleBtn = document.createElement('button');
+  toggleBtn.style.cssText = 'background:none; border:none; cursor:pointer; font-family:var(--ff-body); font-size:13px; font-weight:600; color:var(--warm-mid); letter-spacing:.06em; text-transform:uppercase; display:flex; align-items:center; gap:8px; padding:2px 0; transition:color .15s; flex:1;';
+  toggleBtn.innerHTML = '<span id="nutr-arrow" style="font-size:14px;transition:transform .2s;display:inline-block">&#9658;</span> Nutrition Facts';
+
+  const servingsWrap = document.createElement('div');
+  servingsWrap.style.cssText = 'display:flex; align-items:center; gap:6px; font-size:13px; color:var(--warm-mid);';
+  const srvInput = document.createElement('input');
+  srvInput.type = 'number'; srvInput.min = '1';
+  srvInput.value = recipe.servings || '1';
+  srvInput.style.cssText = 'width:56px; padding:4px 6px; border:1.5px solid #D4C9BB; border-radius:3px; font-family:var(--ff-body); font-size:13px; color:#1C1C1A; text-align:center; outline:none;';
+  srvInput.title = 'Override serving count';
+  servingsWrap.innerHTML = '<span>Servings:</span>';
+  servingsWrap.appendChild(srvInput);
+  srvInput.addEventListener('click', e => e.stopPropagation());
+
+  header.appendChild(toggleBtn);
+  header.appendChild(servingsWrap);
+
+  const content = document.createElement('div');
+  content.style.cssText = 'display:none; padding:0 24px 20px;';
+
+  let isOpen = false;
+
+  function refresh() {
+    const srv = Math.max(1, parseInt(srvInput.value) || 1);
+    const result = calculateNutrition(recipe.ingredients || [], srv);
+    const [cal,fat,carbs,protein,sodium,fiber,sugar] = result.perServing;
+    const cov = (result.matched + result.unmatched.length) > 0
+      ? Math.round(result.matched / (result.matched + result.unmatched.length) * 100) : 0;
+    function nrow(label, val, unit, pct, indent) {
+      return '<div style="display:flex;justify-content:space-between;border-bottom:1px solid #D4C9BB;padding:2px 0;font-size:12px;' + (indent ? 'padding-left:16px;' : '') + '">'
+        + '<span>' + (indent ? '' : '<strong>') + label + (indent ? '' : '</strong>') + ' ' + val + unit + '</span>'
+        + '<span>' + (pct != null ? '<strong>' + pct + '%</strong>' : '') + '</span></div>';
+    }
+    content.innerHTML = '<div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;">'
+      + '<div style="min-width:220px;"><div style="border:2px solid #1C1C1A;padding:12px;max-width:240px;">'
+      + '<div style="font-size:22px;font-weight:900;border-bottom:8px solid #1C1C1A;padding-bottom:4px;margin-bottom:4px;">Nutrition Facts</div>'
+      + '<div style="font-size:12px;border-bottom:1px solid #1C1C1A;padding-bottom:4px;margin-bottom:4px;">' + result.servings + ' serving' + (result.servings !== 1 ? 's' : '') + ' per batch</div>'
+      + '<div style="font-size:11px;font-weight:700;border-bottom:4px solid #1C1C1A;padding-bottom:4px;margin-bottom:4px;">Amount per serving</div>'
+      + '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:4px solid #1C1C1A;padding-bottom:4px;margin-bottom:4px;">'
+      + '<span style="font-size:13px;font-weight:700;">Calories</span><span style="font-size:22px;font-weight:900;">' + cal + '</span></div>'
+      + '<div style="font-size:11px;text-align:right;border-bottom:1px solid #1C1C1A;padding-bottom:2px;margin-bottom:2px;">% Daily Value*</div>'
+      + nrow('Total Fat', fat, 'g', Math.round(fat/78*100), false)
+      + nrow('Total Carbohydrate', carbs, 'g', Math.round(carbs/275*100), false)
+      + nrow('Dietary Fiber', fiber, 'g', Math.round(fiber/28*100), true)
+      + nrow('Total Sugars', sugar, 'g', null, true)
+      + nrow('Protein', protein, 'g', null, false)
+      + nrow('Sodium', sodium, 'mg', Math.round(sodium/2300*100), false)
+      + '<div style="font-size:10px;margin-top:6px;color:#6B5B45;">*% Daily Values based on 2,000 cal diet</div>'
+      + '</div></div>'
+      + '<div style="flex:1;min-width:180px;">'
+      + '<div style="font-size:12px;color:#6B5B45;margin-bottom:8px;"><strong style="color:#1C1C1A;">Coverage: ' + cov + '%</strong> of ingredients matched</div>'
+      + (result.unmatched.length ? '<div style="font-size:12px;color:#6B5B45;margin-bottom:4px;">Not calculated:</div><ul style="font-size:12px;color:#6B5B45;padding-left:16px;margin:0;">'
+          + result.unmatched.slice(0,10).map(n => '<li>' + esc(n) + '</li>').join('')
+          + (result.unmatched.length > 10 ? '<li>...and ' + (result.unmatched.length-10) + ' more</li>' : '')
+          + '</ul>' : '<div style="font-size:12px;color:#4A5240;">All ingredients calculated</div>')
+      + '<div style="font-size:11px;color:#6B5B45;margin-top:12px;font-style:italic;">Estimates based on USDA data.</div>'
+      + '</div></div>';
+  }
+
+  toggleBtn.addEventListener('mouseover', () => toggleBtn.style.color = '#4A5240');
+  toggleBtn.addEventListener('mouseout',  () => toggleBtn.style.color = '#6B5B45');
+  toggleBtn.addEventListener('click', () => {
+    isOpen = !isOpen;
+    content.style.display = isOpen ? 'block' : 'none';
+    const arr = document.getElementById('nutr-arrow');
+    if (arr) arr.style.transform = isOpen ? 'rotate(90deg)' : 'rotate(0deg)';
+    if (isOpen) refresh();
+  });
+  srvInput.addEventListener('change', () => { if (isOpen) refresh(); });
+
+  panel.appendChild(header);
+  panel.appendChild(content);
+  const notesSection = document.querySelector('.notes-section');
+  if (notesSection) notesSection.before(panel);
+}
+
+// ── Category Dropdown ──────────────────────────────────────────────
+function populateCatDropdown(cats) {
+  const dd = document.getElementById('cat-dropdown');
+  if (!dd) return;
+  dd.innerHTML = '';
+  cats.forEach(c => {
+    const item = document.createElement('div');
+    item.textContent = c;
+    item.style.cssText = 'padding:8px 12px; font-size:14px; cursor:pointer;';
+    item.addEventListener('mouseover', () => { item.style.background = '#EDE6DB'; });
+    item.addEventListener('mouseout',  () => { item.style.background = ''; });
+    item.addEventListener('mousedown', () => {
+      document.getElementById('form-category').value = c;
+    });
+    dd.appendChild(item);
+  });
+}
+
+function filterCatDropdown(val) {
+  const all = window._allCategories || [];
+  populateCatDropdown(all.filter(c => c.toLowerCase().includes(val.toLowerCase())));
+}
+
+// ── Pending Badge ──────────────────────────────────────────────────
+async function updatePendingBadge() {
+  if (!currentUser || currentUser.role !== 'admin') return;
+  try {
+    const snap = await getDocs(query(collection(db, 'pendingNotes'), where('status', '==', 'pending')));
+    const count = snap.size;
+    const badge = document.getElementById('pending-badge');
+    const adminBtn = document.getElementById('btn-admin');
+    if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'inline-block' : 'none'; }
+    if (adminBtn) adminBtn.innerHTML = count > 0 ? '⚙ Admin <span style="background:var(--rust);color:white;font-size:11px;padding:1px 6px;border-radius:10px;margin-left:4px">' + count + '</span>' : '⚙ Admin';
+  } catch(e) {}
+}
+
+// ── Load Pending Notes ─────────────────────────────────────────────
+async function loadPendingNotes() {
+  const list = document.getElementById('pending-notes-list');
+  if (!list) return;
+  list.innerHTML = '<p style="font-size:13px;color:var(--warm-mid)">Loading...</p>';
+  try {
+    const snap = await getDocs(query(collection(db, 'pendingNotes'), where('status','==','pending'), orderBy('createdAt','asc')));
+    const pending = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (!pending.length) { list.innerHTML = '<p style="font-size:14px;color:var(--warm-mid);font-style:italic">No notes pending review.</p>'; return; }
+    list.innerHTML = '';
+    pending.forEach(n => {
+      const date = n.createdAt && n.createdAt.toDate ? n.createdAt.toDate().toLocaleDateString() : '';
+      const item = document.createElement('div');
+      item.style.cssText = 'background:var(--cream);border:1px solid var(--divider);border-radius:3px;padding:16px;margin-bottom:12px;';
+      item.innerHTML = '<div style="font-size:12px;font-weight:700;color:var(--rust);margin-bottom:4px;">' + esc(n.recipeName) + '</div>'
+        + '<div style="font-size:12px;color:var(--warm-mid);margin-bottom:8px;">' + esc(n.authorName) + ' &middot; ' + date + '</div>'
+        + '<div style="font-size:14px;line-height:1.6;margin-bottom:12px;padding:10px;background:white;border-radius:3px;border:1px solid var(--divider);">' + esc(n.text) + '</div>'
+        + '<div style="display:flex;gap:8px;">'
+        + '<button class="btn-accept-note" style="padding:7px 16px;background:var(--olive);color:white;border:none;border-radius:3px;font-family:var(--ff-body);font-size:13px;font-weight:600;cursor:pointer;">Accept</button>'
+        + '<button class="btn-reject-note" style="padding:7px 16px;background:none;border:1.5px solid var(--divider);border-radius:3px;font-family:var(--ff-body);font-size:13px;color:var(--rust);cursor:pointer;">Reject</button>'
+        + '</div>';
+      item.querySelector('.btn-accept-note').addEventListener('click', async () => {
+        await addDoc(collection(db, 'recipes', n.recipeId, 'notes'), { text: n.text, authorId: n.authorId, authorName: n.authorName, status: 'accepted', createdAt: n.createdAt });
+        await updateDoc(doc(db, 'pendingNotes', n.id), { status: 'accepted' });
+        item.remove();
+        await updatePendingBadge();
+        if (!list.children.length) list.innerHTML = '<p style="font-size:14px;color:var(--warm-mid);font-style:italic">No notes pending review.</p>';
+      });
+      item.querySelector('.btn-reject-note').addEventListener('click', async () => {
+        if (!confirm('Reject this note?')) return;
+        await updateDoc(doc(db, 'pendingNotes', n.id), { status: 'rejected' });
+        item.remove();
+        await updatePendingBadge();
+        if (!list.children.length) list.innerHTML = '<p style="font-size:14px;color:var(--warm-mid);font-style:italic">No notes pending review.</p>';
+      });
+      list.appendChild(item);
+    });
+  } catch(e) { list.innerHTML = '<p style="font-size:13px;color:var(--rust)">' + e.message + '</p>'; }
+}
+
+// ── Graduate Recipe ────────────────────────────────────────────────
+async function graduateRecipe(recipe) {
+  if (!confirm('Copy "' + recipe.name + '" to the GFG Cookbook?')) return;
+  const data = Object.assign({}, recipe);
+  delete data.id; delete data.cookbookId; delete data.cookbookTitle;
+  data.dataSource = 'Graduated from ' + (recipe.cookbookTitle || recipe.cookbookId || 'other cookbook');
+  data.createdAt = new Date().toISOString();
+  await setDoc(doc(db, 'recipes', 'recipe_' + Date.now()), data);
+  closeDetail();
+  await loadRecipes();
+  switchCookbook('gfg');
+}
+
 function esc(str) {
   if (!str) return '';
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
