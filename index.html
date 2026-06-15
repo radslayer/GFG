@@ -984,7 +984,7 @@ function closeDetail() {
   currentRecipe = null;
 }
 
-document.getElementById('detail-close').addEventListener('click', closeDetail);
+document.addEventListener('click', function(e) { if (e.target && e.target.closest('#detail-close')) closeDetail(); });
 document.getElementById('detail-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('detail-modal')) closeDetail();
 });
@@ -1029,7 +1029,7 @@ async function loadNotes(recipeId) {
   }
 }
 
-document.getElementById('btn-post-note').addEventListener('click', async () => {
+document.addEventListener('click', async function(e) { if (!e.target || !e.target.closest('#btn-post-note')) return;
   const text = document.getElementById('note-input').value.trim();
   if (!text || !currentRecipe) return;
   const isAdmin = currentUser?.role === 'admin';
@@ -1110,21 +1110,20 @@ function addIngRow(ing = {}) {
   document.getElementById('ing-rows').appendChild(row);
 }
 
-document.getElementById('btn-add-ing').addEventListener('click', () => addIngRow());
+document.addEventListener('click', function(e) { if (e.target && e.target.closest('#btn-add-ing')) addIngRow(); });
 
 function closeForm() {
   document.getElementById('form-modal').classList.remove('open');
   editingId = null;
 }
 
-document.getElementById('form-close').addEventListener('click', closeForm);
-document.getElementById('form-cancel').addEventListener('click', closeForm);
+document.addEventListener('click', function(e) { if (e.target && (e.target.closest('#form-close') || e.target.closest('#form-cancel'))) closeForm(); });
 document.getElementById('form-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('form-modal')) closeForm();
 });
 document.getElementById('btn-add-recipe').addEventListener('click', () => openForm());
 
-document.getElementById('form-save').addEventListener('click', async () => {
+document.addEventListener('click', async function(e) { if (!e.target || !e.target.closest('#form-save')) return;
   const name = document.getElementById('form-name').value.trim();
   if (!name) { alert('Recipe name is required.'); return; }
   const ingredients = [];
@@ -1157,12 +1156,19 @@ document.getElementById('form-save').addEventListener('click', async () => {
   try {
     if (editingId) {
       await updateDoc(doc(db, 'recipes', editingId), data);
+      const updatedSnap = await getDoc(doc(db, 'recipes', editingId));
+      const updatedRecipe = { id: editingId, cookbookId: 'gfg', ...updatedSnap.data() };
+      const idx = allRecipes.findIndex(r => r.id === editingId);
+      if (idx !== -1) allRecipes[idx] = updatedRecipe;
+      closeForm();
+      await loadRecipes();
+      openDetail(updatedRecipe);
     } else {
       const newId = 'recipe_' + Date.now();
       await setDoc(doc(db, 'recipes', newId), { ...data, createdAt: new Date().toISOString(), dataSource: 'Manual entry' });
+      closeForm();
+      await loadRecipes();
     }
-    closeForm();
-    await loadRecipes();
   } catch (e) {
     alert('Error saving: ' + e.message);
   } finally {
@@ -1331,7 +1337,7 @@ async function loadArchivedRecipes() {
 }
 
 // ── Backup ─────────────────────────────────────────────────────────
-document.getElementById('btn-backup').addEventListener('click', async () => {
+document.addEventListener('click', async function(e) { if (!e.target || !e.target.closest('#btn-backup')) return;
   const btn = document.getElementById('btn-backup');
   btn.textContent = 'Preparing backup…';
   btn.disabled = true;
