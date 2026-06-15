@@ -892,7 +892,7 @@ async function openDetail(recipe) {
       if (i.type === 'section') {
         html += `<div class="ingredient-section-name">${esc(i.name)}</div>`;
       } else {
-        const qty = [i.qty, i.unit].filter(Boolean).join(' ');
+        const qty = [i.qty, i.unit].filter(Boolean).join(' | ');
         html += `<div class="ingredient-row">
           <span class="ing-qty">${esc(qty)}</span>
           <span>${esc(i.name)}${i.preparation ? `<span class="ing-prep">, ${esc(i.preparation)}</span>` : ''}</span>
@@ -1372,7 +1372,7 @@ function printRecipe() {
     if (i.type === 'section') {
       ingHtml += '<div class="section-name">' + i.name + '</div>';
     } else {
-      const qty = [i.qty, i.unit].filter(Boolean).join(' ');
+      const qty = [i.qty, i.unit].filter(Boolean).join(' | ');
       ingHtml += '<div class="qty">' + (qty || '—') + '</div>'
         + '<div class="ing-name">' + i.name + (i.preparation ? ', <span style="font-weight:500;font-style:italic;">' + i.preparation + '</span>' : '') + '</div>';
     }
