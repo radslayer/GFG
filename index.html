@@ -512,6 +512,10 @@
             <input type="password" id="new-password" placeholder="Temporary password" />
           </div>
           <div class="form-group">
+            <label>Your Admin Password <span style="font-weight:400;font-size:11px;color:var(--warm-mid)">(required — prevents session loss)</span></label>
+            <input type="password" id="current-admin-password" placeholder="Your password" />
+          </div>
+          <div class="form-group">
             <label>Role</label>
             <select id="new-role">
               <option value="user">User</option>
@@ -659,7 +663,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import {
   getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged,
-  createUserWithEmailAndPassword
+  createUserWithEmailAndPassword, sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -1219,11 +1223,23 @@ async function loadUsers() {
           <button class="btn-sm" data-uid="${u.id}" data-action="toggle-role" ${isSelf ? 'disabled title="Cannot change your own role"' : ''}>
             Make ${u.role === 'admin' ? 'User' : 'Admin'}
           </button>
+          <button class="btn-sm" data-uid="${u.id}" data-email="${esc(u.email)}" data-action="reset-password">
+            Reset Password
+          </button>
           <button class="btn-sm danger" data-uid="${u.id}" data-action="remove" ${isSelf ? 'disabled title="Cannot remove yourself"' : ''}>
             Remove
           </button>
         </div>
       </td>`;
+    // Reset password
+    tr.querySelector('[data-action="reset-password"]')?.addEventListener('click', async () => {
+      const email = u.email;
+      if (!confirm(`Send password reset email to ${email}?`)) return;
+      try {
+        await sendPasswordResetEmail(auth, email);
+        alert(`Password reset email sent to ${email}.`);
+      } catch(e) { alert('Error: ' + e.message); }
+    });
     // Toggle role
     tr.querySelector('[data-action="toggle-role"]')?.addEventListener('click', async () => {
       const newRole = u.role === 'admin' ? 'user' : 'admin';
@@ -1240,7 +1256,7 @@ async function loadUsers() {
   });
 }
 
-document.getElementById('btn-create-user').addEventListener('click', async () => {
+document.addEventListener('click', async function(e) { if (!e.target || e.target.id !== 'btn-create-user') return;
   const first    = document.getElementById('new-first').value.trim();
   const last     = document.getElementById('new-last').value.trim();
   const email    = document.getElementById('new-email').value.trim();
@@ -1252,17 +1268,26 @@ document.getElementById('btn-create-user').addEventListener('click', async () =>
   const btn = document.getElementById('btn-create-user');
   btn.textContent = 'Creating…';
   btn.disabled = true;
+  const adminPassword = document.getElementById('current-admin-password') ? document.getElementById('current-admin-password').value : '';
+  if (!adminPassword) { errEl.textContent = 'Enter your admin password below to confirm.'; return; }
+  const adminEmail = currentUser.email;
   try {
-    // Create Firebase Auth account
+    // Create Firebase Auth account - this signs us in as the new user
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     // Save profile to Firestore
     await setDoc(doc(db, 'users', cred.user.uid), { firstName: first, lastName: last, email, role, createdAt: new Date().toISOString() });
+    // Immediately re-sign in as admin
+    await signInWithEmailAndPassword(auth, adminEmail, adminPassword);
     // Clear form
-    ['new-first','new-last','new-email','new-password'].forEach(id => document.getElementById(id).value = '');
+    ['new-first','new-last','new-email','new-password','current-admin-password'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
     document.getElementById('new-role').value = 'user';
     await loadUsers();
   } catch (e) {
     errEl.textContent = e.message.replace('Firebase: ', '');
+    // Try to re-sign in as admin if we got logged out
+    try { await signInWithEmailAndPassword(auth, adminEmail, adminPassword); } catch(_) {}
   } finally {
     btn.textContent = 'Add User';
     btn.disabled = false;
@@ -1462,7 +1487,7 @@ async function loadMenuPlans() {
         + '<span style="font-size:11px;padding:3px 10px;border-radius:10px;font-weight:600;background:' + (p.status === 'published' ? 'rgba(74,82,64,.12)' : 'rgba(184,92,56,.1)') + ';color:' + statusColor + ';">' + p.status + '</span>'
         + '<span style="font-size:18px;color:var(--warm-mid);">›</span>'
         + '</div>';
-      item.addEventListener('click', () => openPlanEditor(p));
+      item.addEventListener('click', async () => { await openPlanEditor(p); });
       list.appendChild(item);
     });
   } catch(e) { list.innerHTML = '<p style="font-size:13px;color:var(--rust)">' + e.message + '</p>'; }
