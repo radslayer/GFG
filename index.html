@@ -1256,7 +1256,7 @@ async function loadUsers() {
   });
 }
 
-document.addEventListener('click', async function(e) { if (!e.target || e.target.id !== 'btn-create-user') return;
+document.addEventListener('click', async function(e) { if (!e.target || !e.target.closest('#btn-create-user')) return;
   const first    = document.getElementById('new-first').value.trim();
   const last     = document.getElementById('new-last').value.trim();
   const email    = document.getElementById('new-email').value.trim();
@@ -1423,20 +1423,20 @@ let currentPlan = null;
 let mpLinkedRecipes = []; // [{id, name}] for current item being added
 
 // New plan modal
-document.addEventListener('click', function(e) { if (!e.target || e.target.id !== 'mp-new-plan-btn') return;
+document.addEventListener('click', function(e) { if (!e.target || !e.target.closest('#mp-new-plan-btn')) return;
   document.getElementById('np-name').value = '';
   document.getElementById('np-start').value = '';
   document.getElementById('np-end').value = '';
   document.getElementById('np-unit').value = 'GFG';
   document.getElementById('new-plan-modal').classList.add('open');
 });
-document.addEventListener('click', function(e) { if (e.target && (e.target.id === 'new-plan-close' || e.target.id === 'new-plan-cancel')) document.getElementById('new-plan-modal').classList.remove('open'); });
+document.addEventListener('click', function(e) { if (e.target && (e.target.closest('#new-plan-close') || e.target.closest('#new-plan-cancel'))) document.getElementById('new-plan-modal').classList.remove('open'); });
 
 document.getElementById('new-plan-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('new-plan-modal')) document.getElementById('new-plan-modal').classList.remove('open');
 });
 
-document.addEventListener('click', async function(e) { if (!e.target || e.target.id !== 'new-plan-save') return;
+document.addEventListener('click', async function(e) { if (!e.target || !e.target.closest('#new-plan-save')) return;
   const name  = document.getElementById('np-name').value.trim();
   const unit  = document.getElementById('np-unit').value;
   const start = document.getElementById('np-start').value;
@@ -1519,7 +1519,7 @@ async function openPlanEditor(plan) {
   renderPlanItems();
 }
 
-document.addEventListener('click', function(e) { if (!e.target || e.target.id !== 'mp-back-btn') return;
+document.addEventListener('click', function(e) { if (!e.target || !e.target.closest('#mp-back-btn')) return;
   document.getElementById('mp-editor').style.display = 'none';
   document.getElementById('mp-plans-list').style.display = 'block';
   document.getElementById('mp-new-plan-btn').style.display = 'inline-block';
@@ -1528,7 +1528,7 @@ document.addEventListener('click', function(e) { if (!e.target || e.target.id !=
 });
 
 // Recipe search for linking
-document.addEventListener('input', function(e) { if (!e.target || e.target.id !== 'mp-recipe-search') return;
+document.addEventListener('input', function(e) { if (!e.target || !e.target.closest('#mp-recipe-search')) return;
   const val = e.target.value.trim().toLowerCase();
   const dd = document.getElementById('mp-recipe-dropdown');
   if (!val) { dd.style.display = 'none'; return; }
@@ -1553,7 +1553,7 @@ document.addEventListener('input', function(e) { if (!e.target || e.target.id !=
     dd.appendChild(item);
   });
 });
-document.addEventListener('blur', function(e) { if (!e.target || e.target.id !== 'mp-recipe-search') return;
+document.addEventListener('blur', function(e) { if (!e.target || !e.target.closest('#mp-recipe-search')) return;
   setTimeout(() => { document.getElementById('mp-recipe-dropdown').style.display = 'none'; }, 200);
 }, true);
 
@@ -1570,7 +1570,7 @@ window.mpRemoveRecipe = function(i) { mpLinkedRecipes.splice(i, 1); renderLinked
 
 // Add item to plan
 document.addEventListener('click', async function(e) {
-  if (!e.target || e.target.id !== 'mp-add-item-btn') return;
+  if (!e.target || !e.target.closest('#mp-add-item-btn')) return;
   const name  = document.getElementById('mp-item-name').value.trim();
   const cat   = document.getElementById('mp-item-category').value;
   const price = document.getElementById('mp-item-price').value.trim();
@@ -1650,7 +1650,7 @@ window.mpRemoveItem = async function(idx) {
 };
 
 // Publish plan
-document.addEventListener('click', async function(e) { if (!e.target || e.target.id !== 'mp-publish-btn') return;
+document.addEventListener('click', async function(e) { if (!e.target || !e.target.closest('#mp-publish-btn')) return;
   if (!currentPlan) return;
   const items = currentPlan.items || [];
   if (!items.length) { alert('Add at least one item before publishing.'); return; }
@@ -1688,7 +1688,7 @@ document.addEventListener('click', async function(e) { if (!e.target || e.target
 });
 
 // Print draft
-document.addEventListener('click', function(e) { if (!e.target || e.target.id !== 'mp-print-btn') return;
+document.addEventListener('click', function(e) { if (!e.target || !e.target.closest('#mp-print-btn')) return;
   if (!currentPlan) return;
   const items = currentPlan.items || [];
   const catOrder = ['Hot Buffet','Cold Buffet','Sandwich Box','Salad Box','Hot Breakfast','Cold Breakfast','Appetizer','Beverage','Other'];
@@ -1799,7 +1799,7 @@ document.getElementById('menu-log-plan').addEventListener('change', function() {
 });
 
 document.addEventListener('click', function(e) {
-  if (e.target && (e.target.id === 'menu-log-close' || e.target.id === 'menu-log-cancel'))
+  if (e.target && (e.target.closest('#menu-log-close') || e.target.closest('#menu-log-cancel')))
     document.getElementById('menu-log-modal').classList.remove('open');
 });
 document.getElementById('menu-log-modal').addEventListener('click', e => {
@@ -1807,7 +1807,7 @@ document.getElementById('menu-log-modal').addEventListener('click', e => {
     document.getElementById('menu-log-modal').classList.remove('open');
 });
 
-document.addEventListener('click', async function(e) { if (!e.target || e.target.id !== 'menu-log-save') return;
+document.addEventListener('click', async function(e) { if (!e.target || !e.target.closest('#menu-log-save')) return;
   const recipe = menuLogRecipe;
   if (!recipe) return;
   const planId = document.getElementById('menu-log-plan').value;
@@ -1897,9 +1897,9 @@ document.addEventListener('click', function(e) {
   const qmap = {'mh-q1':'Q1','mh-q2':'Q2','mh-q3':'Q3','mh-q4':'Q4'};
   if (qmap[e.target.id]) setQuarterFilter(qmap[e.target.id]);
 });
-document.addEventListener('click', function(e) { if (e.target && e.target.id === 'mh-filter-btn') loadMenuHistory(); });
+document.addEventListener('click', function(e) { if (e.target && e.target.closest('#mh-filter-btn')) loadMenuHistory(); });
 document.addEventListener('click', function(e) {
-  if (!e.target || e.target.id !== 'mh-clear-btn') return;
+  if (!e.target || !e.target.closest('#mh-clear-btn')) return;
   document.getElementById('mh-from').value = '';
   document.getElementById('mh-to').value = '';
   document.getElementById('mh-unit').value = 'all';
