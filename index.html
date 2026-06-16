@@ -96,16 +96,19 @@
     .btn-icon:hover { border-color:var(--olive); color:var(--olive); }
     .btn-icon.danger:hover { border-color:var(--rust); color:var(--rust); }
     .btn-icon.archive-btn:hover { border-color:var(--archive); color:var(--archive); }
-    .modal-body { display:grid; grid-template-columns:260px 1fr; }
-    .ingredients-panel { padding:24px; border-right:1px solid var(--divider); background:var(--cream); }
-    .panel-label { font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--warm-mid); margin-bottom:14px; }
+    .modal-body { display:flex; flex-direction:column; }
+    .ingredients-panel { padding:20px 28px; background:var(--cream); border-bottom:1px solid var(--divider); }
+    .panel-label { font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--warm-mid); margin-bottom:12px; }
     .ingredient-section-name { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--rust); margin:14px 0 6px; }
-    .ingredient-row { display:grid; grid-template-columns:60px 110px 1fr; gap:4px 12px; padding:8px 0; border-bottom:1px solid var(--divider); font-size:14px; line-height:1.4; align-items:start; }
-    .ing-qty { font-weight:700; color:var(--ink); white-space:nowrap; font-size:14px; }
-    .ing-unit { color:var(--warm-mid); font-size:14px; white-space:nowrap; }
+    .ing-grid { display:grid; grid-template-columns:70px 130px 1fr; gap:0; }
+    .ingredient-row { display:contents; }
+    .ingredient-row > span { padding:7px 12px 7px 0; border-bottom:1px solid var(--divider); font-size:14px; line-height:1.4; vertical-align:top; }
+    .ing-qty { font-weight:700; color:var(--ink); white-space:nowrap; }
+    .ing-unit { color:var(--warm-mid); white-space:nowrap; }
+    .ing-name-cell { }
     .ing-prep { color:var(--warm-mid); font-style:italic; font-size:13px; }
     .no-ingredients { font-size:13px; color:var(--warm-mid); font-style:italic; line-height:1.6; }
-    .directions-panel { padding:24px 28px 28px; }
+    .directions-panel { padding:20px 28px; border-bottom:1px solid var(--divider); }
     .directions-text { font-size:15px; line-height:1.75; color:var(--ink); white-space:pre-wrap; text-align:left; }
     .note-box { margin-top:20px; padding:14px 16px; background:rgba(74,82,64,.07); border-left:3px solid var(--sage); border-radius:0 3px 3px 0; }
     .note-label { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--olive); margin-bottom:6px; }
@@ -114,7 +117,7 @@
     .close-btn:hover { color:var(--ink); }
 
     /* ── Notes Section ── */
-    .notes-section { padding:20px 28px 28px; border-top:1px solid var(--divider); grid-column:1/-1; }
+    .notes-section { padding:20px 28px 28px; border-top:1px solid var(--divider); }
     .notes-list { margin-bottom:16px; }
     .note-item { padding:12px 14px; background:var(--cream); border-radius:3px; border:1px solid var(--divider); margin-bottom:8px; position:relative; }
     .note-item-meta { font-size:12px; color:var(--warm-mid); margin-bottom:4px; }
@@ -163,7 +166,7 @@
     .cookbook-tab.admin-only.active { color:var(--rust); border-bottom-color:var(--rust); }
 
     /* ── Allergens ── */
-    .allergen-bar { grid-column:1/-1; padding:14px 24px; background:#fff8f5; border-bottom:1px solid var(--divider); display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .allergen-bar { padding:14px 24px; background:#fff8f5; border-bottom:1px solid var(--divider); display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     .allergen-label { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--warm-mid); white-space:nowrap; }
     .allergen-tag { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:3px; font-size:12px; font-weight:600; }
     .allergen-tag.detected { background:#fde8e0; color:#b85c38; border:1px solid #f4c0a8; }
@@ -171,7 +174,7 @@
     .allergen-tag.clear { background:rgba(74,82,64,.08); color:var(--olive); border:1px solid rgba(74,82,64,.2); }
     .allergen-edit-btn { margin-left:auto; font-size:12px; color:var(--warm-mid); background:none; border:1.5px solid var(--divider); border-radius:3px; padding:4px 10px; cursor:pointer; font-family:var(--ff-body); transition:all .15s; white-space:nowrap; }
     .allergen-edit-btn:hover { border-color:var(--olive); color:var(--olive); }
-    .allergen-edit-panel { grid-column:1/-1; padding:16px 24px; background:#fff8f5; border-bottom:1px solid var(--divider); display:none; }
+    .allergen-edit-panel { padding:16px 24px; background:#fff8f5; border-bottom:1px solid var(--divider); display:none; }
     .allergen-edit-panel.open { display:block; }
     .allergen-edit-title { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--warm-mid); margin-bottom:12px; }
     .allergen-checkboxes { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:12px; }
@@ -241,7 +244,7 @@
       #print-area .modal-actions,
       #print-area .close-btn,
       #print-area .notes-section { display: none !important; }
-      #print-area .modal-body { display: grid; grid-template-columns: 220px 1fr; }
+      #print-area .modal-body { display: flex; flex-direction: column; }
       #print-area .modal { box-shadow: none; }
     }
 
@@ -255,8 +258,7 @@
       .cat-btn.active { border-left:none; border-bottom-color:var(--olive); }
       .content { padding:20px 16px; }
       .recipe-grid { grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px; }
-      .modal-body { grid-template-columns:1fr; }
-      .ingredients-panel { border-right:none; border-bottom:1px solid var(--divider); }
+      .modal-body { flex-direction:column; }
       .form-body { grid-template-columns:1fr; padding:20px; }
       .form-body .full-width { grid-column:1; }
       .form-footer { padding:16px 20px; }
@@ -888,18 +890,19 @@ async function openDetail(recipe) {
   if (!ings.length) {
     ingEl.innerHTML = `<div class="no-ingredients">No ingredients on file yet.${isAdmin ? ' Edit to add them.' : ''}</div>`;
   } else {
-    let html = '';
+    let html = '<div class="ing-grid">';
     (recipe.ingredients || []).forEach(i => {
       if (i.type === 'section') {
-        html += `<div class="ingredient-section-name">${esc(i.name)}</div>`;
+        html += `<div class="ingredient-section-name" style="grid-column:1/-1">${esc(i.name)}</div>`;
       } else {
         html += `<div class="ingredient-row">
           <span class="ing-qty">${esc(i.qty||'')}</span>
           <span class="ing-unit">${esc(i.unit||'')}</span>
-          <span>${esc(i.name)}${i.preparation ? `<span class="ing-prep">, ${esc(i.preparation)}</span>` : ''}</span>
+          <span class="ing-name-cell">${esc(i.name)}${i.preparation ? `<span class="ing-prep">, ${esc(i.preparation)}</span>` : ''}</span>
         </div>`;
       }
     });
+    html += '</div>';
     ingEl.innerHTML = html;
   }
 
