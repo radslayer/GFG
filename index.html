@@ -100,8 +100,9 @@
     .ingredients-panel { padding:24px; border-right:1px solid var(--divider); background:var(--cream); }
     .panel-label { font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--warm-mid); margin-bottom:14px; }
     .ingredient-section-name { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--rust); margin:14px 0 6px; }
-    .ingredient-row { display:grid; grid-template-columns:90px 1fr; gap:8px; padding:6px 0; border-bottom:1px solid var(--divider); font-size:14px; line-height:1.5; align-items:baseline; }
+    .ingredient-row { display:grid; grid-template-columns:60px 110px 1fr; gap:8px; padding:6px 0; border-bottom:1px solid var(--divider); font-size:14px; line-height:1.5; align-items:baseline; }
     .ing-qty { font-weight:600; color:var(--olive); white-space:nowrap; font-size:13px; }
+    .ing-unit { color:var(--warm-mid); font-size:13px; white-space:nowrap; }
     .ing-prep { color:var(--warm-mid); font-style:italic; font-size:13px; }
     .no-ingredients { font-size:13px; color:var(--warm-mid); font-style:italic; line-height:1.6; }
     .directions-panel { padding:24px 28px 28px; }
@@ -892,9 +893,9 @@ async function openDetail(recipe) {
       if (i.type === 'section') {
         html += `<div class="ingredient-section-name">${esc(i.name)}</div>`;
       } else {
-        const qty = [i.qty, i.unit].filter(Boolean).join(' | ');
         html += `<div class="ingredient-row">
-          <span class="ing-qty">${esc(qty)}</span>
+          <span class="ing-qty">${esc(i.qty||'')}</span>
+          <span class="ing-unit">${esc(i.unit||'')}</span>
           <span>${esc(i.name)}${i.preparation ? `<span class="ing-prep">, ${esc(i.preparation)}</span>` : ''}</span>
         </div>`;
       }
@@ -1372,9 +1373,9 @@ function printRecipe() {
     if (i.type === 'section') {
       ingHtml += '<div class="section-name">' + i.name + '</div>';
     } else {
-      const qty = [i.qty, i.unit].filter(Boolean).join(' | ');
-      ingHtml += '<div class="qty">' + (qty || '—') + '</div>'
-        + '<div class="ing-name">' + i.name + (i.preparation ? ', <span style="font-weight:500;font-style:italic;">' + i.preparation + '</span>' : '') + '</div>';
+      ingHtml += '<div class="qty">' + esc(i.qty||'') + '</div>'
+        + '<div class="ing-unit">' + esc(i.unit||'') + '</div>'
+        + '<div class="ing-name">' + esc(i.name||'') + (i.preparation ? ', <span style="font-weight:500;font-style:italic;">' + esc(i.preparation) + '</span>' : '') + '</div>';
     }
   });
   if (!ingHtml) ingHtml = '<div class="ing-name" style="grid-column:1/-1"><em>No ingredients on file.</em></div>';
@@ -1390,8 +1391,9 @@ function printRecipe() {
     + 'h1{font-size:26px;font-weight:900;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;}'
     + '.meta{font-size:13px;color:#4A5240;margin-bottom:20px;font-weight:600;letter-spacing:.03em;}'
     + '.label{font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#B85C38;margin-bottom:10px;border-bottom:2px solid #B85C38;padding-bottom:4px;}'
-    + '.ing-grid{display:grid;grid-template-columns:100px 1fr;gap:4px 16px;margin-bottom:24px;}'
+    + '.ing-grid{display:grid;grid-template-columns:60px 110px 1fr;gap:4px 12px;margin-bottom:24px;}'
     + '.qty{font-size:15px;font-weight:900;color:#1C1C1A;padding:4px 0;border-bottom:1px solid #D4C9BB;}'
+    + '.ing-unit{font-size:15px;font-weight:600;color:#6B5B45;padding:4px 0;border-bottom:1px solid #D4C9BB;}'
     + '.ing-name{font-size:15px;font-weight:700;color:#1C1C1A;padding:4px 0;border-bottom:1px solid #D4C9BB;}'
     + '.section-name{font-size:11px;font-weight:900;text-transform:uppercase;color:#B85C38;margin:12px 0 4px;grid-column:1/-1;letter-spacing:.1em;}'
     + '.dirs{font-size:14px;line-height:1.8;white-space:pre-wrap;font-weight:500;}'
