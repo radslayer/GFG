@@ -64,7 +64,24 @@
     .content { padding:28px 32px; }
     .content-header { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px; }
     .content-title { font-family:var(--ff-display); font-size:26px; font-weight:700; color:var(--ink); }
+    .header-right { display:flex; align-items:center; gap:14px; }
     .result-count { font-size:13px; color:var(--warm-mid); }
+
+    /* ── View Toggle ── */
+    .view-toggle { display:flex; border:1.5px solid var(--divider); border-radius:3px; overflow:hidden; }
+    .view-toggle button { background:var(--white); border:none; padding:6px 11px; font-size:14px; line-height:1; cursor:pointer; color:var(--warm-mid); transition:all .15s; }
+    .view-toggle button + button { border-left:1px solid var(--divider); }
+    .view-toggle button:hover { background:rgba(74,82,64,.08); }
+    .view-toggle button.active { background:var(--olive); color:var(--white); }
+
+    /* ── Find Duplicates ── */
+    .btn-find-duplicates { display:flex; align-items:center; gap:8px; width:calc(100% - 32px); margin:0 16px 16px; padding:9px 12px; background:var(--white); border:1.5px solid var(--rust); border-radius:3px; font-family:var(--ff-body); font-size:13px; font-weight:600; color:var(--rust); cursor:pointer; transition:all .15s; }
+    .btn-find-duplicates:hover { background:rgba(184,92,56,.08); }
+    .btn-find-duplicates.active { background:var(--rust); color:var(--white); }
+    .btn-find-duplicates .dup-icon { font-size:14px; line-height:1; }
+    .btn-find-duplicates .dup-count { margin-left:auto; font-size:11px; font-weight:700; background:rgba(184,92,56,.15); color:var(--rust); padding:1px 7px; border-radius:10px; min-width:18px; text-align:center; }
+    .btn-find-duplicates.active .dup-count { background:rgba(255,255,255,.28); color:var(--white); }
+    .btn-find-duplicates .dup-count:empty { display:none; }
 
     /* ── Recipe Grid ── */
     .recipe-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px; }
@@ -73,6 +90,13 @@
     .recipe-card.archived { opacity:.5; border-style:dashed; }
     .recipe-card-name { font-family:var(--ff-display); font-size:15px; font-weight:600; color:var(--ink); line-height:1.3; margin-bottom:8px; }
     .recipe-card-meta { display:flex; gap:6px; flex-wrap:wrap; }
+
+    /* ── List View ── */
+    .recipe-grid.view-list { display:flex; flex-direction:column; gap:8px; }
+    .view-list .recipe-card { display:flex; align-items:center; gap:16px; padding:12px 18px; }
+    .view-list .recipe-card-name { margin-bottom:0; flex:0 0 220px; }
+    .view-list .recipe-card-meta { flex:1; }
+    .view-list .allergen-dots { margin-left:auto; }
     .tag { font-size:11px; padding:2px 8px; border-radius:2px; font-weight:500; }
     .tag-cat { background:rgba(74,82,64,.1); color:var(--olive); }
     .tag-servings { background:rgba(184,92,56,.1); color:var(--rust); }
@@ -253,11 +277,15 @@
       .main-layout { grid-template-columns:1fr; }
       .sidebar { position:static; height:auto; border-right:none; border-bottom:1px solid var(--divider); padding:12px 0; display:flex; overflow-x:auto; flex-wrap:nowrap; }
       .search-wrap { padding:0 12px; flex-shrink:0; }
+      .btn-find-duplicates { width:auto; margin:0 8px; flex-shrink:0; white-space:nowrap; }
       .category-label { display:none; }
       .cat-btn { white-space:nowrap; padding:7px 12px; border-left:none; border-bottom:3px solid transparent; }
       .cat-btn.active { border-left:none; border-bottom-color:var(--olive); }
       .content { padding:20px 16px; }
+      .header-right { width:100%; justify-content:space-between; }
       .recipe-grid { grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px; }
+      .view-list .recipe-card { flex-wrap:wrap; }
+      .view-list .recipe-card-name { flex:1 1 100%; }
       .modal-body { flex-direction:column; }
       .form-body { grid-template-columns:1fr; padding:20px; }
       .form-body .full-width { grid-column:1; }
@@ -300,12 +328,21 @@
       <div class="search-wrap">
         <input class="search-input" id="search-input" type="text" placeholder="Search recipes…" />
       </div>
+      <button class="btn-find-duplicates" id="btn-find-duplicates" title="Show recipes that share a name with another recipe">
+        <span class="dup-icon">⧉</span> Find Duplicates <span class="dup-count" id="dup-count"></span>
+      </button>
       <div id="category-list"></div>
     </nav>
     <main class="content">
       <div class="content-header">
         <h2 class="content-title" id="content-title">All Recipes</h2>
-        <span class="result-count" id="result-count"></span>
+        <div class="header-right">
+          <span class="result-count" id="result-count"></span>
+          <div class="view-toggle" id="view-toggle">
+            <button type="button" id="view-cards-btn" class="active" title="Card view">▦</button>
+            <button type="button" id="view-list-btn" title="List view">☰</button>
+          </div>
+        </div>
       </div>
       <div id="recipe-grid" class="recipe-grid">
         <div class="loading-state"><div class="spinner"></div><p>Loading recipes…</p></div>
@@ -691,6 +728,7 @@ let editingId       = null;
 let currentRecipe   = null;
 let currentUser     = null;  // Firestore user profile
 let showArchived    = false;
+let viewMode        = 'cards'; // 'cards' | 'list'
 
 // ── Auth ───────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async user => {
@@ -800,22 +838,56 @@ function renderSidebar() {
     btn.addEventListener('click', () => {
       activeCategory = cat;
       showArchived = false;
-      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      renderSidebar();
       applyFilters();
     });
     list.appendChild(btn);
   });
+  // Find Duplicates button: keep its active state and live count in sync with data
+  const dupBtn = document.getElementById('btn-find-duplicates');
+  dupBtn.classList.toggle('active', activeCategory === 'Duplicates');
+  document.getElementById('dup-count').textContent = getDuplicateStats() || '';
 }
+
+// ── Duplicate name detection ──────────────────────────────────────
+function normalizeRecipeName(name) {
+  return (name || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+function getDuplicateNameCounts(recipes) {
+  const counts = {};
+  recipes.forEach(r => {
+    const key = normalizeRecipeName(r.name);
+    if (!key) return;
+    counts[key] = (counts[key] || 0) + 1;
+  });
+  return counts;
+}
+function getDuplicateStats() {
+  const scoped = allRecipes.filter(r => !r.archived && (r.cookbookId || 'gfg') === activeCookbook);
+  const counts = getDuplicateNameCounts(scoped);
+  return scoped.filter(r => counts[normalizeRecipeName(r.name)] > 1).length;
+}
+
+document.getElementById('btn-find-duplicates').addEventListener('click', () => {
+  activeCategory = activeCategory === 'Duplicates' ? 'All' : 'Duplicates';
+  showArchived = false;
+  renderSidebar();
+  applyFilters();
+});
 
 // ── Filters ────────────────────────────────────────────────────────
 function applyFilters() {
   const q = searchQuery.toLowerCase();
+  const cookbookScoped = allRecipes.filter(r => !r.archived && (r.cookbookId || 'gfg') === activeCookbook);
+  const dupCounts = activeCategory === 'Duplicates' ? getDuplicateNameCounts(cookbookScoped) : null;
   filteredRecipes = allRecipes.filter(r => {
     // Filter by cookbook
     if ((r.cookbookId || 'gfg') !== activeCookbook) return false;
     const hasIng = (r.ingredients || []).some(i => i.type === 'ingredient');
-    if (activeCategory === 'Archived') {
+    if (activeCategory === 'Duplicates') {
+      if (r.archived) return false;
+      if ((dupCounts[normalizeRecipeName(r.name)] || 0) <= 1) return false;
+    } else if (activeCategory === 'Archived') {
       if (!r.archived) return false;
     } else if (activeCategory === 'Needs Ingredients') {
       if (r.archived || hasIng) return false;
@@ -830,13 +902,23 @@ function applyFilters() {
       (r.ingredients || []).some(i => i.name && i.name.toLowerCase().includes(q));
     return inSearch;
   });
-  document.getElementById('content-title').textContent = activeCategory === 'All' ? 'All Recipes' : activeCategory;
+  document.getElementById('content-title').textContent = activeCategory === 'All' ? 'All Recipes' : activeCategory === 'Duplicates' ? 'Possible Duplicates' : activeCategory;
   document.getElementById('result-count').textContent = `${filteredRecipes.length} recipe${filteredRecipes.length !== 1 ? 's' : ''}`;
   renderGrid();
 }
 
+function setViewMode(mode) {
+  viewMode = mode;
+  document.getElementById('view-cards-btn').classList.toggle('active', mode === 'cards');
+  document.getElementById('view-list-btn').classList.toggle('active', mode === 'list');
+  renderGrid();
+}
+document.getElementById('view-cards-btn').addEventListener('click', () => setViewMode('cards'));
+document.getElementById('view-list-btn').addEventListener('click', () => setViewMode('list'));
+
 function renderGrid() {
   const grid = document.getElementById('recipe-grid');
+  grid.classList.toggle('view-list', viewMode === 'list');
   if (!filteredRecipes.length) {
     grid.innerHTML = '<div class="empty-state"><p>No recipes found.</p></div>';
     return;
