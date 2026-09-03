@@ -85,11 +85,20 @@
 
     /* ── Recipe Grid ── */
     .recipe-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px; }
-    .recipe-card { background:var(--white); border:1px solid var(--divider); border-radius:4px; padding:18px 18px 14px; cursor:pointer; transition:all .18s; }
+    .recipe-card { background:var(--white); border:1px solid var(--divider); border-radius:4px; padding:18px 18px 14px; cursor:pointer; transition:all .18s; position:relative; }
     .recipe-card:hover { border-color:var(--olive); box-shadow:0 4px 16px var(--shadow); transform:translateY(-1px); }
     .recipe-card.archived { opacity:.5; border-style:dashed; }
+    .recipe-card.compare-selected { border-color:var(--olive); box-shadow:0 0 0 1.5px var(--olive) inset; }
     .recipe-card-name { font-family:var(--ff-display); font-size:15px; font-weight:600; color:var(--ink); line-height:1.3; margin-bottom:8px; }
     .recipe-card-meta { display:flex; gap:6px; flex-wrap:wrap; }
+
+    /* ── Compare Select ── */
+    .recipe-grid:not(.view-list) .recipe-card { padding-top:34px; }
+    .recipe-grid:not(.view-list) .compare-select-btn { position:absolute; top:10px; right:10px; }
+    .view-list .compare-select-btn { margin-left:auto; }
+    .compare-select-btn { width:22px; height:22px; border-radius:50%; border:1.5px solid var(--divider); background:var(--white); font-size:11px; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--white); flex-shrink:0; padding:0; transition:all .15s; }
+    .compare-select-btn:hover { border-color:var(--olive); }
+    .compare-select-btn.selected { background:var(--olive); border-color:var(--olive); }
 
     /* ── List View ── */
     .recipe-grid.view-list { display:flex; flex-direction:column; gap:8px; }
@@ -109,6 +118,22 @@
     /* ── Modal Base ── */
     .modal-backdrop { display:none; position:fixed; inset:0; background:rgba(28,28,26,.6); z-index:200; overflow-y:auto; padding:24px 16px; }
     .modal-backdrop.open { display:flex; align-items:flex-start; justify-content:center; }
+
+    /* ── Compare Bar ── */
+    .compare-bar { position:fixed; left:0; right:0; bottom:-64px; background:var(--ink); color:var(--cream); display:flex; align-items:center; gap:16px; padding:14px 24px; z-index:150; transition:bottom .2s; box-shadow:0 -4px 16px rgba(0,0,0,.15); }
+    .compare-bar.open { bottom:0; }
+    .compare-bar #compare-bar-text { font-size:13px; flex:1; }
+
+    /* ── Compare Modal ── */
+    .modal.compare-modal-inner { max-width:1100px; }
+    .modal-body.compare-body { display:grid; grid-template-columns:1fr 1fr; gap:0; align-items:start; }
+    .compare-col { border-right:1px solid var(--divider); }
+    .compare-col:last-child { border-right:none; }
+    .compare-col-header { padding:24px 28px 4px; }
+    .compare-recipe-name { font-family:var(--ff-display); font-size:20px; font-weight:700; color:var(--ink); line-height:1.25; }
+    .compare-recipe-meta { font-size:13px; color:var(--warm-mid); margin-top:6px; }
+    .compare-archived-tag { display:inline-block; margin-top:8px; font-size:11px; padding:2px 8px; border-radius:2px; background:rgba(127,140,141,.1); color:var(--archive); border:1px solid rgba(127,140,141,.3); }
+    .compare-col-actions { padding:16px 28px 24px; }
 
     /* ── Detail Modal ── */
     .modal { background:var(--white); border-radius:4px; width:100%; max-width:820px; position:relative; margin:auto; }
@@ -286,6 +311,11 @@
       .recipe-grid { grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px; }
       .view-list .recipe-card { flex-wrap:wrap; }
       .view-list .recipe-card-name { flex:1 1 100%; }
+      .compare-bar { flex-wrap:wrap; padding:12px 16px; gap:10px; }
+      .compare-bar #compare-bar-text { flex:1 1 100%; font-size:12px; }
+      .modal-body.compare-body { grid-template-columns:1fr; }
+      .compare-col { border-right:none; border-bottom:1px solid var(--divider); }
+      .compare-col:last-child { border-bottom:none; }
       .modal-body { flex-direction:column; }
       .form-body { grid-template-columns:1fr; padding:20px; }
       .form-body .full-width { grid-column:1; }
@@ -348,6 +378,22 @@
         <div class="loading-state"><div class="spinner"></div><p>Loading recipes…</p></div>
       </div>
     </main>
+  </div>
+  <div class="compare-bar" id="compare-bar">
+    <span id="compare-bar-text"></span>
+    <button type="button" class="btn-topbar" id="compare-bar-clear">Clear</button>
+    <button type="button" class="btn-new" id="compare-bar-go" disabled>Compare Selected</button>
+  </div>
+</div>
+
+<!-- Compare Modal -->
+<div class="modal-backdrop" id="compare-modal">
+  <div class="modal compare-modal-inner" id="compare-modal-inner">
+    <button class="close-btn" id="compare-close">×</button>
+    <div class="modal-header">
+      <h2 class="modal-title">Compare Recipes</h2>
+    </div>
+    <div class="modal-body compare-body" id="compare-body"></div>
   </div>
 </div>
 
@@ -927,6 +973,7 @@ function renderGrid() {
   filteredRecipes.forEach(r => {
     const card = document.createElement('div');
     card.className = 'recipe-card';
+    card.dataset.id = r.id;
     const hasIng = (r.ingredients || []).some(i => i.type === 'ingredient');
     const cat = (r.categories || ['Uncategorized'])[0];
     const dots = hasIng ? (() => {
@@ -945,8 +992,202 @@ function renderGrid() {
       + (!hasIng ? '<span class="tag tag-review">⚠ Needs ingredients</span>' : '')
       + '</div>' + dots;
     card.addEventListener('click', () => openDetail(r));
+    const isSelected = compareSelection.includes(r.id);
+    card.classList.toggle('compare-selected', isSelected);
+    const compareBtn = document.createElement('button');
+    compareBtn.type = 'button';
+    compareBtn.className = 'compare-select-btn' + (isSelected ? ' selected' : '');
+    compareBtn.title = 'Select to compare';
+    compareBtn.textContent = isSelected ? '✓' : '';
+    compareBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      toggleCompareSelect(r);
+    });
+    card.appendChild(compareBtn);
     grid.appendChild(card);
   });
+}
+
+// ── Compare Recipes ────────────────────────────────────────────────
+let compareSelection = []; // up to 2 recipe ids
+
+function toggleCompareSelect(recipe) {
+  const idx = compareSelection.indexOf(recipe.id);
+  let bumpedId = null;
+  if (idx > -1) {
+    compareSelection.splice(idx, 1);
+  } else {
+    compareSelection.push(recipe.id);
+    if (compareSelection.length > 2) bumpedId = compareSelection.shift();
+  }
+  updateCardSelectionUI(recipe.id);
+  if (bumpedId) updateCardSelectionUI(bumpedId);
+  renderCompareBar();
+}
+
+function updateCardSelectionUI(id) {
+  const card = document.querySelector('.recipe-card[data-id="' + CSS.escape(id) + '"]');
+  if (!card) return;
+  const selected = compareSelection.includes(id);
+  card.classList.toggle('compare-selected', selected);
+  const selBtn = card.querySelector('.compare-select-btn');
+  if (selBtn) {
+    selBtn.classList.toggle('selected', selected);
+    selBtn.textContent = selected ? '✓' : '';
+  }
+}
+
+function renderCompareBar() {
+  const bar = document.getElementById('compare-bar');
+  const textEl = document.getElementById('compare-bar-text');
+  const goBtn = document.getElementById('compare-bar-go');
+  if (!compareSelection.length) { bar.classList.remove('open'); return; }
+  bar.classList.add('open');
+  const names = compareSelection.map(id => {
+    const r = allRecipes.find(x => x.id === id);
+    return r ? r.name : '';
+  });
+  textEl.textContent = names.length === 1
+    ? `Selected: ${names[0]} — pick one more to compare`
+    : `Comparing: ${names[0]}  vs  ${names[1]}`;
+  goBtn.disabled = compareSelection.length !== 2;
+}
+
+document.getElementById('compare-bar-clear').addEventListener('click', () => {
+  const ids = compareSelection.slice();
+  compareSelection = [];
+  ids.forEach(updateCardSelectionUI);
+  renderCompareBar();
+});
+
+document.getElementById('compare-bar-go').addEventListener('click', () => {
+  if (compareSelection.length === 2) openCompare();
+});
+
+function buildCompareColumn(recipe) {
+  const isAdmin = currentUser?.role === 'admin';
+  const col = document.createElement('div');
+  col.className = 'compare-col';
+
+  const header = document.createElement('div');
+  header.className = 'compare-col-header';
+  const nameEl = document.createElement('h3');
+  nameEl.className = 'compare-recipe-name';
+  nameEl.textContent = recipe.name;
+  header.appendChild(nameEl);
+  const metaParts = [(recipe.categories || ['Uncategorized']).join(', ')];
+  if (recipe.servings) metaParts.push(`Serves ${recipe.servings}`);
+  if (recipe.author)   metaParts.push(`By ${recipe.author}`);
+  const metaEl = document.createElement('div');
+  metaEl.className = 'compare-recipe-meta';
+  metaEl.textContent = metaParts.join(' · ');
+  header.appendChild(metaEl);
+  if (recipe.archived) {
+    const tag = document.createElement('span');
+    tag.className = 'compare-archived-tag';
+    tag.textContent = 'Archived';
+    header.appendChild(tag);
+  }
+  col.appendChild(header);
+
+  const ingPanel = document.createElement('div');
+  ingPanel.className = 'ingredients-panel';
+  const ingLabel = document.createElement('div');
+  ingLabel.className = 'panel-label';
+  ingLabel.textContent = 'Ingredients';
+  ingPanel.appendChild(ingLabel);
+  const ings = (recipe.ingredients || []).filter(i => i.type === 'ingredient');
+  if (!ings.length) {
+    const none = document.createElement('div');
+    none.className = 'no-ingredients';
+    none.textContent = 'No ingredients on file yet.';
+    ingPanel.appendChild(none);
+  } else {
+    let html = '<div class="ing-grid">';
+    (recipe.ingredients || []).forEach(i => {
+      if (i.type === 'section') {
+        html += `<div class="ingredient-section-name" style="grid-column:1/-1">${esc(i.name)}</div>`;
+      } else {
+        html += `<div class="ingredient-row">
+          <span class="ing-qty">${esc(i.qty||'')}</span>
+          <span class="ing-unit">${esc(i.unit||'')}</span>
+          <span class="ing-name-cell">${esc(i.name)}${i.preparation ? `<span class="ing-prep">, ${esc(i.preparation)}</span>` : ''}</span>
+        </div>`;
+      }
+    });
+    html += '</div>';
+    ingPanel.insertAdjacentHTML('beforeend', html);
+  }
+  col.appendChild(ingPanel);
+
+  const dirPanel = document.createElement('div');
+  dirPanel.className = 'directions-panel';
+  const dirLabel = document.createElement('div');
+  dirLabel.className = 'panel-label';
+  dirLabel.textContent = 'Directions';
+  dirPanel.appendChild(dirLabel);
+  const dirText = document.createElement('div');
+  dirText.className = 'directions-text';
+  dirText.textContent = recipe.directions || 'No directions on file.';
+  dirPanel.appendChild(dirText);
+  if (recipe.note) {
+    const noteBox = document.createElement('div');
+    noteBox.className = 'note-box';
+    noteBox.innerHTML = `<div class="note-label">Recipe Notes</div><div class="note-text">${esc(recipe.note)}</div>`;
+    dirPanel.appendChild(noteBox);
+  }
+  col.appendChild(dirPanel);
+
+  const actions = document.createElement('div');
+  actions.className = 'compare-col-actions modal-actions';
+  actions.appendChild(btn('View Full Detail', () => { closeCompare(); openDetail(recipe); }));
+  if (isAdmin) {
+    const editBtn = document.createElement('button');
+    editBtn.className = 'btn-icon';
+    editBtn.textContent = '✏ Edit';
+    editBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      closeCompare();
+      openForm(recipe);
+    });
+    actions.appendChild(editBtn);
+    if (!recipe.archived) {
+      const archBtn = btn('Archive', () => compareArchive(recipe));
+      archBtn.classList.add('archive-btn');
+      actions.appendChild(archBtn);
+    }
+  }
+  col.appendChild(actions);
+
+  return col;
+}
+
+function openCompare() {
+  if (compareSelection.length !== 2) return;
+  const recipes = compareSelection.map(id => allRecipes.find(r => r.id === id)).filter(Boolean);
+  if (recipes.length !== 2) return;
+  const body = document.getElementById('compare-body');
+  body.innerHTML = '';
+  recipes.forEach(r => body.appendChild(buildCompareColumn(r)));
+  document.getElementById('compare-modal').classList.add('open');
+}
+
+function closeCompare() {
+  document.getElementById('compare-modal').classList.remove('open');
+}
+
+document.getElementById('compare-close').addEventListener('click', closeCompare);
+document.getElementById('compare-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('compare-modal')) closeCompare();
+});
+
+async function compareArchive(recipe) {
+  const archived = await archiveRecipe(recipe);
+  if (archived) {
+    compareSelection = compareSelection.filter(id => id !== recipe.id);
+    closeCompare();
+  }
 }
 
 document.getElementById('search-input').addEventListener('input', e => {
@@ -1158,10 +1399,11 @@ document.addEventListener('click', async function(e) { if (!e.target || !e.targe
 // ── Pending Badge ──────────────────────────────────────────────────
 
 async function archiveRecipe(recipe) {
-  if (!confirm(`Archive "${recipe.name}"? It will be hidden but recoverable from the Admin panel.`)) return;
+  if (!confirm(`Archive "${recipe.name}"? It will be hidden but recoverable from the Admin panel.`)) return false;
   await updateDoc(doc(db, 'recipes', recipe.id), { archived: true, archivedAt: new Date().toISOString() });
   closeDetail();
   await loadRecipes();
+  return true;
 }
 
 // ── Recipe Form ────────────────────────────────────────────────────
@@ -2144,6 +2386,8 @@ function switchCookbook(cookbookId) {
   activeAllergenFilter = null;
   searchQuery = '';
   document.getElementById('search-input').value = '';
+  compareSelection = [];
+  renderCompareBar();
   const isAdmin = currentUser && currentUser.role === 'admin';
   document.getElementById('btn-add-recipe').style.display = isAdmin && cookbookId === 'gfg' ? 'inline-block' : 'none';
   renderCookbookTabs();
