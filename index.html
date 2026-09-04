@@ -5,23 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GFG Cookbook</title>
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --cream:    #F7F3EE;
-      --parchment:#EDE6DB;
-      --ink:      #1C1C1A;
-      --olive:    #4A5240;
-      --sage:     #8A9B7A;
-      --rust:     #B85C38;
-      --warm-mid: #6B5B45;
-      --divider:  #D4C9BB;
+      --cream:    #FFFFFF;
+      --parchment:#F1F2F2;
+      --ink:      #2B3C5E;
+      --olive:    #2B3C5E;
+      --sage:     #8D97AC;
+      --rust:     #414142;
+      --warm-mid: #5C6B85;
+      --divider:  #D8DCE3;
       --white:    #FFFFFF;
-      --shadow:   rgba(28,28,26,0.08);
-      --ff-display: 'Playfair Display', Georgia, serif;
-      --ff-body:    'Inter', system-ui, sans-serif;
+      --shadow:   rgba(43,60,94,0.08);
+      --ff-display: 'Lora', Georgia, serif;
+      --ff-body:    'Montserrat', system-ui, sans-serif;
       --danger:   #c0392b;
-      --archive:  #7f8c8d;
+      --archive:  #8891A0;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: var(--ff-body); background: var(--cream); color: var(--ink); min-height: 100vh; }
@@ -35,30 +35,30 @@
     .auth-card input:focus { border-color:var(--olive); }
     .btn-primary { width:100%; padding:13px; background:var(--olive); color:var(--white); border:none; border-radius:3px; font-family:var(--ff-body); font-size:15px; font-weight:600; cursor:pointer; transition:background .2s; margin-top:4px; }
     .btn-primary:hover { background:var(--ink); }
-    .auth-error { color:var(--rust); font-size:13px; margin-top:12px; min-height:20px; }
+    .auth-error { color:var(--danger); font-size:13px; margin-top:12px; min-height:20px; }
 
     /* ── App Shell ── */
     #app { display:none; }
     .top-bar { background:var(--ink); padding:0 24px; display:flex; align-items:center; justify-content:space-between; height:56px; position:sticky; top:0; z-index:100; }
     .top-bar-brand { font-family:var(--ff-display); color:var(--cream); font-size:18px; font-weight:700; }
-    .top-bar-brand span { color:var(--rust); }
+    .top-bar-brand span { color:rgba(255,255,255,.55); }
     .top-bar-actions { display:flex; align-items:center; gap:12px; }
-    .top-bar-user { font-size:13px; color:rgba(247,243,238,.6); }
+    .top-bar-user { font-size:13px; color:rgba(255,255,255,.6); }
     .btn-new { background:var(--rust); color:var(--white); border:none; border-radius:3px; padding:7px 16px; font-family:var(--ff-body); font-size:13px; font-weight:600; cursor:pointer; transition:background .2s; }
-    .btn-new:hover { background:#9a4a2d; }
-    .btn-topbar { background:none; border:1px solid rgba(247,243,238,.3); color:rgba(247,243,238,.7); border-radius:3px; padding:6px 12px; font-size:12px; cursor:pointer; font-family:var(--ff-body); transition:all .2s; }
+    .btn-new:hover { background:#262626; }
+    .btn-topbar { background:none; border:1px solid rgba(255,255,255,.3); color:rgba(255,255,255,.7); border-radius:3px; padding:6px 12px; font-size:12px; cursor:pointer; font-family:var(--ff-body); transition:all .2s; }
     .btn-topbar:hover { border-color:var(--cream); color:var(--cream); }
 
     /* ── Layout ── */
     .main-layout { display:grid; grid-template-columns:260px 1fr; min-height:calc(100vh - 96px); }
     .sidebar { background:var(--parchment); border-right:1px solid var(--divider); padding:20px 0; position:sticky; top:96px; height:calc(100vh - 96px); overflow-y:auto; }
     .search-wrap { padding:0 16px 16px; }
-    .search-input { width:100%; padding:9px 12px 9px 34px; border:1.5px solid var(--divider); border-radius:3px; font-family:var(--ff-body); font-size:14px; background:var(--white); color:var(--ink); outline:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B5B45' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:10px center; transition:border-color .2s; }
+    .search-input { width:100%; padding:9px 12px 9px 34px; border:1.5px solid var(--divider); border-radius:3px; font-family:var(--ff-body); font-size:14px; background:var(--white); color:var(--ink); outline:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235C6B85' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:10px center; transition:border-color .2s; }
     .search-input:focus { border-color:var(--olive); }
     .category-label { padding:6px 16px 4px; font-size:10px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--warm-mid); }
     .cat-btn { display:block; width:100%; text-align:left; padding:8px 16px; background:none; border:none; font-family:var(--ff-body); font-size:14px; color:var(--warm-mid); cursor:pointer; transition:all .15s; border-left:3px solid transparent; }
-    .cat-btn:hover { background:rgba(74,82,64,.08); color:var(--ink); }
-    .cat-btn.active { background:rgba(74,82,64,.12); color:var(--olive); border-left-color:var(--olive); font-weight:500; }
+    .cat-btn:hover { background:rgba(43,60,94,.08); color:var(--ink); }
+    .cat-btn.active { background:rgba(43,60,94,.12); color:var(--olive); border-left-color:var(--olive); font-weight:500; }
     .cat-btn.cat-archived { color:var(--archive); font-style:italic; }
     .cat-btn.cat-archived.active { color:var(--archive); border-left-color:var(--archive); }
     .content { padding:28px 32px; }
@@ -71,15 +71,15 @@
     .view-toggle { display:flex; border:1.5px solid var(--divider); border-radius:3px; overflow:hidden; }
     .view-toggle button { background:var(--white); border:none; padding:6px 11px; font-size:14px; line-height:1; cursor:pointer; color:var(--warm-mid); transition:all .15s; }
     .view-toggle button + button { border-left:1px solid var(--divider); }
-    .view-toggle button:hover { background:rgba(74,82,64,.08); }
+    .view-toggle button:hover { background:rgba(43,60,94,.08); }
     .view-toggle button.active { background:var(--olive); color:var(--white); }
 
     /* ── Find Duplicates ── */
     .btn-find-duplicates { display:flex; align-items:center; gap:8px; width:calc(100% - 32px); margin:0 16px 16px; padding:9px 12px; background:var(--white); border:1.5px solid var(--rust); border-radius:3px; font-family:var(--ff-body); font-size:13px; font-weight:600; color:var(--rust); cursor:pointer; transition:all .15s; }
-    .btn-find-duplicates:hover { background:rgba(184,92,56,.08); }
+    .btn-find-duplicates:hover { background:rgba(65,65,66,.08); }
     .btn-find-duplicates.active { background:var(--rust); color:var(--white); }
     .btn-find-duplicates .dup-icon { font-size:14px; line-height:1; }
-    .btn-find-duplicates .dup-count { margin-left:auto; font-size:11px; font-weight:700; background:rgba(184,92,56,.15); color:var(--rust); padding:1px 7px; border-radius:10px; min-width:18px; text-align:center; }
+    .btn-find-duplicates .dup-count { margin-left:auto; font-size:11px; font-weight:700; background:rgba(65,65,66,.15); color:var(--rust); padding:1px 7px; border-radius:10px; min-width:18px; text-align:center; }
     .btn-find-duplicates.active .dup-count { background:rgba(255,255,255,.28); color:var(--white); }
     .btn-find-duplicates .dup-count:empty { display:none; }
 
@@ -107,16 +107,16 @@
     .view-list .recipe-card-meta { flex:1; }
     .view-list .allergen-dots { margin-left:auto; }
     .tag { font-size:11px; padding:2px 8px; border-radius:2px; font-weight:500; }
-    .tag-cat { background:rgba(74,82,64,.1); color:var(--olive); }
-    .tag-servings { background:rgba(184,92,56,.1); color:var(--rust); }
-    .tag-review { background:rgba(184,92,56,.08); color:var(--rust); border:1px solid rgba(184,92,56,.2); }
-    .tag-archived { background:rgba(127,140,141,.1); color:var(--archive); border:1px solid rgba(127,140,141,.3); }
+    .tag-cat { background:rgba(43,60,94,.1); color:var(--olive); }
+    .tag-servings { background:rgba(65,65,66,.1); color:var(--rust); }
+    .tag-review { background:rgba(65,65,66,.08); color:var(--rust); border:1px solid rgba(65,65,66,.2); }
+    .tag-archived { background:rgba(136,145,160,.1); color:var(--archive); border:1px solid rgba(136,145,160,.3); }
     .loading-state,.empty-state { text-align:center; padding:64px 24px; color:var(--warm-mid); }
     .spinner { width:32px; height:32px; border:3px solid var(--divider); border-top-color:var(--olive); border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 12px; }
     @keyframes spin { to { transform:rotate(360deg); } }
 
     /* ── Modal Base ── */
-    .modal-backdrop { display:none; position:fixed; inset:0; background:rgba(28,28,26,.6); z-index:200; overflow-y:auto; padding:24px 16px; }
+    .modal-backdrop { display:none; position:fixed; inset:0; background:rgba(43,60,94,.6); z-index:200; overflow-y:auto; padding:24px 16px; }
     .modal-backdrop.open { display:flex; align-items:flex-start; justify-content:center; }
 
     /* ── Compare Bar ── */
@@ -132,7 +132,7 @@
     .compare-col-header { padding:24px 28px 4px; }
     .compare-recipe-name { font-family:var(--ff-display); font-size:20px; font-weight:700; color:var(--ink); line-height:1.25; }
     .compare-recipe-meta { font-size:13px; color:var(--warm-mid); margin-top:6px; }
-    .compare-archived-tag { display:inline-block; margin-top:8px; font-size:11px; padding:2px 8px; border-radius:2px; background:rgba(127,140,141,.1); color:var(--archive); border:1px solid rgba(127,140,141,.3); }
+    .compare-archived-tag { display:inline-block; margin-top:8px; font-size:11px; padding:2px 8px; border-radius:2px; background:rgba(136,145,160,.1); color:var(--archive); border:1px solid rgba(136,145,160,.3); }
     .compare-col-actions { padding:16px 28px 24px; }
 
     /* ── Detail Modal ── */
@@ -143,7 +143,7 @@
     .modal-actions { display:flex; gap:8px; flex-shrink:0; flex-wrap:wrap; }
     .btn-icon { background:none; border:1.5px solid var(--divider); border-radius:3px; padding:7px 12px; font-size:13px; cursor:pointer; font-family:var(--ff-body); color:var(--warm-mid); transition:all .15s; white-space:nowrap; }
     .btn-icon:hover { border-color:var(--olive); color:var(--olive); }
-    .btn-icon.danger:hover { border-color:var(--rust); color:var(--rust); }
+    .btn-icon.danger:hover { border-color:var(--danger); color:var(--danger); }
     .btn-icon.archive-btn:hover { border-color:var(--archive); color:var(--archive); }
     .modal-body { display:flex; flex-direction:column; }
     .ingredients-panel { padding:20px 28px; background:var(--cream); border-bottom:1px solid var(--divider); }
@@ -159,7 +159,7 @@
     .no-ingredients { font-size:13px; color:var(--warm-mid); font-style:italic; line-height:1.6; }
     .directions-panel { padding:20px 28px; border-bottom:1px solid var(--divider); }
     .directions-text { font-size:15px; line-height:1.75; color:var(--ink); white-space:pre-wrap; text-align:left; }
-    .note-box { margin-top:20px; padding:14px 16px; background:rgba(74,82,64,.07); border-left:3px solid var(--sage); border-radius:0 3px 3px 0; }
+    .note-box { margin-top:20px; padding:14px 16px; background:rgba(43,60,94,.07); border-left:3px solid var(--sage); border-radius:0 3px 3px 0; }
     .note-label { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--olive); margin-bottom:6px; }
     .note-text { font-size:14px; line-height:1.6; color:var(--warm-mid); }
     .close-btn { position:absolute; top:16px; right:16px; background:none; border:none; font-size:22px; cursor:pointer; color:var(--warm-mid); line-height:1; padding:4px; transition:color .15s; z-index:10; }
@@ -196,9 +196,9 @@
     .ing-editor-row input { padding:8px 10px; border:1.5px solid var(--divider); border-radius:3px; font-size:13px; font-family:var(--ff-body); color:var(--ink); background:var(--cream); width:100%; outline:none; }
     .ing-editor-row input:focus { border-color:var(--olive); }
     .btn-remove-ing { background:none; border:1.5px solid var(--divider); border-radius:3px; color:var(--rust); cursor:pointer; font-size:16px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; transition:all .15s; }
-    .btn-remove-ing:hover { background:rgba(184,92,56,.1); border-color:var(--rust); }
+    .btn-remove-ing:hover { background:rgba(65,65,66,.1); border-color:var(--rust); }
     .btn-add-ing { background:none; border:1.5px dashed var(--divider); border-radius:3px; color:var(--olive); cursor:pointer; font-size:13px; font-family:var(--ff-body); padding:8px 14px; margin-top:4px; transition:all .15s; }
-    .btn-add-ing:hover { border-color:var(--olive); background:rgba(74,82,64,.05); }
+    .btn-add-ing:hover { border-color:var(--olive); background:rgba(43,60,94,.05); }
     .form-footer { padding:16px 32px 24px; display:flex; justify-content:flex-end; gap:10px; border-top:1px solid var(--divider); }
     .btn-cancel { padding:10px 20px; background:none; border:1.5px solid var(--divider); border-radius:3px; font-family:var(--ff-body); font-size:14px; cursor:pointer; color:var(--warm-mid); transition:all .15s; }
     .btn-cancel:hover { border-color:var(--ink); color:var(--ink); }
@@ -207,12 +207,12 @@
 
     /* ── Cookbook Tabs ── */
     .cookbook-tabs { background:var(--ink); border-top:1px solid rgba(255,255,255,.08); display:flex; gap:0; overflow-x:auto; padding:0 24px; }
-    .cookbook-tab { padding:10px 18px; font-size:13px; font-weight:500; color:rgba(247,243,238,.5); cursor:pointer; border-bottom:3px solid transparent; white-space:nowrap; transition:all .15s; background:none; border-top:none; border-left:none; border-right:none; font-family:var(--ff-body); border-radius:0; }
-    .cookbook-tab:hover { color:rgba(247,243,238,.85); }
-    .cookbook-tab.active { color:var(--cream); border-bottom-color:var(--rust); }
-    .cookbook-tab.admin-only { color:rgba(184,92,56,.6); }
-    .cookbook-tab.admin-only:hover { color:var(--rust); }
-    .cookbook-tab.admin-only.active { color:var(--rust); border-bottom-color:var(--rust); }
+    .cookbook-tab { padding:10px 18px; font-size:13px; font-weight:500; color:rgba(255,255,255,.5); cursor:pointer; border-bottom:3px solid transparent; white-space:nowrap; transition:all .15s; background:none; border-top:none; border-left:none; border-right:none; font-family:var(--ff-body); border-radius:0; }
+    .cookbook-tab:hover { color:rgba(255,255,255,.85); }
+    .cookbook-tab.active { color:var(--cream); border-bottom-color:var(--cream); }
+    .cookbook-tab.admin-only { color:rgba(183,192,214,.55); }
+    .cookbook-tab.admin-only:hover { color:rgba(183,192,214,.9); }
+    .cookbook-tab.admin-only.active { color:#B7C0D6; border-bottom-color:#B7C0D6; }
 
     /* ── Allergens ── */
     .allergen-bar { padding:14px 24px; background:#fff8f5; border-bottom:1px solid var(--divider); display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
@@ -220,7 +220,7 @@
     .allergen-tag { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:3px; font-size:12px; font-weight:600; }
     .allergen-tag.detected { background:#fde8e0; color:#b85c38; border:1px solid #f4c0a8; }
     .allergen-tag.manual { background:#fde8e0; color:#b85c38; border:1px solid #f4c0a8; border-style:dashed; }
-    .allergen-tag.clear { background:rgba(74,82,64,.08); color:var(--olive); border:1px solid rgba(74,82,64,.2); }
+    .allergen-tag.clear { background:rgba(43,60,94,.08); color:var(--olive); border:1px solid rgba(43,60,94,.2); }
     .allergen-edit-btn { margin-left:auto; font-size:12px; color:var(--warm-mid); background:none; border:1.5px solid var(--divider); border-radius:3px; padding:4px 10px; cursor:pointer; font-family:var(--ff-body); transition:all .15s; white-space:nowrap; }
     .allergen-edit-btn:hover { border-color:var(--olive); color:var(--olive); }
     .allergen-edit-panel { padding:16px 24px; background:#fff8f5; border-bottom:1px solid var(--divider); display:none; }
@@ -228,13 +228,13 @@
     .allergen-edit-title { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--warm-mid); margin-bottom:12px; }
     .allergen-checkboxes { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:12px; }
     .allergen-check-item { display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer; }
-    .allergen-check-item input { width:15px; height:15px; cursor:pointer; accent-color:var(--rust); }
+    .allergen-check-item input { width:15px; height:15px; cursor:pointer; accent-color:#b85c38; }
     .btn-save-allergens { padding:8px 18px; background:var(--olive); color:white; border:none; border-radius:3px; font-family:var(--ff-body); font-size:13px; font-weight:600; cursor:pointer; }
     .allergen-dots { display:flex; gap:3px; margin-top:6px; flex-wrap:wrap; }
-    .allergen-dot { width:8px; height:8px; border-radius:50%; background:var(--rust); }
-    .source-tag { font-size:11px; padding:2px 8px; border-radius:2px; background:rgba(107,91,69,.1); color:var(--warm-mid); font-weight:500; }
+    .allergen-dot { width:8px; height:8px; border-radius:50%; background:#b85c38; }
+    .source-tag { font-size:11px; padding:2px 8px; border-radius:2px; background:rgba(92,107,133,.1); color:var(--warm-mid); font-weight:500; }
     .btn-graduate { background:var(--rust); color:white; border:none; border-radius:3px; padding:7px 14px; font-family:var(--ff-body); font-size:13px; font-weight:600; cursor:pointer; transition:background .2s; }
-    .btn-graduate:hover { background:#9a4a2d; }
+    .btn-graduate:hover { background:#262626; }
     .cat-archived { color:var(--archive) !important; font-style:italic; }
 
     /* ── Admin Panel ── */
@@ -250,12 +250,12 @@
     .user-table td { padding:12px; border-bottom:1px solid var(--divider); font-size:14px; vertical-align:middle; }
     .user-table tr:last-child td { border-bottom:none; }
     .role-badge { font-size:11px; padding:3px 8px; border-radius:2px; font-weight:600; }
-    .role-admin { background:rgba(74,82,64,.12); color:var(--olive); }
-    .role-user { background:rgba(107,91,69,.1); color:var(--warm-mid); }
+    .role-admin { background:rgba(43,60,94,.12); color:var(--olive); }
+    .role-user { background:rgba(92,107,133,.1); color:var(--warm-mid); }
     .user-actions { display:flex; gap:6px; }
     .btn-sm { padding:5px 10px; font-size:12px; border-radius:2px; cursor:pointer; font-family:var(--ff-body); border:1.5px solid var(--divider); background:none; color:var(--warm-mid); transition:all .15s; }
     .btn-sm:hover { border-color:var(--olive); color:var(--olive); }
-    .btn-sm.danger:hover { border-color:var(--rust); color:var(--rust); }
+    .btn-sm.danger:hover { border-color:var(--danger); color:var(--danger); }
     .add-user-form { background:var(--cream); border-radius:3px; padding:20px; margin-top:20px; border:1px solid var(--divider); }
     .add-user-form h4 { font-size:13px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--warm-mid); margin-bottom:14px; }
     .add-user-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr auto; gap:10px; align-items:end; }
@@ -268,7 +268,7 @@
     .cat-cleanup-item { display:flex; align-items:center; gap:10px; padding:9px 4px; border-bottom:1px solid var(--divider); font-size:14px; cursor:pointer; }
     .cat-cleanup-item input[type="checkbox"] { width:16px; height:16px; cursor:pointer; flex-shrink:0; }
     .cat-cleanup-name { flex:1; }
-    .cat-cleanup-count { font-size:12px; color:var(--warm-mid); background:rgba(74,82,64,.08); padding:2px 9px; border-radius:10px; }
+    .cat-cleanup-count { font-size:12px; color:var(--warm-mid); background:rgba(43,60,94,.08); padding:2px 9px; border-radius:10px; }
     .pending-note-item { background:var(--cream); border:1px solid var(--divider); border-radius:3px; padding:16px; margin-bottom:12px; }
     .pending-note-recipe { font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--rust); margin-bottom:4px; }
     .pending-note-meta { font-size:12px; color:var(--warm-mid); margin-bottom:8px; }
@@ -277,7 +277,7 @@
     .btn-accept { padding:7px 16px; background:var(--olive); color:white; border:none; border-radius:3px; font-family:var(--ff-body); font-size:13px; font-weight:600; cursor:pointer; transition:background .2s; }
     .btn-accept:hover { background:var(--ink); }
     .btn-reject { padding:7px 16px; background:none; border:1.5px solid var(--divider); border-radius:3px; font-family:var(--ff-body); font-size:13px; color:var(--rust); cursor:pointer; transition:all .15s; }
-    .btn-reject:hover { border-color:var(--rust); background:rgba(184,92,56,.05); }
+    .btn-reject:hover { border-color:var(--rust); background:rgba(65,65,66,.05); }
     .admin-badge { display:inline-block; background:var(--rust); color:white; font-size:11px; padding:1px 6px; border-radius:10px; margin-left:4px; }
     .backup-section p { color:var(--warm-mid); font-size:14px; line-height:1.7; margin-bottom:20px; max-width:400px; margin-left:auto; margin-right:auto; }
     .btn-backup { padding:13px 32px; background:var(--olive); color:var(--white); border:none; border-radius:3px; font-family:var(--ff-body); font-size:15px; font-weight:600; cursor:pointer; transition:background .2s; }
@@ -615,7 +615,7 @@
             <button class="btn-save" id="btn-create-user" style="width:100%">Add User</button>
           </div>
         </div>
-        <div style="font-size:13px;color:var(--rust);margin-top:10px;min-height:18px" id="user-form-error"></div>
+        <div style="font-size:13px;color:var(--danger);margin-top:10px;min-height:18px" id="user-form-error"></div>
       </div>
     </div>
     <!-- Review Tab -->
@@ -1391,7 +1391,7 @@ async function loadNotes(recipeId) {
       notesList.appendChild(item);
     });
   } catch (e) {
-    notesList.innerHTML = `<p style="font-size:13px;color:var(--rust)">${e.message}</p>`;
+    notesList.innerHTML = `<p style="font-size:13px;color:var(--danger)">${e.message}</p>`;
   }
 }
 
@@ -1871,17 +1871,17 @@ function printRecipe() {
     + '<link rel="preconnect" href="https://fonts.googleapis.com">'
     + '<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">'
     + '<style>'
-    + 'body{font-family:Montserrat,sans-serif;margin:36px 48px;color:#1C1C1A;max-width:700px;}'
+    + 'body{font-family:Montserrat,sans-serif;margin:36px 48px;color:#2B3C5E;max-width:700px;}'
     + 'h1{font-size:26px;font-weight:900;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;}'
-    + '.meta{font-size:13px;color:#4A5240;margin-bottom:20px;font-weight:600;letter-spacing:.03em;}'
-    + '.label{font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#B85C38;margin-bottom:10px;border-bottom:2px solid #B85C38;padding-bottom:4px;}'
+    + '.meta{font-size:13px;color:#2B3C5E;margin-bottom:20px;font-weight:600;letter-spacing:.03em;}'
+    + '.label{font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#414142;margin-bottom:10px;border-bottom:2px solid #414142;padding-bottom:4px;}'
     + '.ing-grid{display:grid;grid-template-columns:60px 110px 1fr;gap:4px 12px;margin-bottom:24px;}'
-    + '.qty{font-size:15px;font-weight:900;color:#1C1C1A;padding:4px 0;border-bottom:1px solid #D4C9BB;}'
-    + '.ing-unit{font-size:15px;font-weight:600;color:#6B5B45;padding:4px 0;border-bottom:1px solid #D4C9BB;}'
-    + '.ing-name{font-size:15px;font-weight:700;color:#1C1C1A;padding:4px 0;border-bottom:1px solid #D4C9BB;}'
-    + '.section-name{font-size:11px;font-weight:900;text-transform:uppercase;color:#B85C38;margin:12px 0 4px;grid-column:1/-1;letter-spacing:.1em;}'
+    + '.qty{font-size:15px;font-weight:900;color:#2B3C5E;padding:4px 0;border-bottom:1px solid #D8DCE3;}'
+    + '.ing-unit{font-size:15px;font-weight:600;color:#5C6B85;padding:4px 0;border-bottom:1px solid #D8DCE3;}'
+    + '.ing-name{font-size:15px;font-weight:700;color:#2B3C5E;padding:4px 0;border-bottom:1px solid #D8DCE3;}'
+    + '.section-name{font-size:11px;font-weight:900;text-transform:uppercase;color:#414142;margin:12px 0 4px;grid-column:1/-1;letter-spacing:.1em;}'
     + '.dirs{font-size:14px;line-height:1.8;white-space:pre-wrap;font-weight:500;}'
-    + '.note{margin-top:20px;padding:14px;background:#f5f5f0;border-left:4px solid #8A9B7A;font-size:13px;font-weight:500;}'
+    + '.note{margin-top:20px;padding:14px;background:#f5f5f0;border-left:4px solid #8D97AC;font-size:13px;font-weight:500;}'
     + '@media print{body{margin:20px 28px;}}'
     + '</style></head><body onload="window.print()">'
     + '<h1>' + recipe.name + '</h1>'
@@ -1897,8 +1897,8 @@ function printRecipe() {
   let nutrHtml = '';
   const nutrContent = document.getElementById('nutrition-content');
   if (nutrContent && nutrContent.style.display === 'block' && nutrContent.innerHTML.trim()) {
-    nutrHtml = '<div style="margin-top:24px;border-top:1px solid #D4C9BB;padding-top:16px;">'
-      + '<div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#6B5B45;margin-bottom:12px;">Nutrition Facts</div>'
+    nutrHtml = '<div style="margin-top:24px;border-top:1px solid #D8DCE3;padding-top:16px;">'
+      + '<div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#5C6B85;margin-bottom:12px;">Nutrition Facts</div>'
       + nutrContent.innerHTML
       + '</div>';
   }
@@ -1968,7 +1968,7 @@ async function loadMenuPlans() {
       item.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--cream);border:1px solid var(--divider);border-radius:3px;margin-bottom:8px;cursor:pointer;transition:border-color .15s;';
       item.addEventListener('mouseover', () => item.style.borderColor = 'var(--olive)');
       item.addEventListener('mouseout',  () => item.style.borderColor = 'var(--divider)');
-      const statusColor = p.status === 'published' ? '#4A5240' : '#B85C38';
+      const statusColor = p.status === 'published' ? '#2B3C5E' : '#414142';
       const start = new Date(p.startDate).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
       const end   = new Date(p.endDate).toLocaleDateString('en-US',   { month:'short', day:'numeric', year:'numeric' });
       item.innerHTML = '<div>'
@@ -1976,13 +1976,13 @@ async function loadMenuPlans() {
         + '<div style="font-size:12px;color:var(--warm-mid);margin-top:3px;">' + p.businessUnit + ' &nbsp;·&nbsp; ' + start + ' — ' + end + ' &nbsp;·&nbsp; ' + (p.items || []).length + ' items</div>'
         + '</div>'
         + '<div style="display:flex;align-items:center;gap:10px;">'
-        + '<span style="font-size:11px;padding:3px 10px;border-radius:10px;font-weight:600;background:' + (p.status === 'published' ? 'rgba(74,82,64,.12)' : 'rgba(184,92,56,.1)') + ';color:' + statusColor + ';">' + p.status + '</span>'
+        + '<span style="font-size:11px;padding:3px 10px;border-radius:10px;font-weight:600;background:' + (p.status === 'published' ? 'rgba(43,60,94,.12)' : 'rgba(65,65,66,.1)') + ';color:' + statusColor + ';">' + p.status + '</span>'
         + '<span style="font-size:18px;color:var(--warm-mid);">›</span>'
         + '</div>';
       item.addEventListener('click', async () => { await openPlanEditor(p); });
       list.appendChild(item);
     });
-  } catch(e) { list.innerHTML = '<p style="font-size:13px;color:var(--rust)">' + e.message + '</p>'; }
+  } catch(e) { list.innerHTML = '<p style="font-size:13px;color:var(--danger)">' + e.message + '</p>'; }
 }
 
 async function openPlanEditor(plan) {
@@ -2001,7 +2001,7 @@ async function openPlanEditor(plan) {
   const badge = document.getElementById('mp-status-badge');
   badge.textContent = plan.status;
   badge.style.cssText = 'font-size:11px;padding:3px 10px;border-radius:10px;font-weight:600;background:' +
-    (plan.status === 'published' ? 'rgba(74,82,64,.12);color:#4A5240' : 'rgba(184,92,56,.1);color:#B85C38') + ';';
+    (plan.status === 'published' ? 'rgba(43,60,94,.12);color:#2B3C5E' : 'rgba(65,65,66,.1);color:#414142') + ';';
   document.getElementById('mp-item-name').value = '';
   document.getElementById('mp-item-price').value = '';
   document.getElementById('mp-item-desc').value = '';
@@ -2052,7 +2052,7 @@ document.addEventListener('blur', function(e) { if (!e.target || !e.target.close
 function renderLinkedRecipes() {
   const el = document.getElementById('mp-linked-recipes');
   el.innerHTML = mpLinkedRecipes.map((r, i) =>
-    '<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(74,82,64,.1);color:var(--olive);padding:3px 8px;border-radius:10px;font-size:12px;font-weight:600;">'
+    '<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(43,60,94,.1);color:var(--olive);padding:3px 8px;border-radius:10px;font-size:12px;font-weight:600;">'
     + esc(r.name)
     + '<button onclick="mpRemoveRecipe(' + i + ')" style="background:none;border:none;cursor:pointer;color:var(--rust);font-size:14px;line-height:1;padding:0 0 0 4px;">×</button>'
     + '</span>'
@@ -2121,7 +2121,7 @@ function renderPlanItems() {
         + (item.description ? '<div style="font-size:13px;color:var(--warm-mid);margin-top:3px;">' + esc(item.description) + '</div>' : '')
         + (item.notes ? '<div style="font-size:12px;color:var(--sage);margin-top:3px;font-style:italic;">' + esc(item.notes) + '</div>' : '')
         + (item.recipes && item.recipes.length ? '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;">'
-            + item.recipes.map(r => '<span style="font-size:11px;background:rgba(74,82,64,.1);color:var(--olive);padding:2px 7px;border-radius:10px;font-weight:600;">' + esc(r.name) + '</span>').join('')
+            + item.recipes.map(r => '<span style="font-size:11px;background:rgba(43,60,94,.1);color:var(--olive);padding:2px 7px;border-radius:10px;font-weight:600;">' + esc(r.name) + '</span>').join('')
             + '</div>' : '')
         + '</div>'
         + '<button onclick="mpRemoveItem(' + item._idx + ')" class="btn-sm danger" style="flex-shrink:0;">Remove</button>'
@@ -2172,8 +2172,8 @@ document.addEventListener('click', async function(e) { if (!e.target || !e.targe
     await updateDoc(doc(db, 'menuPlans', currentPlan.id), { status: 'published', publishedAt: serverTimestamp() });
     currentPlan.status = 'published';
     document.getElementById('mp-status-badge').textContent = 'published';
-    document.getElementById('mp-status-badge').style.background = 'rgba(74,82,64,.12)';
-    document.getElementById('mp-status-badge').style.color = '#4A5240';
+    document.getElementById('mp-status-badge').style.background = 'rgba(43,60,94,.12)';
+    document.getElementById('mp-status-badge').style.color = '#2B3C5E';
     alert('Menu published! ' + batch.length + ' recipe' + (batch.length !== 1 ? 's' : '') + ' logged to menu history.');
   } catch(e) { alert('Error: ' + e.message); }
   finally { btn.textContent = 'Publish Menu'; btn.disabled = false; }
@@ -2204,17 +2204,17 @@ document.addEventListener('click', function(e) { if (!e.target || !e.target.clos
 
   const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + currentPlan.name + '</title>'
     + '<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">'
-    + '<style>body{font-family:Montserrat,sans-serif;margin:40px;color:#1C1C1A;max-width:900px;}'
+    + '<style>body{font-family:Montserrat,sans-serif;margin:40px;color:#2B3C5E;max-width:900px;}'
     + 'h1{font-size:28px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}'
-    + '.meta{font-size:13px;color:#4A5240;font-weight:600;margin-bottom:28px;}'
+    + '.meta{font-size:13px;color:#2B3C5E;font-weight:600;margin-bottom:28px;}'
     + '.cat-section{margin-bottom:24px;}'
-    + '.cat-label{font-size:11px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#B85C38;border-bottom:2px solid #B85C38;padding-bottom:4px;margin-bottom:12px;}'
-    + '.menu-item{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #D4C9BB;}'
+    + '.cat-label{font-size:11px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#414142;border-bottom:2px solid #414142;padding-bottom:4px;margin-bottom:12px;}'
+    + '.menu-item{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #D8DCE3;}'
     + '.item-header{display:flex;justify-content:space-between;align-items:baseline;}'
     + '.item-name{font-size:15px;font-weight:700;}'
-    + '.item-price{font-size:14px;font-weight:700;color:#4A5240;}'
-    + '.item-desc{font-size:13px;color:#6B5B45;margin-top:3px;line-height:1.5;}'
-    + '.item-notes{font-size:12px;color:#8A9B7A;font-style:italic;margin-top:3px;}'
+    + '.item-price{font-size:14px;font-weight:700;color:#2B3C5E;}'
+    + '.item-desc{font-size:13px;color:#5C6B85;margin-top:3px;line-height:1.5;}'
+    + '.item-notes{font-size:12px;color:#8D97AC;font-style:italic;margin-top:3px;}'
     + '@media print{body{margin:24px;}}'
     + '</style></head><body onload="window.print()">'
     + '<h1>GFG Cookbook &nbsp;·&nbsp; ' + currentPlan.name + '</h1>'
@@ -2440,7 +2440,7 @@ async function loadMenuHistory() {
     html += '</tbody></table>';
     resultsEl.innerHTML = html;
   } catch(e) {
-    resultsEl.innerHTML = '<p style="font-size:13px;color:var(--rust)">Error: ' + e.message + '</p>';
+    resultsEl.innerHTML = '<p style="font-size:13px;color:var(--danger)">Error: ' + e.message + '</p>';
   }
 }
 
@@ -2465,22 +2465,22 @@ window.openNutritionEdit = function(ingredientName) {
   const existingQty = (recipe.customQuantities || {})[key] || { qty: '', unit: '' };
   const labels = ['Cal','Fat(g)','Carbs(g)','Protein(g)','Sodium(mg)','Fiber(g)','Sugar(g)'];
 
-  editArea.innerHTML = '<div style="margin-top:16px;padding:16px;background:#EDE6DB;border-radius:3px;border:1px solid #D4C9BB;">'
-    + '<div style="font-size:12px;font-weight:700;color:#1C1C1A;margin-bottom:12px;">Enter nutrition for: <em>' + esc(ingredientName) + '</em> (per 100g)</div>'
+  editArea.innerHTML = '<div style="margin-top:16px;padding:16px;background:#F1F2F2;border-radius:3px;border:1px solid #D8DCE3;">'
+    + '<div style="font-size:12px;font-weight:700;color:#2B3C5E;margin-bottom:12px;">Enter nutrition for: <em>' + esc(ingredientName) + '</em> (per 100g)</div>'
     + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;">'
-    + labels.map((l, i) => '<div><label style="font-size:10px;color:#6B5B45;display:block;margin-bottom:3px;">' + l + '</label>'
-        + '<input id="nutr-val-' + i + '" type="number" value="' + existing[i] + '" min="0" step="0.1" style="width:100%;padding:5px;border:1px solid #D4C9BB;border-radius:2px;font-size:13px;"></div>').join('')
+    + labels.map((l, i) => '<div><label style="font-size:10px;color:#5C6B85;display:block;margin-bottom:3px;">' + l + '</label>'
+        + '<input id="nutr-val-' + i + '" type="number" value="' + existing[i] + '" min="0" step="0.1" style="width:100%;padding:5px;border:1px solid #D8DCE3;border-radius:2px;font-size:13px;"></div>').join('')
     + '</div>'
-    + '<div style="font-size:12px;font-weight:700;color:#1C1C1A;margin-bottom:8px;">Estimated quantity used in this recipe:</div>'
+    + '<div style="font-size:12px;font-weight:700;color:#2B3C5E;margin-bottom:8px;">Estimated quantity used in this recipe:</div>'
     + '<div style="display:flex;gap:8px;margin-bottom:12px;">'
-    + '<div><label style="font-size:10px;color:#6B5B45;display:block;margin-bottom:3px;">Amount</label>'
-    + '<input id="nutr-qty" type="text" value="' + esc(existingQty.qty) + '" placeholder="e.g. 2" style="width:80px;padding:5px;border:1px solid #D4C9BB;border-radius:2px;font-size:13px;"></div>'
-    + '<div><label style="font-size:10px;color:#6B5B45;display:block;margin-bottom:3px;">Unit</label>'
-    + '<input id="nutr-unit" type="text" value="' + esc(existingQty.unit) + '" placeholder="e.g. cups" style="width:100px;padding:5px;border:1px solid #D4C9BB;border-radius:2px;font-size:13px;"></div>'
+    + '<div><label style="font-size:10px;color:#5C6B85;display:block;margin-bottom:3px;">Amount</label>'
+    + '<input id="nutr-qty" type="text" value="' + esc(existingQty.qty) + '" placeholder="e.g. 2" style="width:80px;padding:5px;border:1px solid #D8DCE3;border-radius:2px;font-size:13px;"></div>'
+    + '<div><label style="font-size:10px;color:#5C6B85;display:block;margin-bottom:3px;">Unit</label>'
+    + '<input id="nutr-unit" type="text" value="' + esc(existingQty.unit) + '" placeholder="e.g. cups" style="width:100px;padding:5px;border:1px solid #D8DCE3;border-radius:2px;font-size:13px;"></div>'
     + '</div>'
     + '<div style="display:flex;gap:8px;">'
-    + '<button onclick="saveNutritionEdit(\'' + esc(key) + '\')" style="padding:7px 16px;background:#4A5240;color:white;border:none;border-radius:3px;font-size:13px;font-weight:600;cursor:pointer;">Save</button>'
-    + '<button onclick="document.getElementById(\'nutr-edit-area\').innerHTML=\'\'" style="padding:7px 12px;background:none;border:1px solid #D4C9BB;border-radius:3px;font-size:13px;cursor:pointer;">Cancel</button>'
+    + '<button onclick="saveNutritionEdit(\'' + esc(key) + '\')" style="padding:7px 16px;background:#2B3C5E;color:white;border:none;border-radius:3px;font-size:13px;font-weight:600;cursor:pointer;">Save</button>'
+    + '<button onclick="document.getElementById(\'nutr-edit-area\').innerHTML=\'\'" style="padding:7px 12px;background:none;border:1px solid #D8DCE3;border-radius:3px;font-size:13px;cursor:pointer;">Cancel</button>'
     + '</div></div>';
 };
 
@@ -2500,7 +2500,7 @@ window.saveNutritionEdit = async function(key) {
     await updateDoc(doc(db, 'recipes', recipe.id), { customNutrition, customQuantities });
     recipe.customNutrition  = customNutrition;
     recipe.customQuantities = customQuantities;
-    document.getElementById('nutr-edit-area').innerHTML = '<div style="font-size:12px;color:#4A5240;padding:8px 0;">✓ Saved. Recalculating...</div>';
+    document.getElementById('nutr-edit-area').innerHTML = '<div style="font-size:12px;color:#2B3C5E;padding:8px 0;">✓ Saved. Recalculating...</div>';
     // Trigger refresh
     const nutrContent = document.getElementById('nutrition-content');
     if (nutrContent && nutrContent._refresh) nutrContent._refresh();
@@ -3061,7 +3061,7 @@ function renderNutritionPanel(recipe) {
   const srvInput = document.createElement('input');
   srvInput.type = 'number'; srvInput.min = '1';
   srvInput.value = recipe.servings || '1';
-  srvInput.style.cssText = 'width:56px; padding:4px 6px; border:1.5px solid #D4C9BB; border-radius:3px; font-family:var(--ff-body); font-size:13px; color:#1C1C1A; text-align:center; outline:none;';
+  srvInput.style.cssText = 'width:56px; padding:4px 6px; border:1.5px solid #D8DCE3; border-radius:3px; font-family:var(--ff-body); font-size:13px; color:#2B3C5E; text-align:center; outline:none;';
   srvInput.title = 'Override serving count';
   servingsWrap.innerHTML = '<span>Servings:</span>';
   servingsWrap.appendChild(srvInput);
@@ -3083,42 +3083,42 @@ function renderNutritionPanel(recipe) {
     const cov = (result.matched + result.unmatched.length) > 0
       ? Math.round(result.matched / (result.matched + result.unmatched.length) * 100) : 0;
     function nrow(label, val, unit, pct, indent) {
-      return '<div style="display:flex;justify-content:space-between;border-bottom:1px solid #D4C9BB;padding:2px 0;font-size:12px;' + (indent ? 'padding-left:16px;' : '') + '">'
+      return '<div style="display:flex;justify-content:space-between;border-bottom:1px solid #D8DCE3;padding:2px 0;font-size:12px;' + (indent ? 'padding-left:16px;' : '') + '">'
         + '<span>' + (indent ? '' : '<strong>') + label + (indent ? '' : '</strong>') + ' ' + val + unit + '</span>'
         + '<span>' + (pct != null ? '<strong>' + pct + '%</strong>' : '') + '</span></div>';
     }
     const isAdmin = currentUser && currentUser.role === 'admin';
     const unmatchedHtml = result.unmatched.length
-      ? '<div style="font-size:12px;color:#6B5B45;margin-bottom:8px;">Not calculated:</div>'
+      ? '<div style="font-size:12px;color:#5C6B85;margin-bottom:8px;">Not calculated:</div>'
         + result.unmatched.slice(0,10).map(n => {
             const editBtn = isAdmin
-              ? ' <button onclick="openNutritionEdit(\'' + esc(n) + '\')" style="font-size:11px;padding:1px 6px;background:none;border:1px solid #D4C9BB;border-radius:2px;cursor:pointer;color:#4A5240;font-family:var(--ff-body);">Edit</button>'
+              ? ' <button onclick="openNutritionEdit(\'' + esc(n) + '\')" style="font-size:11px;padding:1px 6px;background:none;border:1px solid #D8DCE3;border-radius:2px;cursor:pointer;color:#2B3C5E;font-family:var(--ff-body);">Edit</button>'
               : '';
-            return '<div style="font-size:12px;color:#6B5B45;margin-bottom:4px;">' + esc(n) + editBtn + '</div>';
+            return '<div style="font-size:12px;color:#5C6B85;margin-bottom:4px;">' + esc(n) + editBtn + '</div>';
           }).join('')
-        + (result.unmatched.length > 10 ? '<div style="font-size:12px;color:#6B5B45;">...and ' + (result.unmatched.length-10) + ' more</div>' : '')
-      : '<div style="font-size:12px;color:#4A5240;">All ingredients calculated</div>';
+        + (result.unmatched.length > 10 ? '<div style="font-size:12px;color:#5C6B85;">...and ' + (result.unmatched.length-10) + ' more</div>' : '')
+      : '<div style="font-size:12px;color:#2B3C5E;">All ingredients calculated</div>';
 
     content.innerHTML = '<div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;">'
-      + '<div style="min-width:220px;"><div style="border:2px solid #1C1C1A;padding:12px;max-width:240px;">'
-      + '<div style="font-size:22px;font-weight:900;border-bottom:8px solid #1C1C1A;padding-bottom:4px;margin-bottom:4px;">Nutrition Facts</div>'
-      + '<div style="font-size:12px;border-bottom:1px solid #1C1C1A;padding-bottom:4px;margin-bottom:4px;">' + result.servings + ' serving' + (result.servings !== 1 ? 's' : '') + ' per batch</div>'
-      + '<div style="font-size:11px;font-weight:700;border-bottom:4px solid #1C1C1A;padding-bottom:4px;margin-bottom:4px;">Amount per serving</div>'
-      + '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:4px solid #1C1C1A;padding-bottom:4px;margin-bottom:4px;">'
+      + '<div style="min-width:220px;"><div style="border:2px solid #2B3C5E;padding:12px;max-width:240px;">'
+      + '<div style="font-size:22px;font-weight:900;border-bottom:8px solid #2B3C5E;padding-bottom:4px;margin-bottom:4px;">Nutrition Facts</div>'
+      + '<div style="font-size:12px;border-bottom:1px solid #2B3C5E;padding-bottom:4px;margin-bottom:4px;">' + result.servings + ' serving' + (result.servings !== 1 ? 's' : '') + ' per batch</div>'
+      + '<div style="font-size:11px;font-weight:700;border-bottom:4px solid #2B3C5E;padding-bottom:4px;margin-bottom:4px;">Amount per serving</div>'
+      + '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:4px solid #2B3C5E;padding-bottom:4px;margin-bottom:4px;">'
       + '<span style="font-size:13px;font-weight:700;">Calories</span><span style="font-size:22px;font-weight:900;">' + cal + '</span></div>'
-      + '<div style="font-size:11px;text-align:right;border-bottom:1px solid #1C1C1A;padding-bottom:2px;margin-bottom:2px;">% Daily Value*</div>'
+      + '<div style="font-size:11px;text-align:right;border-bottom:1px solid #2B3C5E;padding-bottom:2px;margin-bottom:2px;">% Daily Value*</div>'
       + nrow('Total Fat', fat, 'g', Math.round(fat/78*100), false)
       + nrow('Total Carbohydrate', carbs, 'g', Math.round(carbs/275*100), false)
       + nrow('Dietary Fiber', fiber, 'g', Math.round(fiber/28*100), true)
       + nrow('Total Sugars', sugar, 'g', null, true)
       + nrow('Protein', protein, 'g', null, false)
       + nrow('Sodium', sodium, 'mg', Math.round(sodium/2300*100), false)
-      + '<div style="font-size:10px;margin-top:6px;color:#6B5B45;">*% Daily Values based on 2,000 cal diet</div>'
+      + '<div style="font-size:10px;margin-top:6px;color:#5C6B85;">*% Daily Values based on 2,000 cal diet</div>'
       + '</div></div>'
       + '<div style="flex:1;min-width:180px;">'
-      + '<div style="font-size:12px;color:#6B5B45;margin-bottom:12px;"><strong style="color:#1C1C1A;">Coverage: ' + cov + '%</strong> of ingredients matched</div>'
+      + '<div style="font-size:12px;color:#5C6B85;margin-bottom:12px;"><strong style="color:#2B3C5E;">Coverage: ' + cov + '%</strong> of ingredients matched</div>'
       + unmatchedHtml
-      + '<div style="font-size:11px;color:#6B5B45;margin-top:12px;font-style:italic;">Estimates based on USDA data.</div>'
+      + '<div style="font-size:11px;color:#5C6B85;margin-top:12px;font-style:italic;">Estimates based on USDA data.</div>'
       + '</div></div>'
       + '<div id="nutr-edit-area"></div>';
 
@@ -3126,8 +3126,8 @@ function renderNutritionPanel(recipe) {
     content._refresh = refresh;
   }
 
-  toggleBtn.addEventListener('mouseover', () => toggleBtn.style.color = '#4A5240');
-  toggleBtn.addEventListener('mouseout',  () => toggleBtn.style.color = '#6B5B45');
+  toggleBtn.addEventListener('mouseover', () => toggleBtn.style.color = '#2B3C5E');
+  toggleBtn.addEventListener('mouseout',  () => toggleBtn.style.color = '#5C6B85');
   toggleBtn.addEventListener('click', () => {
     isOpen = !isOpen;
     content.style.display = isOpen ? 'block' : 'none';
@@ -3193,7 +3193,7 @@ async function loadPendingNotes() {
       });
       list.appendChild(item);
     });
-  } catch(e) { list.innerHTML = '<p style="font-size:13px;color:var(--rust)">' + e.message + '</p>'; }
+  } catch(e) { list.innerHTML = '<p style="font-size:13px;color:var(--danger)">' + e.message + '</p>'; }
 }
 
 // ── Graduate Recipe ────────────────────────────────────────────────
