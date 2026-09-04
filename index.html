@@ -265,6 +265,10 @@
     .archived-item { display:flex; align-items:center; justify-content:space-between; padding:12px; border-bottom:1px solid var(--divider); }
     .archived-item-name { font-size:14px; font-weight:500; }
     .archived-item-meta { font-size:12px; color:var(--warm-mid); margin-top:2px; }
+    .cat-cleanup-item { display:flex; align-items:center; gap:10px; padding:9px 4px; border-bottom:1px solid var(--divider); font-size:14px; cursor:pointer; }
+    .cat-cleanup-item input[type="checkbox"] { width:16px; height:16px; cursor:pointer; flex-shrink:0; }
+    .cat-cleanup-name { flex:1; }
+    .cat-cleanup-count { font-size:12px; color:var(--warm-mid); background:rgba(74,82,64,.08); padding:2px 9px; border-radius:10px; }
     .pending-note-item { background:var(--cream); border:1px solid var(--divider); border-radius:3px; padding:16px; margin-bottom:12px; }
     .pending-note-recipe { font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--rust); margin-bottom:4px; }
     .pending-note-meta { font-size:12px; color:var(--warm-mid); margin-bottom:8px; }
@@ -564,6 +568,7 @@
       <button class="admin-tab" data-tab="backup">Backup</button>
       <button class="admin-tab" data-tab="menuhistory">Menu History</button>
       <button class="admin-tab" data-tab="menuplanning">Menu Planning</button>
+      <button class="admin-tab" data-tab="categories">Categories</button>
     </div>
     <!-- Users Tab -->
     <div class="admin-section active" id="tab-users">
@@ -733,6 +738,20 @@
         </div>
         <!-- Menu items list -->
         <div id="mp-items-list"></div>
+      </div>
+    </div>
+    <!-- Categories Tab -->
+    <div class="admin-section" id="tab-categories">
+      <div class="admin-section-title">Clean Up Categories</div>
+      <p style="font-size:14px;color:var(--warm-mid);margin-bottom:16px">Check two or more categories that are really the same thing, then merge them into one. This updates every recipe (including archived ones) that uses the checked categories. Covers the GFG cookbook only.</p>
+      <div id="category-cleanup-list"></div>
+      <div id="category-merge-bar" style="display:none; margin-top:16px; padding:16px; background:var(--cream); border:1px solid var(--divider); border-radius:3px;">
+        <div style="font-size:13px; font-weight:600; margin-bottom:10px;" id="merge-selected-summary"></div>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <input type="text" id="merge-target-name" placeholder="Name for the merged category" style="flex:1; min-width:220px; padding:9px 12px; border:1.5px solid var(--divider); border-radius:3px; font-family:var(--ff-body); font-size:14px; background:var(--white);" />
+          <button class="btn-save" id="merge-apply-btn" style="padding:9px 20px;">Merge</button>
+          <button class="btn-sm" id="merge-cancel-btn">Cancel</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1561,6 +1580,7 @@ document.querySelectorAll('.admin-tab').forEach(tab => {
       document.getElementById('mp-new-plan-btn').style.display = 'inline-block';
       loadMenuPlans();
     }
+    if (tab.dataset.tab === 'categories') loadCategoryCleanup();
   });
 });
 
@@ -1696,6 +1716,110 @@ async function loadArchivedRecipes() {
     list.appendChild(item);
   });
 }
+
+// ── Category Cleanup ───────────────────────────────────────────────
+let categoryCleanupSelection = new Set();
+
+function getCategoryUsage() {
+  const counts = {};
+  allRecipes.forEach(r => {
+    if ((r.cookbookId || 'gfg') !== 'gfg') return;
+    (r.categories || ['Uncategorized']).forEach(c => {
+      counts[c] = (counts[c] || 0) + 1;
+    });
+  });
+  return counts;
+}
+
+function loadCategoryCleanup() {
+  categoryCleanupSelection.clear();
+  document.getElementById('category-merge-bar').style.display = 'none';
+  const targetInput = document.getElementById('merge-target-name');
+  targetInput.value = '';
+  delete targetInput.dataset.userEdited;
+  const counts = getCategoryUsage();
+  const names = Object.keys(counts).sort((a, b) => a.localeCompare(b));
+  const list = document.getElementById('category-cleanup-list');
+  if (!names.length) {
+    list.innerHTML = '<p style="font-size:14px;color:var(--warm-mid);font-style:italic">No categories found.</p>';
+    return;
+  }
+  list.innerHTML = '';
+  names.forEach(name => {
+    const item = document.createElement('label');
+    item.className = 'cat-cleanup-item';
+    item.innerHTML = `
+      <input type="checkbox" data-cat="${esc(name)}" />
+      <span class="cat-cleanup-name">${esc(name)}</span>
+      <span class="cat-cleanup-count">${counts[name]} recipe${counts[name] !== 1 ? 's' : ''}</span>`;
+    item.querySelector('input').addEventListener('change', e => {
+      if (e.target.checked) categoryCleanupSelection.add(name);
+      else categoryCleanupSelection.delete(name);
+      updateCategoryMergeBar();
+    });
+    list.appendChild(item);
+  });
+}
+
+function updateCategoryMergeBar() {
+  const bar = document.getElementById('category-merge-bar');
+  const summary = document.getElementById('merge-selected-summary');
+  const targetInput = document.getElementById('merge-target-name');
+  if (categoryCleanupSelection.size < 2) {
+    bar.style.display = 'none';
+    return;
+  }
+  const selected = [...categoryCleanupSelection];
+  summary.textContent = `Merge ${selected.length} categories ("${selected.join('", "')}") into:`;
+  if (!targetInput.dataset.userEdited) {
+    targetInput.value = selected.slice().sort((a, b) => b.length - a.length)[0];
+  }
+  bar.style.display = 'block';
+}
+
+document.getElementById('merge-target-name').addEventListener('input', e => {
+  e.target.dataset.userEdited = 'true';
+});
+
+document.getElementById('merge-cancel-btn').addEventListener('click', () => {
+  categoryCleanupSelection.clear();
+  document.querySelectorAll('#category-cleanup-list input[type="checkbox"]').forEach(cb => cb.checked = false);
+  document.getElementById('category-merge-bar').style.display = 'none';
+  const targetInput = document.getElementById('merge-target-name');
+  targetInput.value = '';
+  delete targetInput.dataset.userEdited;
+});
+
+document.getElementById('merge-apply-btn').addEventListener('click', async () => {
+  const sources = [...categoryCleanupSelection];
+  if (sources.length < 2) return;
+  const target = document.getElementById('merge-target-name').value.trim();
+  if (!target) { alert('Enter a name for the merged category.'); return; }
+  const affected = allRecipes.filter(r =>
+    (r.cookbookId || 'gfg') === 'gfg' &&
+    (r.categories || ['Uncategorized']).some(c => sources.includes(c))
+  );
+  if (!affected.length) { alert('No recipes use the selected categories.'); return; }
+  if (!confirm(`Merge "${sources.join('", "')}" into "${target}"? This will update ${affected.length} recipe${affected.length !== 1 ? 's' : ''} (including archived ones). This cannot be automatically undone.`)) return;
+  const btn = document.getElementById('merge-apply-btn');
+  btn.disabled = true;
+  try {
+    let done = 0;
+    for (const r of affected) {
+      const newCats = [...new Set((r.categories || ['Uncategorized']).map(c => sources.includes(c) ? target : c))];
+      await updateDoc(doc(db, 'recipes', r.id), { categories: newCats });
+      done++;
+      btn.textContent = `Merging… (${done}/${affected.length})`;
+    }
+    await loadRecipes();
+    loadCategoryCleanup();
+  } catch (e) {
+    alert('Error merging categories: ' + e.message);
+  } finally {
+    btn.textContent = 'Merge';
+    btn.disabled = false;
+  }
+});
 
 // ── Backup ─────────────────────────────────────────────────────────
 document.addEventListener('click', async function(e) { if (!e.target || !e.target.closest('#btn-backup')) return;
