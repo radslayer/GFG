@@ -445,10 +445,8 @@
       </div>
       <div class="form-group">
         <label>Category</label>
-        <div style="position:relative">
-          <input type="text" id="form-category" placeholder="Select or type a category" autocomplete="off" />
-          <div id="cat-dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; background:white; border:1.5px solid #D4C9BB; border-top:none; border-radius:0 0 3px 3px; max-height:200px; overflow-y:auto; z-index:500; box-shadow:0 4px 12px rgba(0,0,0,.1);"></div>
-        </div>
+        <select id="form-category"></select>
+        <input type="text" id="form-category-new" placeholder="New category name" autocomplete="off" style="display:none; margin-top:8px;" />
       </div>
       <div class="form-group">
         <label>Servings</label>
@@ -919,6 +917,28 @@ document.getElementById('btn-find-duplicates').addEventListener('click', () => {
   showArchived = false;
   renderSidebar();
   applyFilters();
+});
+
+// ── Categories (for the recipe form's dropdown) ──────────────────────
+function getKnownCategories() {
+  const cats = new Set();
+  allRecipes.forEach(r => {
+    if (r.archived) return;
+    if ((r.cookbookId || 'gfg') !== 'gfg') return;
+    (r.categories || ['Uncategorized']).forEach(c => cats.add(c));
+  });
+  return [...cats].sort();
+}
+
+document.getElementById('form-category').addEventListener('change', e => {
+  const newInput = document.getElementById('form-category-new');
+  if (e.target.value === '__new__') {
+    newInput.style.display = 'block';
+    newInput.value = '';
+    setTimeout(() => newInput.focus(), 50);
+  } else {
+    newInput.style.display = 'none';
+  }
 });
 
 // ── Filters ────────────────────────────────────────────────────────
@@ -1416,7 +1436,15 @@ function openForm(recipe = null) {
   document.getElementById('form-directions').value = recipe?.directions || '';
   document.getElementById('form-note').value       = recipe?.note || '';
   const catSel = document.getElementById('form-category');
-  catSel.value = (recipe?.categories || ['Uncategorized'])[0];
+  const catNewInput = document.getElementById('form-category-new');
+  const knownCats = getKnownCategories();
+  const currentCat = (recipe?.categories || ['Uncategorized'])[0];
+  const catOptions = knownCats.includes(currentCat) ? knownCats : [...knownCats, currentCat].sort();
+  catSel.innerHTML = catOptions.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('')
+    + '<option value="__new__">+ Add new category…</option>';
+  catSel.value = currentCat;
+  catNewInput.value = '';
+  catNewInput.style.display = 'none';
   const ingRows = document.getElementById('ing-rows');
   ingRows.innerHTML = '';
   const ings = (recipe?.ingredients || []).filter(i => i.type === 'ingredient');
@@ -1454,6 +1482,11 @@ document.getElementById('btn-add-recipe').addEventListener('click', () => openFo
 document.addEventListener('click', async function(e) { if (!e.target || !e.target.closest('#form-save')) return;
   const name = document.getElementById('form-name').value.trim();
   if (!name) { alert('Recipe name is required.'); return; }
+  let category = document.getElementById('form-category').value;
+  if (category === '__new__') {
+    category = document.getElementById('form-category-new').value.trim();
+    if (!category) { alert('Please enter a name for the new category.'); return; }
+  }
   const ingredients = [];
   document.querySelectorAll('#ing-rows .ing-editor-row').forEach(row => {
     const ingName = row.querySelector('[data-field="name"]').value.trim();
@@ -1469,7 +1502,7 @@ document.addEventListener('click', async function(e) { if (!e.target || !e.targe
   });
   const data = {
     name,
-    categories: [document.getElementById('form-category').value],
+    categories: [category],
     servings:   document.getElementById('form-servings').value.trim(),
     author:     document.getElementById('form-author').value.trim(),
     ingredients,
@@ -2984,29 +3017,6 @@ function renderNutritionPanel(recipe) {
   panel.appendChild(content);
   const notesSection = document.querySelector('.notes-section');
   if (notesSection) notesSection.before(panel);
-}
-
-// ── Category Dropdown ──────────────────────────────────────────────
-function populateCatDropdown(cats) {
-  const dd = document.getElementById('cat-dropdown');
-  if (!dd) return;
-  dd.innerHTML = '';
-  cats.forEach(c => {
-    const item = document.createElement('div');
-    item.textContent = c;
-    item.style.cssText = 'padding:8px 12px; font-size:14px; cursor:pointer;';
-    item.addEventListener('mouseover', () => { item.style.background = '#EDE6DB'; });
-    item.addEventListener('mouseout',  () => { item.style.background = ''; });
-    item.addEventListener('mousedown', () => {
-      document.getElementById('form-category').value = c;
-    });
-    dd.appendChild(item);
-  });
-}
-
-function filterCatDropdown(val) {
-  const all = window._allCategories || [];
-  populateCatDropdown(all.filter(c => c.toLowerCase().includes(val.toLowerCase())));
 }
 
 // ── Pending Badge ──────────────────────────────────────────────────
